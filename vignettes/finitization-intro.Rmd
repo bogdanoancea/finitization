@@ -1,0 +1,19 @@
+---
+title: "finitization-intro"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{finitization-intro}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(finitization)
+```

@@ -8,10 +8,11 @@ The goal of finitization is to ...
 
 ## Installation
 
-You can install the development version of finitization like so:
+You can install the development version of finitization from [GitHub](https://github.com/) with:
 
 ``` r
-# FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?
+# install.packages("devtools")
+devtools::install_github("bogdanoancea/finitization")
 ```
 
 ## Example
