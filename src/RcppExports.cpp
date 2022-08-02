@@ -37,16 +37,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // printFinitizedPoissonDensity
-String printFinitizedPoissonDensity(int n, String theta, int val);
-RcppExport SEXP _finitization_printFinitizedPoissonDensity(SEXP nSEXP, SEXP thetaSEXP, SEXP valSEXP) {
+void printFinitizedPoissonDensity(int n, int val, bool latex);
+RcppExport SEXP _finitization_printFinitizedPoissonDensity(SEXP nSEXP, SEXP valSEXP, SEXP latexSEXP) {
 BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< String >::type theta(thetaSEXP);
     Rcpp::traits::input_parameter< int >::type val(valSEXP);
-    rcpp_result_gen = Rcpp::wrap(printFinitizedPoissonDensity(n, theta, val));
-    return rcpp_result_gen;
+    Rcpp::traits::input_parameter< bool >::type latex(latexSEXP);
+    printFinitizedPoissonDensity(n, val, latex);
+    return R_NilValue;
 END_RCPP
 }
 

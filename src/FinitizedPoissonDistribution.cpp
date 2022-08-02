@@ -67,13 +67,15 @@ ex FinitizedPoissonDistribution::fin_pdf(symbol x, symbol param, int n, int x_va
 	return pdf_;
 }
 
-string FinitizedPoissonDistribution::pdfToString(int val, bool latex) {
+string FinitizedPoissonDistribution::pdfToString(int val, bool tolatex) {
 	stringstream result;
 	symbol x("x");
 	symbol param("theta");
 	ex pdf_ = fin_pdf(x, param, m_finitizationOrder, val);
+	if(tolatex)
+	    result << latex;
 	result << pdf_;
-	return result.str();
+    return result.str();
 }
 
 double FinitizedPoissonDistribution::getProb(int val)  {
