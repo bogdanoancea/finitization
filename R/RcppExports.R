@@ -5,15 +5,23 @@
 #' @param theta
 #' @param no
 #' @export
-generatePoisson <- function(n, theta, no) {
-    .Call('_finitization_generatePoisson', PACKAGE = 'finitization', n, theta, no)
+rpois <- function(n, theta, no) {
+    .Call('_finitization_rpois', PACKAGE = 'finitization', n, theta, no)
 }
 
-#' Multiply a number by two
-#'
-#' @param x A single integer.
+#' @param n
+#' @param theta
+#' @param val
 #' @export
-timesTwo <- function(x) {
-    .Call('_finitization_timesTwo', PACKAGE = 'finitization', x)
+dpois <- function(n, theta, val) {
+    .Call('_finitization_dpois', PACKAGE = 'finitization', n, theta, val)
+}
+
+#' @param n
+#' @param theta
+#' @param val
+#' @export
+printFinitizedPoissonDensity <- function(n, theta, val) {
+    .Call('_finitization_printFinitizedPoissonDensity', PACKAGE = 'finitization', n, theta, val)
 }
 

@@ -10,34 +10,50 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// generatePoisson
-IntegerVector generatePoisson(int n, double theta, unsigned no);
-RcppExport SEXP _finitization_generatePoisson(SEXP nSEXP, SEXP thetaSEXP, SEXP noSEXP) {
+// rpois
+IntegerVector rpois(int n, double theta, unsigned no);
+RcppExport SEXP _finitization_rpois(SEXP nSEXP, SEXP thetaSEXP, SEXP noSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type n(nSEXP);
     Rcpp::traits::input_parameter< double >::type theta(thetaSEXP);
     Rcpp::traits::input_parameter< unsigned >::type no(noSEXP);
-    rcpp_result_gen = Rcpp::wrap(generatePoisson(n, theta, no));
+    rcpp_result_gen = Rcpp::wrap(rpois(n, theta, no));
     return rcpp_result_gen;
 END_RCPP
 }
-// timesTwo
-int timesTwo(int x);
-RcppExport SEXP _finitization_timesTwo(SEXP xSEXP) {
+// dpois
+double dpois(int n, double theta, double val);
+RcppExport SEXP _finitization_dpois(SEXP nSEXP, SEXP thetaSEXP, SEXP valSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(timesTwo(x));
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< double >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< double >::type val(valSEXP);
+    rcpp_result_gen = Rcpp::wrap(dpois(n, theta, val));
+    return rcpp_result_gen;
+END_RCPP
+}
+// printFinitizedPoissonDensity
+String printFinitizedPoissonDensity(int n, String theta, int val);
+RcppExport SEXP _finitization_printFinitizedPoissonDensity(SEXP nSEXP, SEXP thetaSEXP, SEXP valSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< String >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< int >::type val(valSEXP);
+    rcpp_result_gen = Rcpp::wrap(printFinitizedPoissonDensity(n, theta, val));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_finitization_generatePoisson", (DL_FUNC) &_finitization_generatePoisson, 3},
-    {"_finitization_timesTwo", (DL_FUNC) &_finitization_timesTwo, 1},
+    {"_finitization_rpois", (DL_FUNC) &_finitization_rpois, 3},
+    {"_finitization_dpois", (DL_FUNC) &_finitization_dpois, 3},
+    {"_finitization_printFinitizedPoissonDensity", (DL_FUNC) &_finitization_printFinitizedPoissonDensity, 3},
     {NULL, NULL, 0}
 };
 
