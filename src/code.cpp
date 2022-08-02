@@ -1,32 +1,44 @@
 #include <Rcpp.h>
-#include <vector>
+#include <string>
 #include "FinitizedPoissonDistribution.h"
-using namespace Rcpp;
 
+using namespace Rcpp;
+using namespace std;
 
 //' @param n
 //' @param theta
 //' @param no
 //' @export
 // [[Rcpp::export]]
-IntegerVector generatePoisson(int n, double theta, unsigned no) {
-
-    FinitizedDistribution* poisson = new FinitizedPoissonDistribution(n, theta);
-    vector<int> rndValues = poisson->rvalues(no);
-    IntegerVector result(no);
-    for(int i = 0; i < rndValues.size(); i++) {
-        //cout << i << " " << rndValues[i] << endl;
-        result[i] = rndValues[i];
-    }
-    return result;
+IntegerVector rpois(int n, double theta, unsigned no) {
+    Finitization* f = new FinitizedPoissonDistribution(n, theta);
+    IntegerVector r = f->rvalues(no);
+    delete f;
+    return r;
 }
 
-
-//' Multiply a number by two
-//'
-//' @param x A single integer.
+//' @param n
+//' @param theta
+//' @param val
 //' @export
 // [[Rcpp::export]]
-int timesTwo(int x) {
-    return x * 2;
+double dpois(int n, double theta, double val) {
+    if( val > n || val < 0) {
+        return 0;
+    }
+    Finitization* f = new FinitizedPoissonDistribution(n, theta);
+    double p =  f->getProb(val);
+    delete f;
+    return p;
+}
+
+//' @param n
+//' @param theta
+//' @param val
+//' @export
+// [[Rcpp::export]]
+String printFinitizedPoissonDensity(int n, int val) {
+    Finitization* f = new FinitizedPoissonDistribution(n, 1);
+    string result =  f->pdfToString(val, false);
+    return String(result);
 }

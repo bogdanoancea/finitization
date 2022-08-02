@@ -1,3 +1,5 @@
 CXX_STD=CXX11
-PKG_LIBS =  $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) $(SHLIB_OPENMP_CFLAGS) -lginac -lcln -lgmp
-PKG_CXXFLAGS = $(SHLIB_OPENMP_CFLAGS)
+PKG_LIBS =  -lginac -lcln -lgmp
+PKG_CXXFLAGS = -Ofast -mavx2
+CXXFLAGS += $(CXXFLAGS) -Ofast -mavx2
+CXX11FLAGS = -Ofast -mavx2
