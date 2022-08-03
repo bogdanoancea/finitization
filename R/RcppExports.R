@@ -22,6 +22,14 @@ dpois <- function(n, theta, val) {
 #' @param val
 #' @export
 printFinitizedPoissonDensity <- function(n, val, latex = FALSE) {
-    invisible(.Call('_finitization_printFinitizedPoissonDensity', PACKAGE = 'finitization', n, val, latex))
+    .Call('_finitization_printFinitizedPoissonDensity', PACKAGE = 'finitization', n, val, latex)
+}
+
+#' @param n
+#' @param theta
+#' @param val
+#' @export
+printFinitizedPoissonDensity2 <- function(n, val) {
+    .Call('_finitization_printFinitizedPoissonDensity2', PACKAGE = 'finitization', n, val)
 }
 

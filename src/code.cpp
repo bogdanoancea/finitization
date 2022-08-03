@@ -37,8 +37,21 @@ double dpois(int n, double theta, double val) {
 //' @param val
 //' @export
 // [[Rcpp::export]]
-void printFinitizedPoissonDensity(int n, int val, bool latex = false) {
+SEXP printFinitizedPoissonDensity(int n, int val, bool latex = false) {
     Finitization* f = new FinitizedPoissonDistribution(n, 1);
     string result =  f->pdfToString(val, latex);
     Rcout << result;
+    return Rcpp::wrap(result);
+
+}
+
+//' @param n
+//' @param theta
+//' @param val
+//' @export
+// [[Rcpp::export]]
+String printFinitizedPoissonDensity2(int n, int val) {
+    Finitization* f = new FinitizedPoissonDistribution(n, 1);
+    string result =  f->pdfToString(val);
+    return String(result);
 }

@@ -43,9 +43,9 @@ public:
 private:
 	double m_theta;
 	ex ntsd_base(symbol x);
-	ex ntsf(symbol x, ex pnb, int n);
-	ex pdf(symbol x, symbol _theta, ex ntsf,  unsigned int x_val);
-	ex fin_pdf(symbol x, symbol param, int n, int x_val);
+	ex ntsf(symbol x, ex pnb);
+	ex pdf(symbol x, symbol _theta, ex ntsf,  int x_val);
+	ex fin_pdf(symbol x, symbol param, int x_val);
 
 };
 

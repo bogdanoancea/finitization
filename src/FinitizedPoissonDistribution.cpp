@@ -49,12 +49,12 @@ ex FinitizedPoissonDistribution::ntsd_base(symbol x){
 	return exp(x);
 }
 
-ex FinitizedPoissonDistribution::ntsf(symbol x, ex pnb, int n) {
-	return series_to_poly(pnb.series(x == 0, n+1));
+ex FinitizedPoissonDistribution::ntsf(symbol x, ex pnb) {
+	return series_to_poly(pnb.series(x == 0, m_finitizationOrder+1));
 
 }
 
-ex FinitizedPoissonDistribution::pdf(symbol x, symbol _theta, ex ntsf, unsigned int x_val) {
+ex FinitizedPoissonDistribution::pdf(symbol x, symbol _theta, ex ntsf, int x_val) {
 	ex optheta = -_theta;
 	ex pdf = (ntsf.diff(x, x_val));
 	pdf = pdf.subs(x == optheta) * pow(_theta, x_val) / factorial(x_val);
@@ -62,8 +62,8 @@ ex FinitizedPoissonDistribution::pdf(symbol x, symbol _theta, ex ntsf, unsigned 
 
 }
 
-ex FinitizedPoissonDistribution::fin_pdf(symbol x, symbol param, int n, int x_val) {
-	ex pdf_ = pdf(x, param, ntsf(x, ntsd_base(x),n), x_val);
+ex FinitizedPoissonDistribution::fin_pdf(symbol x, symbol param, int x_val) {
+	ex pdf_ = pdf(x, param, ntsf(x, ntsd_base(x)), x_val);
 	return pdf_;
 }
 
@@ -71,7 +71,7 @@ string FinitizedPoissonDistribution::pdfToString(int val, bool tolatex) {
 	stringstream result;
 	symbol x("x");
 	symbol param("theta");
-	ex pdf_ = fin_pdf(x, param, m_finitizationOrder, val);
+	ex pdf_ = fin_pdf(x, param, val);
 	if(tolatex)
 	    result << latex;
 	result << pdf_;
@@ -86,7 +86,7 @@ double FinitizedPoissonDistribution::fin_pdf(int val) {
 	stringstream result;
 	symbol x("x");
 	symbol _param("theta");
-	ex pdf_ = fin_pdf(x, _param, m_finitizationOrder, val);
+	ex pdf_ = fin_pdf(x, _param, val);
 	result << evalf(pdf_.subs(_param == m_theta));
 	return std::stod(result.str());
 }
