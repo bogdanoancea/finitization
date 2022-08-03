@@ -13,23 +13,15 @@ rpois <- function(n, theta, no) {
 #' @param theta
 #' @param val
 #' @export
-dpois <- function(n, theta, val) {
-    .Call('_finitization_dpois', PACKAGE = 'finitization', n, theta, val)
+c_dpois <- function(n, theta, val) {
+    .Call('_finitization_c_dpois', PACKAGE = 'finitization', n, theta, val)
 }
 
 #' @param n
 #' @param theta
 #' @param val
 #' @export
-printFinitizedPoissonDensity <- function(n, val, latex = FALSE) {
-    .Call('_finitization_printFinitizedPoissonDensity', PACKAGE = 'finitization', n, val, latex)
-}
-
-#' @param n
-#' @param theta
-#' @param val
-#' @export
-printFinitizedPoissonDensity2 <- function(n, val) {
-    .Call('_finitization_printFinitizedPoissonDensity2', PACKAGE = 'finitization', n, val)
+c_printFinitizedPoissonDensity <- function(n, val, latex = FALSE) {
+    .Call('_finitization_c_printFinitizedPoissonDensity', PACKAGE = 'finitization', n, val, latex)
 }
 
