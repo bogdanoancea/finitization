@@ -1,5 +1,7 @@
 #include <Rcpp.h>
 #include <string>
+#include <vector>
+
 #include "FinitizedPoissonDistribution.h"
 
 using namespace Rcpp;
@@ -21,11 +23,8 @@ IntegerVector rpois(int n, double theta, unsigned no) {
 //' @param theta
 //' @param val
 //' @export
-// [[Rcpp::export]]
-double dpois(int n, double theta, double val) {
-    if( val > n || val < 0) {
-        return 0;
-    }
+//  [[Rcpp::export]]
+double c_dpois(int n, double theta, double val) {
     Finitization* f = new FinitizedPoissonDistribution(n, theta);
     double p =  f->getProb(val);
     delete f;
@@ -37,21 +36,13 @@ double dpois(int n, double theta, double val) {
 //' @param val
 //' @export
 // [[Rcpp::export]]
-SEXP printFinitizedPoissonDensity(int n, int val, bool latex = false) {
+String c_printFinitizedPoissonDensity(int n, int val, bool latex = false) {
     Finitization* f = new FinitizedPoissonDistribution(n, 1);
     string result =  f->pdfToString(val, latex);
-    Rcout << result;
-    return Rcpp::wrap(result);
+    //if(latex)
+    Rcout << result << endl;
 
-}
-
-//' @param n
-//' @param theta
-//' @param val
-//' @export
-// [[Rcpp::export]]
-String printFinitizedPoissonDensity2(int n, int val) {
-    Finitization* f = new FinitizedPoissonDistribution(n, 1);
-    string result =  f->pdfToString(val);
     return String(result);
+
 }
+
