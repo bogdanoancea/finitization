@@ -25,3 +25,39 @@ c_printFinitizedPoissonDensity <- function(n, val, latex = FALSE) {
     .Call('_finitization_c_printFinitizedPoissonDensity', PACKAGE = 'finitization', n, val, latex)
 }
 
+#' @param n
+#' @export
+getPoissonMFPSUL <- function(n) {
+    .Call('_finitization_getPoissonMFPSUL', PACKAGE = 'finitization', n)
+}
+
+#' @param n
+#' @export
+getLogarithmicMFPSUL <- function(n) {
+    .Call('_finitization_getLogarithmicMFPSUL', PACKAGE = 'finitization', n)
+}
+
+#' @param n
+#' @param theta
+#' @param no
+#' @export
+rlog <- function(n, theta, no) {
+    .Call('_finitization_rlog', PACKAGE = 'finitization', n, theta, no)
+}
+
+#' @param n
+#' @param theta
+#' @param val
+#' @export
+c_printFinitizedLogarithmicDensity <- function(n, val, latex = FALSE) {
+    .Call('_finitization_c_printFinitizedLogarithmicDensity', PACKAGE = 'finitization', n, val, latex)
+}
+
+#' @param n
+#' @param theta
+#' @param val
+#' @export
+c_dlog <- function(n, theta, val) {
+    .Call('_finitization_c_dlog', PACKAGE = 'finitization', n, theta, val)
+}
+

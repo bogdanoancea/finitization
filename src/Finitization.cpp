@@ -80,12 +80,30 @@ IntegerVector Finitization::rvalues(int no) {
 }
 
 
-int  Finitization::rvalue()  {
-    double r2;
-    int ii;
-    ii = m_values[m_unif_int_distribution(m_generator)];
-    r2 = m_unif_double_distribution(m_generator);
-    return (r2 < m_prob[ii]) ? ii : m_alias[ii];
+// int  Finitization::rvalue()  {
+//     double r2;
+//     int ii;
+//     ii = m_values[m_unif_int_distribution(m_generator)];
+//     r2 = m_unif_double_distribution(m_generator);
+//     return (r2 < m_prob[ii]) ? ii : m_alias[ii];
+//
+// }
 
+double Finitization::getMFPSUL() {
+
+    double x0 =  1 - 2 * std::numeric_limits<double>::epsilon();
+    const double error = 1e-8;
+    const double h = std::numeric_limits<double>::epsilon();
+
+
+    double fx0 = fin_pdf(m_finitizationOrder - 1, x0);
+    int i{0};
+    while(std::fabs(fx0) > error){
+        double diff = (fin_pdf(m_finitizationOrder - 1, x0 + h) - fx0)/ h ;
+        x0 = x0 - fx0/diff;
+        fx0 = fin_pdf(m_finitizationOrder - 1, x0);
+        i++;
+    }
+    return x0;
 }
 

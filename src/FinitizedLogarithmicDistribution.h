@@ -14,15 +14,15 @@
 //  * along with this program.  If not, see <http://www.gnu.org/licenses/> and
 //  * <https://ec.europa.eu/info/european-union-public-licence_en>
 //  *
-//  * FinitizedPoissonDistribution.h
+//  * FinitizedLogarithmicDistribution.h
 //  *
 //  *  Created on: Jul 28, 2022
 //  *      Author: Bogdan.Oancea
 //  */
 //
 
-#ifndef FINITIZEDPOISSONDISTRIBUTION_H_
-#define FINITIZEDPOISSONDISTRIBUTION_H_
+#ifndef FINITIZEDLOGARITHMICDISTRIBUTION_H_
+#define FINITIZEDLOGARITHMICDISTRIBUTION_H_
 
 #include "Finitization.h"
 #include <ginac/ginac.h>
@@ -31,23 +31,22 @@ using namespace std;
 using namespace GiNaC;
 
 
-class FinitizedPoissonDistribution: public Finitization {
+class FinitizedLogarithmicDistribution: public Finitization {
 public:
-	FinitizedPoissonDistribution(int n, double theta);
-	virtual ~FinitizedPoissonDistribution();
+    FinitizedLogarithmicDistribution(int n, double theta);
+    virtual ~FinitizedLogarithmicDistribution();
 
-	string pdfToString(int val, bool latex) override;
-	double fin_pdf(int val) override;
+    string pdfToString(int val, bool latex) override;
+    double fin_pdf(int val) override;
     double getProb(int val) override;
-    //double getMFPSUL() override;
 
 private:
-	double m_theta;
-	ex ntsd_base(symbol x);
-	ex ntsf(symbol x, ex pnb);
-	ex pdf(symbol x, symbol _theta, ex ntsf,  int x_val);
-	ex fin_pdf(symbol x, symbol param, int x_val);
-	double fin_pdf(int val, double theta) override;
+    double m_theta;
+    ex ntsd_base(symbol x, symbol theta);
+    ex ntsf(symbol x, ex pnb);
+    ex pdf(symbol x, symbol _theta, ex ntsf,  int x_val);
+    ex fin_pdf(symbol x, symbol param, int x_val);
+    double fin_pdf(int val, double theta) override;
 };
 
-#endif /* FINITIZEDPOISSONDISTRIBUTION_H_ */
+#endif /* FINITIZEDLOGARITHMICDISTRIBUTION_H_ */

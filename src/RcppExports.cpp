@@ -49,11 +49,77 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// getPoissonMFPSUL
+double getPoissonMFPSUL(int n);
+RcppExport SEXP _finitization_getPoissonMFPSUL(SEXP nSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    rcpp_result_gen = Rcpp::wrap(getPoissonMFPSUL(n));
+    return rcpp_result_gen;
+END_RCPP
+}
+// getLogarithmicMFPSUL
+double getLogarithmicMFPSUL(int n);
+RcppExport SEXP _finitization_getLogarithmicMFPSUL(SEXP nSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    rcpp_result_gen = Rcpp::wrap(getLogarithmicMFPSUL(n));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rlog
+IntegerVector rlog(int n, double theta, unsigned no);
+RcppExport SEXP _finitization_rlog(SEXP nSEXP, SEXP thetaSEXP, SEXP noSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< double >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< unsigned >::type no(noSEXP);
+    rcpp_result_gen = Rcpp::wrap(rlog(n, theta, no));
+    return rcpp_result_gen;
+END_RCPP
+}
+// c_printFinitizedLogarithmicDensity
+String c_printFinitizedLogarithmicDensity(int n, int val, bool latex);
+RcppExport SEXP _finitization_c_printFinitizedLogarithmicDensity(SEXP nSEXP, SEXP valSEXP, SEXP latexSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< int >::type val(valSEXP);
+    Rcpp::traits::input_parameter< bool >::type latex(latexSEXP);
+    rcpp_result_gen = Rcpp::wrap(c_printFinitizedLogarithmicDensity(n, val, latex));
+    return rcpp_result_gen;
+END_RCPP
+}
+// c_dlog
+double c_dlog(int n, double theta, double val);
+RcppExport SEXP _finitization_c_dlog(SEXP nSEXP, SEXP thetaSEXP, SEXP valSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< double >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< double >::type val(valSEXP);
+    rcpp_result_gen = Rcpp::wrap(c_dlog(n, theta, val));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_finitization_rpois", (DL_FUNC) &_finitization_rpois, 3},
     {"_finitization_c_dpois", (DL_FUNC) &_finitization_c_dpois, 3},
     {"_finitization_c_printFinitizedPoissonDensity", (DL_FUNC) &_finitization_c_printFinitizedPoissonDensity, 3},
+    {"_finitization_getPoissonMFPSUL", (DL_FUNC) &_finitization_getPoissonMFPSUL, 1},
+    {"_finitization_getLogarithmicMFPSUL", (DL_FUNC) &_finitization_getLogarithmicMFPSUL, 1},
+    {"_finitization_rlog", (DL_FUNC) &_finitization_rlog, 3},
+    {"_finitization_c_printFinitizedLogarithmicDensity", (DL_FUNC) &_finitization_c_printFinitizedLogarithmicDensity, 3},
+    {"_finitization_c_dlog", (DL_FUNC) &_finitization_c_dlog, 3},
     {NULL, NULL, 0}
 };
 

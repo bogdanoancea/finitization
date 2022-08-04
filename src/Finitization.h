@@ -3,7 +3,8 @@
 using namespace std;
 using namespace Rcpp;
 
-
+#ifndef FINITIZATION_H_
+#define FINITIZATION_H_
 class Finitization {
 
 public:
@@ -14,13 +15,16 @@ public:
     virtual string pdfToString(int val, bool latex = false) = 0;
     virtual double fin_pdf(int val)= 0;
     IntegerVector rvalues(int no );
-    int rvalue();
+    //int rvalue();
     virtual double getProb(int val)  = 0;
-
+    virtual double getMFPSUL();
 
 protected:
-    int m_finitizationOrder;
     void setProbs(double *probs);
+    virtual double fin_pdf(int val, double theta) = 0;
+
+    int m_finitizationOrder;
+
 private:
 
 	std::uniform_real_distribution<double> m_unif_double_distribution;
@@ -32,3 +36,4 @@ private:
 
 
 };
+#endif /* FINITIZATION_H_ */
