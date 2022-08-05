@@ -48,7 +48,7 @@ String c_printFinitizedPoissonDensity(int n, int val, bool latex = false) {
     string result =  f->pdfToString(val, latex);
     //if(latex)
     Rcout << result << endl;
-
+    delete f;
     return String(result);
 
 }
@@ -107,7 +107,7 @@ String c_printFinitizedLogarithmicDensity(int n, int val, bool latex = false) {
     string result =  f->pdfToString(val, latex);
     //if(latex)
     Rcout << result << endl;
-
+    delete f;
     return String(result);
 
 }
