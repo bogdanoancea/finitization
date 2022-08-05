@@ -11,6 +11,14 @@ rpois <- function(n, theta, no) {
 
 #' @param n The finitization order. It should be an integer > 0.
 #' @param theta The parameter of the Poisson distribution.
+#' @param no The number of the random values to be generated according to the finitized Poisson distribution.
+#' @export
+rbinom <- function(n, theta, N, no) {
+    .Call('_finitization_rbinom', PACKAGE = 'finitization', n, theta, N, no)
+}
+
+#' @param n The finitization order. It should be an integer > 0.
+#' @param theta The parameter of the Poisson distribution.
 #' @param val The value of the variable for which the probability density function is computed.
 c_dpois <- function(n, theta, val) {
     .Call('_finitization_c_dpois', PACKAGE = 'finitization', n, theta, val)

@@ -93,16 +93,16 @@ double FinitizedPoissonDistribution::fin_pdf(int val) {
 }
 
 
-
-
-double FinitizedPoissonDistribution::fin_pdf(int val, double theta) {
-    stringstream result;
-    symbol x("x");
-    symbol _param("theta");
-    ex pdf_ = fin_pdf(x, _param, val);
-    result << evalf(pdf_.subs(_param == theta));
-    return std::stod(result.str());
-}
+//
+//
+// double FinitizedPoissonDistribution::fin_pdf(int val, double theta) {
+//     stringstream result;
+//     symbol x("x");
+//     symbol _param("theta");
+//     ex pdf_ = fin_pdf(x, _param, val);
+//     result << evalf(pdf_.subs(_param == theta));
+//     return std::stod(result.str());
+// }
 
 
 

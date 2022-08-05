@@ -19,7 +19,7 @@ public:
 
 protected:
     void setProbs(double *probs);
-    virtual double fin_pdf(int val, double theta) = 0;
+    //virtual double fin_pdf(int val, double theta) = 0;
 
     int m_finitizationOrder;
 

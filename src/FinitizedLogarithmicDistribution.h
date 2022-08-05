@@ -46,7 +46,7 @@ private:
     ex ntsf(symbol x, ex pnb);
     ex pdf(symbol x, symbol _theta, ex ntsf,  int x_val);
     ex fin_pdf(symbol x, symbol param, int x_val);
-    double fin_pdf(int val, double theta) override;
+    //double fin_pdf(int val, double theta) override;
 };
 
 #endif /* FINITIZEDLOGARITHMICDISTRIBUTION_H_ */

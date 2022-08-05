@@ -14,13 +14,13 @@
 //  * along with this program.  If not, see <http://www.gnu.org/licenses/> and
 //  * <https://ec.europa.eu/info/european-union-public-licence_en>
 //  *
-//  * FinitizedLogarithmicDistribution.cpp
+//  * FinitizedBinomialDistribution.cpp
 //  *
 //  *  Created on: Jul 28, 2022
 //  *      Author: Bogdan.Oancea
 //  */
 //
-#include "FinitizedLogarithmicDistribution.h"
+#include "FinitizedBinomialDistribution.h"
 #include <iostream>
 #include <ginac/ginac.h>
 #include <sstream>
@@ -31,7 +31,7 @@
 
 using namespace std;
 
-FinitizedLogarithmicDistribution::FinitizedLogarithmicDistribution(int n, double theta): Finitization(n), m_theta(theta) {
+FinitizedBinomialDistribution::FinitizedBinomialDistribution(int n, double theta, int N): Finitization(n), m_theta(theta), m_N(N) {
     double probs[n+1];
     for( int i = 0; i <= n; ++i) {
         probs[i] = fin_pdf(i);
@@ -39,19 +39,19 @@ FinitizedLogarithmicDistribution::FinitizedLogarithmicDistribution(int n, double
     setProbs(probs);
 }
 
-FinitizedLogarithmicDistribution::~FinitizedLogarithmicDistribution() {
+FinitizedBinomialDistribution::~FinitizedBinomialDistribution() {
 }
 
-ex FinitizedLogarithmicDistribution::ntsd_base(symbol x, symbol theta){
-    return theta * log(1 - theta -x) / ((theta + x) * log(1-theta));
+ex FinitizedBinomialDistribution::ntsd_base(symbol x, symbol theta, symbol N){
+    return pow((1 + x), N);
 }
 
-ex FinitizedLogarithmicDistribution::ntsf(symbol x, ex pnb) {
+ex FinitizedBinomialDistribution::ntsf(symbol x, ex pnb) {
     return series_to_poly(pnb.series(x == 0, m_finitizationOrder+1));
 
 }
 
-ex FinitizedLogarithmicDistribution::pdf(symbol x, symbol _theta, ex ntsf, int x_val) {
+ex FinitizedBinomialDistribution::pdf(symbol x, symbol _theta, ex ntsf, int x_val) {
     ex optheta = -_theta;
     ex pdf = (ntsf.diff(x, x_val));
     pdf = pdf.subs(x == optheta) * pow(_theta, x_val) / factorial(x_val);
@@ -59,43 +59,46 @@ ex FinitizedLogarithmicDistribution::pdf(symbol x, symbol _theta, ex ntsf, int x
 
 }
 
-ex FinitizedLogarithmicDistribution::fin_pdf(symbol x, symbol param, int x_val) {
-    ex pdf_ = pdf(x, param, ntsf(x, ntsd_base(x, param)), x_val);
+ex FinitizedBinomialDistribution::fin_pdf(symbol x, symbol param, symbol N, int x_val) {
+    ex pdf_ = pdf(x, param, ntsf(x, ntsd_base(x, param, N)), x_val);
     return pdf_;
 }
 
-string FinitizedLogarithmicDistribution::pdfToString(int val, bool tolatex) {
+string FinitizedBinomialDistribution::pdfToString(int val, bool tolatex) {
     stringstream result;
     symbol x("x");
     symbol param("theta");
-    ex pdf_ = fin_pdf(x, param, val);
+    symbol N("N");
+    ex pdf_ = fin_pdf(x, param, N, val);
     if(tolatex)
         result << latex;
     result << pdf_;
     return result.str();
 }
 
-double FinitizedLogarithmicDistribution::getProb(int val)  {
+double FinitizedBinomialDistribution::getProb(int val)  {
     return fin_pdf(val);
 }
 
-double FinitizedLogarithmicDistribution::fin_pdf(int val) {
+double FinitizedBinomialDistribution::fin_pdf(int val) {
     stringstream result;
     symbol x("x");
     symbol _param("theta");
-    ex pdf_ = fin_pdf(x, _param, val);
-    result << evalf(pdf_.subs(_param == m_theta));
+    symbol N("N");
+    ex pdf_ = fin_pdf(x, _param, N, val);
+    result << evalf((pdf_.subs(_param == m_theta)).subs(N == m_N));
     return std::stod(result.str());
 }
 
 
 
-// double FinitizedLogarithmicDistribution::fin_pdf(int val, double theta) {
+// double FinitizedBinomialDistribution::fin_pdf(int val, double theta) {
 //     stringstream result;
 //     symbol x("x");
 //     symbol _param("theta");
-//     ex pdf_ = fin_pdf(x, _param, val);
-//     result << evalf(pdf_.subs(_param == theta));
+//     symbol N("N");
+//     ex pdf_ = fin_pdf(x, _param, N, val);
+//     result << evalf((pdf_.subs(_param == theta)).subs(N == m_N));
 //     return std::stod(result.str());
 // }
 

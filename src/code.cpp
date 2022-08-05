@@ -4,6 +4,7 @@
 
 #include "FinitizedPoissonDistribution.h"
 #include "FinitizedLogarithmicDistribution.h"
+#include "FinitizedBinomialDistribution.h"
 
 using namespace Rcpp;
 using namespace std;
@@ -20,6 +21,26 @@ IntegerVector rpois(int n, double theta, unsigned no) {
             r[i] = NA_INTEGER;
     else {
         Finitization* f = new FinitizedPoissonDistribution(n, theta);
+        r = f->rvalues(no);
+        delete f;
+    }
+    return r;
+}
+
+
+//' @param n The finitization order. It should be an integer > 0.
+//' @param p The parameter of the Binomial distribution: the sucess probability for each trial.
+//' @param N The number of trials.
+//' @param no The number of the random values to be generated according to the finitized Binomial distribution.
+//' @export
+// [[Rcpp::export]]
+IntegerVector rbinom(int n, double p, int N, unsigned no) {
+    IntegerVector r(no);
+    if( p <= 0)
+        for( int i = 0; i <= no; ++i)
+            r[i] = NA_INTEGER;
+    else {
+        Finitization* f = new FinitizedBinomialDistribution(n, p, N);
         r = f->rvalues(no);
         delete f;
     }
