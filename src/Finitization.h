@@ -15,9 +15,7 @@ public:
     virtual string pdfToString(int val, bool latex = false) = 0;
     virtual double fin_pdf(int val)= 0;
     IntegerVector rvalues(int no );
-    //int rvalue();
     virtual double getProb(int val)  = 0;
-    virtual double getMFPSUL();
 
 protected:
     void setProbs(double *probs);

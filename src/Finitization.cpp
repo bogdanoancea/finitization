@@ -23,34 +23,29 @@ Finitization::~Finitization() {
 
 void Finitization::setProbs(double* p) {
     int i, a, g;
-    int *S = new int[m_finitizationOrder+1];
-    int *L = new int[m_finitizationOrder+1];
-    double *P = new double[m_finitizationOrder+1];
+    int tmp = m_finitizationOrder + 1;
+    int *S = new int[tmp];
+    int *L = new int[tmp];
+    double *P = new double[tmp];
 
     double sum=0.0;
-    for (i = 0; i < m_finitizationOrder+1; ++i ) {
+    for (i = 0; i < tmp; ++i ) {
         sum += p[i];
     }
-    for (i = 0; i < m_finitizationOrder+1; ++i )
-        P[i] = p[i] * (m_finitizationOrder+1) / sum;
+    for (i = 0; i < tmp; ++i )
+        P[i] = p[i] * (tmp) / sum;
 
     int nS = 0, nL = 0;
     for (i = m_finitizationOrder; i>=0; --i ) {
-        if ( P[i]<1 )
-            S[nS++] = i;
-        else
-            L[nL++] = i;
+        P[i] < 1 ? (S[nS++] = i) : (L[nL++] = i);
     }
     while ( nS && nL ) {
         a = S[--nS];
         g = L[--nL];
         m_prob[a] = P[a];
         m_alias[a] = g;
-        P[g] = P[g] + P[a] - 1;
-        if ( P[g] < 1 )
-            S[nS++] = g;
-        else
-            L[nL++] = g;
+        P[g] += P[a] - 1;
+        P[g] < 1 ? (S[nS++] = g) : (L[nL++] = g) ;
     }
 
     while ( nL )
@@ -77,33 +72,5 @@ IntegerVector Finitization::rvalues(int no) {
         r[i] = (r2 < m_prob[ii]) ? ii : m_alias[ii];
     }
     return result;
-}
-
-
-// int  Finitization::rvalue()  {
-//     double r2;
-//     int ii;
-//     ii = m_values[m_unif_int_distribution(m_generator)];
-//     r2 = m_unif_double_distribution(m_generator);
-//     return (r2 < m_prob[ii]) ? ii : m_alias[ii];
-//
-// }
-
-double Finitization::getMFPSUL() {
-
-    double x0 =  1 - 2 * std::numeric_limits<double>::epsilon();
-    const double error = 1e-8;
-    const double h = std::numeric_limits<double>::epsilon();
-
-
-    double fx0 = fin_pdf(m_finitizationOrder - 1, x0);
-    int i{0};
-    while(std::fabs(fx0) > error){
-        double diff = (fin_pdf(m_finitizationOrder - 1, x0 + h) - fx0)/ h ;
-        x0 = x0 - fx0/diff;
-        fx0 = fin_pdf(m_finitizationOrder - 1, x0);
-        i++;
-    }
-    return x0;
 }
 

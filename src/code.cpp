@@ -8,9 +8,9 @@
 using namespace Rcpp;
 using namespace std;
 
-//' @param n
-//' @param theta
-//' @param no
+//' @param n The finitization order. It should be an integer > 0.
+//' @param theta The parameter of the Poisson distribution.
+//' @param no The number of the random values to be generated according to the finitized Poisson distribution.
 //' @export
 // [[Rcpp::export]]
 IntegerVector rpois(int n, double theta, unsigned no) {
@@ -26,10 +26,9 @@ IntegerVector rpois(int n, double theta, unsigned no) {
     return r;
 }
 
-//' @param n
-//' @param theta
-//' @param val
-//' @export
+//' @param n The finitization order. It should be an integer > 0.
+//' @param theta The parameter of the Poisson distribution.
+//' @param val The value of the variable for which the probability density function is computed.
 //  [[Rcpp::export]]
 double c_dpois(int n, double theta, double val) {
     Finitization* f = new FinitizedPoissonDistribution(n, theta);
@@ -38,10 +37,11 @@ double c_dpois(int n, double theta, double val) {
     return p;
 }
 
-//' @param n
-//' @param theta
-//' @param val
-//' @export
+//' @param n The finitization order. It should be an integer > 0.
+//' @param theta The parameter of the Poisson distribution.
+//' @param val The value of the variable for which the probability density function is computed.
+//' @param latex If true it returns a Latex formatted string representation of the pdf,otherwise it returns
+//' the string representation of the pdf as an R expression.
 // [[Rcpp::export]]
 String c_printFinitizedPoissonDensity(int n, int val, bool latex = false) {
     Finitization* f = new FinitizedPoissonDistribution(n, 1);
@@ -54,20 +54,7 @@ String c_printFinitizedPoissonDensity(int n, int val, bool latex = false) {
 }
 
 
-//' @param n
-//' @export
-// [[Rcpp::export]]
-double getPoissonMFPSUL(int n) {
-    if(n < 1)
-        return NA_REAL;
-    Finitization* f = new FinitizedPoissonDistribution(n, 1);
-    double result = f->getMFPSUL();
-    delete f;
-    return result;
-}
-
-
-//' @param n
+//' @param n The finitization order. It should be an integer > 0.
 // [[Rcpp::export]]
 String MFPS_log_pdf(int n) {
     if(n < 1)
@@ -78,9 +65,21 @@ String MFPS_log_pdf(int n) {
     return String(result);
 }
 
-//' @param n
-//' @param theta
-//' @param no
+
+//' @param n The finitization order. It should be an integer > 0.
+// [[Rcpp::export]]
+String MFPS_pois_pdf(int n) {
+    if(n < 1)
+        return NA_REAL;
+    Finitization* f = new FinitizedPoissonDistribution(n, 0.01);
+    string result = f->pdfToString(n-1);
+    delete f;
+    return String(result);
+}
+
+//' @param n The finitization order. It should be an integer > 0.
+//' @param theta The parameter of the logarithmic distribution.
+//' @param no The number of random values to be generated according to the finitized logarithmic distribution.
 //' @export
 // [[Rcpp::export]]
 IntegerVector rlog(int n, double theta, unsigned no) {
@@ -97,15 +96,17 @@ IntegerVector rlog(int n, double theta, unsigned no) {
 }
 
 
-//' @param n
-//' @param theta
-//' @param val
+//' @param n The finitization order. It should be an integer > 0.
+//' @param theta theta The parameter of the logarithmic distribution.
+//' @param val  The value of the variable for which the string reprsentation of the probability density function is returned.
+//' If NULL, this function returns the pdf for all possible values, i.e. {0 .. n}.
+//' @param latex If TRUE, a string representation of the pdf formatted in Latex format is returned, otherwise it returns
+//'  the string representation of the pdf as an R expression.
 //' @export
 // [[Rcpp::export]]
 String c_printFinitizedLogarithmicDensity(int n, int val, bool latex = false) {
     Finitization* f = new FinitizedLogarithmicDistribution(n, 0.01);
     string result =  f->pdfToString(val, latex);
-    //if(latex)
     Rcout << result << endl;
     delete f;
     return String(result);
@@ -113,9 +114,9 @@ String c_printFinitizedLogarithmicDensity(int n, int val, bool latex = false) {
 }
 
 
-//' @param n
-//' @param theta
-//' @param val
+//' @param n The finitization order. It should be an integer > 0.
+//' @param val The value of the variable for which the probability density function is computed.
+//' @param theta The parameter of the logarithmic distribution.
 //' @export
 //  [[Rcpp::export]]
 double c_dlog(int n, double theta, double val) {
