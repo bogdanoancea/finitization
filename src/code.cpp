@@ -66,18 +66,17 @@ double getPoissonMFPSUL(int n) {
     return result;
 }
 
+
 //' @param n
-//' @export
 // [[Rcpp::export]]
-double getLogarithmicMFPSUL(int n) {
+String MFPS_log_pdf(int n) {
     if(n < 1)
         return NA_REAL;
     Finitization* f = new FinitizedLogarithmicDistribution(n, 0.01);
-    double result = f->getMFPSUL();
+    string result = f->pdfToString(n-1);
     delete f;
-    return result;
+    return String(result);
 }
-
 
 //' @param n
 //' @param theta

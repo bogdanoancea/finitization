@@ -60,14 +60,14 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// getLogarithmicMFPSUL
-double getLogarithmicMFPSUL(int n);
-RcppExport SEXP _finitization_getLogarithmicMFPSUL(SEXP nSEXP) {
+// MFPS_log_pdf
+String MFPS_log_pdf(int n);
+RcppExport SEXP _finitization_MFPS_log_pdf(SEXP nSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    rcpp_result_gen = Rcpp::wrap(getLogarithmicMFPSUL(n));
+    rcpp_result_gen = Rcpp::wrap(MFPS_log_pdf(n));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -116,7 +116,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_finitization_c_dpois", (DL_FUNC) &_finitization_c_dpois, 3},
     {"_finitization_c_printFinitizedPoissonDensity", (DL_FUNC) &_finitization_c_printFinitizedPoissonDensity, 3},
     {"_finitization_getPoissonMFPSUL", (DL_FUNC) &_finitization_getPoissonMFPSUL, 1},
-    {"_finitization_getLogarithmicMFPSUL", (DL_FUNC) &_finitization_getLogarithmicMFPSUL, 1},
+    {"_finitization_MFPS_log_pdf", (DL_FUNC) &_finitization_MFPS_log_pdf, 1},
     {"_finitization_rlog", (DL_FUNC) &_finitization_rlog, 3},
     {"_finitization_c_printFinitizedLogarithmicDensity", (DL_FUNC) &_finitization_c_printFinitizedLogarithmicDensity, 3},
     {"_finitization_c_dlog", (DL_FUNC) &_finitization_c_dlog, 3},

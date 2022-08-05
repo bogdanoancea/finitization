@@ -32,9 +32,8 @@ getPoissonMFPSUL <- function(n) {
 }
 
 #' @param n
-#' @export
-getLogarithmicMFPSUL <- function(n) {
-    .Call('_finitization_getLogarithmicMFPSUL', PACKAGE = 'finitization', n)
+MFPS_log_pdf <- function(n) {
+    .Call('_finitization_MFPS_log_pdf', PACKAGE = 'finitization', n)
 }
 
 #' @param n

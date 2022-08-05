@@ -1,4 +1,4 @@
-
+library(rootSolve)
 #' @export
 dpois <- function(n, theta, val = NULL) {
     if(!is.null(val)) {
@@ -61,4 +61,13 @@ dlog <- function(n, theta, val = NULL) {
         colnames(df) <- x
         return (df)
     }
+}
+
+#' @export
+getLogarithmicMFPSUL <- function(nf) {
+
+    fg<- function(theta) { x }
+    body(fg)[[2]] <- parse(text = MFPS_log_pdf(nf))[[1]]
+    solutions <- uniroot.all(fg, c(0,1), n = 10^6)
+    return (max(solutions))
 }

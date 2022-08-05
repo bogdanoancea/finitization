@@ -1,5 +1,5 @@
 CXX_STD=CXX11
-PKG_LIBS =  -lginac -lcln -lgmp
-PKG_CXXFLAGS = -Ofast -mavx2
-CXXFLAGS += $(CXXFLAGS) -Ofast -mavx2
-CXX11FLAGS = -Ofast -mavx2
+PKG_LIBS = -L/usr/local/lib  -lginac -lcln -lgmp
+PKG_CXXFLAGS = -I/usr/local/include -O3 -mavx2
+
+
