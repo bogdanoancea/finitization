@@ -21,13 +21,7 @@
 //  */
 //
 #include "FinitizedBinomialDistribution.h"
-#include <iostream>
 #include <ginac/ginac.h>
-#include <sstream>
-#include <string>
-#include <random>
-#include <limits>
-
 
 using namespace std;
 
@@ -81,27 +75,15 @@ double FinitizedBinomialDistribution::getProb(int val)  {
 }
 
 double FinitizedBinomialDistribution::fin_pdf(int val) {
-    stringstream result;
     symbol x("x");
     symbol _param("theta");
     symbol N("N");
     ex pdf_ = fin_pdf(x, _param, N, val);
-    result << evalf((pdf_.subs(_param == m_theta)).subs(N == m_N));
-    return std::stod(result.str());
+    //result << evalf((pdf_.subs(_param == m_theta)).subs(N == m_N));
+    //return std::stod(result.str());
+
+    //ex pdf_ = fin_pdf(x, _param, val);
+    return GiNaC::ex_to<GiNaC::numeric>(evalf(pdf_.subs(_param == m_theta)).subs(N==m_N)).to_double();
 }
-
-
-
-// double FinitizedBinomialDistribution::fin_pdf(int val, double theta) {
-//     stringstream result;
-//     symbol x("x");
-//     symbol _param("theta");
-//     symbol N("N");
-//     ex pdf_ = fin_pdf(x, _param, N, val);
-//     result << evalf((pdf_.subs(_param == theta)).subs(N == m_N));
-//     return std::stod(result.str());
-// }
-
-
 
 

@@ -10,11 +10,12 @@ rpois <- function(n, theta, no) {
 }
 
 #' @param n The finitization order. It should be an integer > 0.
-#' @param theta The parameter of the Poisson distribution.
-#' @param no The number of the random values to be generated according to the finitized Poisson distribution.
+#' @param p The parameter of the Binomial distribution: the sucess probability for each trial.
+#' @param N The number of trials.
+#' @param no The number of the random values to be generated according to the finitized Binomial distribution.
 #' @export
-rbinom <- function(n, theta, N, no) {
-    .Call('_finitization_rbinom', PACKAGE = 'finitization', n, theta, N, no)
+rbinom <- function(n, p, N, no) {
+    .Call('_finitization_rbinom', PACKAGE = 'finitization', n, p, N, no)
 }
 
 #' @param n The finitization order. It should be an integer > 0.
@@ -44,6 +45,11 @@ MFPS_pois_pdf <- function(n) {
 }
 
 #' @param n The finitization order. It should be an integer > 0.
+MFPS_binom_pdf <- function(n, N) {
+    .Call('_finitization_MFPS_binom_pdf', PACKAGE = 'finitization', n, N)
+}
+
+#' @param n The finitization order. It should be an integer > 0.
 #' @param theta The parameter of the logarithmic distribution.
 #' @param no The number of random values to be generated according to the finitized logarithmic distribution.
 #' @export
@@ -63,10 +69,30 @@ c_printFinitizedLogarithmicDensity <- function(n, val, latex = FALSE) {
 }
 
 #' @param n The finitization order. It should be an integer > 0.
+#' @param theta theta The parameter of the logarithmic distribution.
+#' @param val  The value of the variable for which the string reprsentation of the probability density function is returned.
+#' If NULL, this function returns the pdf for all possible values, i.e. {0 .. n}.
+#' @param latex If TRUE, a string representation of the pdf formatted in Latex format is returned, otherwise it returns
+#'  the string representation of the pdf as an R expression.
+#' @export
+c_printFinitizedBinomialDensity <- function(n, N, val, latex = FALSE) {
+    .Call('_finitization_c_printFinitizedBinomialDensity', PACKAGE = 'finitization', n, N, val, latex)
+}
+
+#' @param n The finitization order. It should be an integer > 0.
 #' @param val The value of the variable for which the probability density function is computed.
 #' @param theta The parameter of the logarithmic distribution.
 #' @export
 c_dlog <- function(n, theta, val) {
     .Call('_finitization_c_dlog', PACKAGE = 'finitization', n, theta, val)
+}
+
+#' @param n The finitization order. It should be an integer > 0.
+#' @param N The number of trials.
+#' @param val The value of the variable for which the probability density function is computed.
+#' @param p The parameter of the Binomial distribution: the sucess probability for each trial.
+#' @export
+c_dbinom <- function(n, p, N, val) {
+    .Call('_finitization_c_dbinom', PACKAGE = 'finitization', n, p, N, val)
 }
 

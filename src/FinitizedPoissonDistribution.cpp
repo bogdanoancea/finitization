@@ -21,16 +21,7 @@
 //  */
 //
 #include "FinitizedPoissonDistribution.h"
-#include <iostream>
 #include <ginac/ginac.h>
-#include <sstream>
-#include <string>
-#include <iostream>
-#include <random>
-#include <limits>
-
-#include <map>
-#include <vector>
 
 
 using namespace std;
@@ -84,12 +75,10 @@ double FinitizedPoissonDistribution::getProb(int val)  {
 }
 
 double FinitizedPoissonDistribution::fin_pdf(int val) {
-	stringstream result;
 	symbol x("x");
 	symbol _param("theta");
 	ex pdf_ = fin_pdf(x, _param, val);
-	result << evalf(pdf_.subs(_param == m_theta));
-	return std::stod(result.str());
+	return GiNaC::ex_to<GiNaC::numeric>(evalf(pdf_.subs(_param == m_theta))).to_double();
 }
 
 

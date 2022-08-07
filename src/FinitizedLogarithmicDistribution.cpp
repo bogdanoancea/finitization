@@ -21,12 +21,8 @@
 //  */
 //
 #include "FinitizedLogarithmicDistribution.h"
-#include <iostream>
 #include <ginac/ginac.h>
-#include <sstream>
-#include <string>
-#include <random>
-#include <limits>
+
 
 
 using namespace std;
@@ -80,24 +76,13 @@ double FinitizedLogarithmicDistribution::getProb(int val)  {
 }
 
 double FinitizedLogarithmicDistribution::fin_pdf(int val) {
-    stringstream result;
     symbol x("x");
     symbol _param("theta");
     ex pdf_ = fin_pdf(x, _param, val);
-    result << evalf(pdf_.subs(_param == m_theta));
-    return std::stod(result.str());
+    return GiNaC::ex_to<GiNaC::numeric>(evalf(pdf_.subs(_param == m_theta))).to_double();
 }
 
 
-
-// double FinitizedLogarithmicDistribution::fin_pdf(int val, double theta) {
-//     stringstream result;
-//     symbol x("x");
-//     symbol _param("theta");
-//     ex pdf_ = fin_pdf(x, _param, val);
-//     result << evalf(pdf_.subs(_param == theta));
-//     return std::stod(result.str());
-// }
 
 
 
