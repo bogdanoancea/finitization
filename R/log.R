@@ -5,7 +5,10 @@
 #' @export
 dlog <- function(n, theta, val = NULL) {
     if (!is.null(val)) {
-        return(c_dlog(n, theta, val))
+        p = c_dlog(n, theta, val)
+        if (p < 0)
+            p = 0
+        return(p)
     } else {
         df <- data.frame(matrix(ncol = 2, nrow = 0))
 
@@ -28,7 +31,7 @@ getLogarithmicMFPSUL <- function(n) {
     fg <- function(theta) { "x" }
     body(fg)[[2]] <- parse(text = MFPS_log_pdf(n))[[1]]
     solutions <- rootSolve::uniroot.all(fg, c(0,1), n = 10^7, tol = .Machine$double.eps)
-    return(max(solutions))
+    return((solutions))
 }
 
 #' @param n The finitization order. It should be an integer > 0.

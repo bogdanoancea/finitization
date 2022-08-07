@@ -28,7 +28,7 @@ getBinomialMFPSUL <- function(n, N) {
     fg <- function(theta) { "x" }
     body(fg)[[2]] <- parse(text = MFPS_binom_pdf(n, N))[[1]]
     solutions <- rootSolve::uniroot.all(fg, c(0,1), n = 10^7, tol = .Machine$double.eps)
-    return(max(solutions))
+    return((solutions))
 }
 
 #' @param n The finitization order. It should be an integer > 0.
