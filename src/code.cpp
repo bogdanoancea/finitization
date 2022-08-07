@@ -179,7 +179,7 @@ double c_dlog(int n, double theta, double val) {
 //' @param n The finitization order. It should be an integer > 0.
 //' @param N The number of trials.
 //' @param val The value of the variable for which the probability density function is computed.
-//' @param p The parameter of the Binomial distribution: the sucess probability for each trial.
+//' @param p The parameter of the Binomial distribution: the success probability for each trial.
 //' @export
 //  [[Rcpp::export]]
 double c_dbinom(int n, double p, int N, double val) {

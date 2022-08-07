@@ -29,7 +29,7 @@ dpois <- function(n, theta, val = NULL) {
 printFinitizedPoissonDensity <- function(n, val = NULL, latex = FALSE)  {
     if(!is.null(val)) {
         x<-c_printFinitizedPoissonDensity(n, val, latex)
-        NULL
+        #NULL
     } else {
         cat(paste0("X", "\t", "pdf\n"))
         for (i in 0:n) {

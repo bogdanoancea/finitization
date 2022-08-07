@@ -14,8 +14,10 @@ dlog <- function(n, theta, val = NULL) {
 
         for (i in 0:n) {
             p <- c_dlog(n, theta, i)
-            if (p < 0)
-                p = 0
+            if (p < 0) {
+                #p = 0
+                #cat(p)
+            }
             df <- rbind(df, c(i, p))
         }
         x <- c("val", "prob")
@@ -43,7 +45,7 @@ getLogarithmicMFPSUL <- function(n) {
 printFinitizedLogarithmicDensity <- function(n, val = NULL, latex = FALSE)  {
     if (!is.null(val)) {
         x <- c_printFinitizedLogarithmicDensity(n, val, latex)
-        NULL
+        #NULL
     } else {
 
         cat(paste0("X", "\t", "pdf\n"))

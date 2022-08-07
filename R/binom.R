@@ -39,14 +39,14 @@ getBinomialMFPSUL <- function(n, N) {
 #' @export
 printFinitizedBinomialDensity <- function(n, val = NULL, latex = FALSE)  {
     if(!is.null(val)) {
-        x<-c_printFinitizedBinomialDensity(n, val, latex)
-        NULL
+        x <- c_printFinitizedBinomialDensity(n, val, latex)
+        #NULL
     } else {
 
         cat(paste0("X", "\t", "pdf\n"))
         for (i in 0:n) {
             cat(paste0(i,":", '\t'))
-            x<-c_printFinitizedBinomialDensity(n, i, latex)
+            x <- c_printFinitizedBinomialDensity(n, i, latex)
         }
     }
 }
