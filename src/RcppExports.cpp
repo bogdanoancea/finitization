@@ -10,19 +10,6 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// rpois
-IntegerVector rpois(int n, double theta, unsigned no);
-RcppExport SEXP _finitization_rpois(SEXP nSEXP, SEXP thetaSEXP, SEXP noSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< double >::type theta(thetaSEXP);
-    Rcpp::traits::input_parameter< unsigned >::type no(noSEXP);
-    rcpp_result_gen = Rcpp::wrap(rpois(n, theta, no));
-    return rcpp_result_gen;
-END_RCPP
-}
 // rbinom
 IntegerVector rbinom(int n, double p, int N, unsigned no);
 RcppExport SEXP _finitization_rbinom(SEXP nSEXP, SEXP pSEXP, SEXP NSEXP, SEXP noSEXP) {
@@ -34,6 +21,109 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type N(NSEXP);
     Rcpp::traits::input_parameter< unsigned >::type no(noSEXP);
     rcpp_result_gen = Rcpp::wrap(rbinom(n, p, N, no));
+    return rcpp_result_gen;
+END_RCPP
+}
+// MFPS_binom_pdf
+String MFPS_binom_pdf(int n, int N);
+RcppExport SEXP _finitization_MFPS_binom_pdf(SEXP nSEXP, SEXP NSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< int >::type N(NSEXP);
+    rcpp_result_gen = Rcpp::wrap(MFPS_binom_pdf(n, N));
+    return rcpp_result_gen;
+END_RCPP
+}
+// c_printFinitizedBinomialDensity
+String c_printFinitizedBinomialDensity(int n, int N, int val, bool latex);
+RcppExport SEXP _finitization_c_printFinitizedBinomialDensity(SEXP nSEXP, SEXP NSEXP, SEXP valSEXP, SEXP latexSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< int >::type N(NSEXP);
+    Rcpp::traits::input_parameter< int >::type val(valSEXP);
+    Rcpp::traits::input_parameter< bool >::type latex(latexSEXP);
+    rcpp_result_gen = Rcpp::wrap(c_printFinitizedBinomialDensity(n, N, val, latex));
+    return rcpp_result_gen;
+END_RCPP
+}
+// c_dbinom
+double c_dbinom(int n, double p, int N, double val);
+RcppExport SEXP _finitization_c_dbinom(SEXP nSEXP, SEXP pSEXP, SEXP NSEXP, SEXP valSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< double >::type p(pSEXP);
+    Rcpp::traits::input_parameter< int >::type N(NSEXP);
+    Rcpp::traits::input_parameter< double >::type val(valSEXP);
+    rcpp_result_gen = Rcpp::wrap(c_dbinom(n, p, N, val));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rlog
+IntegerVector rlog(int n, double theta, unsigned no);
+RcppExport SEXP _finitization_rlog(SEXP nSEXP, SEXP thetaSEXP, SEXP noSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< double >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< unsigned >::type no(noSEXP);
+    rcpp_result_gen = Rcpp::wrap(rlog(n, theta, no));
+    return rcpp_result_gen;
+END_RCPP
+}
+// MFPS_log_pdf
+String MFPS_log_pdf(int n);
+RcppExport SEXP _finitization_MFPS_log_pdf(SEXP nSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    rcpp_result_gen = Rcpp::wrap(MFPS_log_pdf(n));
+    return rcpp_result_gen;
+END_RCPP
+}
+// c_printFinitizedLogarithmicDensity
+String c_printFinitizedLogarithmicDensity(int n, int val, bool latex);
+RcppExport SEXP _finitization_c_printFinitizedLogarithmicDensity(SEXP nSEXP, SEXP valSEXP, SEXP latexSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< int >::type val(valSEXP);
+    Rcpp::traits::input_parameter< bool >::type latex(latexSEXP);
+    rcpp_result_gen = Rcpp::wrap(c_printFinitizedLogarithmicDensity(n, val, latex));
+    return rcpp_result_gen;
+END_RCPP
+}
+// c_dlog
+double c_dlog(int n, double theta, double val);
+RcppExport SEXP _finitization_c_dlog(SEXP nSEXP, SEXP thetaSEXP, SEXP valSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< double >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< double >::type val(valSEXP);
+    rcpp_result_gen = Rcpp::wrap(c_dlog(n, theta, val));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rpois
+IntegerVector rpois(int n, double theta, unsigned no);
+RcppExport SEXP _finitization_rpois(SEXP nSEXP, SEXP thetaSEXP, SEXP noSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< double >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< unsigned >::type no(noSEXP);
+    rcpp_result_gen = Rcpp::wrap(rpois(n, theta, no));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -63,17 +153,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// MFPS_log_pdf
-String MFPS_log_pdf(int n);
-RcppExport SEXP _finitization_MFPS_log_pdf(SEXP nSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    rcpp_result_gen = Rcpp::wrap(MFPS_log_pdf(n));
-    return rcpp_result_gen;
-END_RCPP
-}
 // MFPS_pois_pdf
 String MFPS_pois_pdf(int n);
 RcppExport SEXP _finitization_MFPS_pois_pdf(SEXP nSEXP) {
@@ -85,99 +164,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// MFPS_binom_pdf
-String MFPS_binom_pdf(int n, int N);
-RcppExport SEXP _finitization_MFPS_binom_pdf(SEXP nSEXP, SEXP NSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< int >::type N(NSEXP);
-    rcpp_result_gen = Rcpp::wrap(MFPS_binom_pdf(n, N));
-    return rcpp_result_gen;
-END_RCPP
-}
-// rlog
-IntegerVector rlog(int n, double theta, unsigned no);
-RcppExport SEXP _finitization_rlog(SEXP nSEXP, SEXP thetaSEXP, SEXP noSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< double >::type theta(thetaSEXP);
-    Rcpp::traits::input_parameter< unsigned >::type no(noSEXP);
-    rcpp_result_gen = Rcpp::wrap(rlog(n, theta, no));
-    return rcpp_result_gen;
-END_RCPP
-}
-// c_printFinitizedLogarithmicDensity
-String c_printFinitizedLogarithmicDensity(int n, int val, bool latex);
-RcppExport SEXP _finitization_c_printFinitizedLogarithmicDensity(SEXP nSEXP, SEXP valSEXP, SEXP latexSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< int >::type val(valSEXP);
-    Rcpp::traits::input_parameter< bool >::type latex(latexSEXP);
-    rcpp_result_gen = Rcpp::wrap(c_printFinitizedLogarithmicDensity(n, val, latex));
-    return rcpp_result_gen;
-END_RCPP
-}
-// c_printFinitizedBinomialDensity
-String c_printFinitizedBinomialDensity(int n, int N, int val, bool latex);
-RcppExport SEXP _finitization_c_printFinitizedBinomialDensity(SEXP nSEXP, SEXP NSEXP, SEXP valSEXP, SEXP latexSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< int >::type N(NSEXP);
-    Rcpp::traits::input_parameter< int >::type val(valSEXP);
-    Rcpp::traits::input_parameter< bool >::type latex(latexSEXP);
-    rcpp_result_gen = Rcpp::wrap(c_printFinitizedBinomialDensity(n, N, val, latex));
-    return rcpp_result_gen;
-END_RCPP
-}
-// c_dlog
-double c_dlog(int n, double theta, double val);
-RcppExport SEXP _finitization_c_dlog(SEXP nSEXP, SEXP thetaSEXP, SEXP valSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< double >::type theta(thetaSEXP);
-    Rcpp::traits::input_parameter< double >::type val(valSEXP);
-    rcpp_result_gen = Rcpp::wrap(c_dlog(n, theta, val));
-    return rcpp_result_gen;
-END_RCPP
-}
-// c_dbinom
-double c_dbinom(int n, double p, int N, double val);
-RcppExport SEXP _finitization_c_dbinom(SEXP nSEXP, SEXP pSEXP, SEXP NSEXP, SEXP valSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< double >::type p(pSEXP);
-    Rcpp::traits::input_parameter< int >::type N(NSEXP);
-    Rcpp::traits::input_parameter< double >::type val(valSEXP);
-    rcpp_result_gen = Rcpp::wrap(c_dbinom(n, p, N, val));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_finitization_rpois", (DL_FUNC) &_finitization_rpois, 3},
     {"_finitization_rbinom", (DL_FUNC) &_finitization_rbinom, 4},
+    {"_finitization_MFPS_binom_pdf", (DL_FUNC) &_finitization_MFPS_binom_pdf, 2},
+    {"_finitization_c_printFinitizedBinomialDensity", (DL_FUNC) &_finitization_c_printFinitizedBinomialDensity, 4},
+    {"_finitization_c_dbinom", (DL_FUNC) &_finitization_c_dbinom, 4},
+    {"_finitization_rlog", (DL_FUNC) &_finitization_rlog, 3},
+    {"_finitization_MFPS_log_pdf", (DL_FUNC) &_finitization_MFPS_log_pdf, 1},
+    {"_finitization_c_printFinitizedLogarithmicDensity", (DL_FUNC) &_finitization_c_printFinitizedLogarithmicDensity, 3},
+    {"_finitization_c_dlog", (DL_FUNC) &_finitization_c_dlog, 3},
+    {"_finitization_rpois", (DL_FUNC) &_finitization_rpois, 3},
     {"_finitization_c_dpois", (DL_FUNC) &_finitization_c_dpois, 3},
     {"_finitization_c_printFinitizedPoissonDensity", (DL_FUNC) &_finitization_c_printFinitizedPoissonDensity, 3},
-    {"_finitization_MFPS_log_pdf", (DL_FUNC) &_finitization_MFPS_log_pdf, 1},
     {"_finitization_MFPS_pois_pdf", (DL_FUNC) &_finitization_MFPS_pois_pdf, 1},
-    {"_finitization_MFPS_binom_pdf", (DL_FUNC) &_finitization_MFPS_binom_pdf, 2},
-    {"_finitization_rlog", (DL_FUNC) &_finitization_rlog, 3},
-    {"_finitization_c_printFinitizedLogarithmicDensity", (DL_FUNC) &_finitization_c_printFinitizedLogarithmicDensity, 3},
-    {"_finitization_c_printFinitizedBinomialDensity", (DL_FUNC) &_finitization_c_printFinitizedBinomialDensity, 4},
-    {"_finitization_c_dlog", (DL_FUNC) &_finitization_c_dlog, 3},
-    {"_finitization_c_dbinom", (DL_FUNC) &_finitization_c_dbinom, 4},
     {NULL, NULL, 0}
 };
 

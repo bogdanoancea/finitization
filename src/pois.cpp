@@ -46,7 +46,6 @@ double c_dpois(int n, double theta, double val) {
 String c_printFinitizedPoissonDensity(int n, int val, bool latex = false) {
     Finitization* f = new FinitizedPoissonDistribution(n, 1);
     string result =  f->pdfToString(val, latex);
-    //if(latex)
     Rcout << result << endl;
     delete f;
     return String(result);

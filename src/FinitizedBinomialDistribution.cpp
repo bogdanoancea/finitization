@@ -25,7 +25,7 @@
 
 using namespace std;
 
-FinitizedBinomialDistribution::FinitizedBinomialDistribution(int n, double theta, int N): Finitization(n), m_theta(theta), m_N(N) {
+FinitizedBinomialDistribution::FinitizedBinomialDistribution(int n, double p, int N): Finitization(n), m_theta(p), m_N(N) {
     double probs[n+1];
     for( int i = 0; i <= n; ++i) {
         probs[i] = fin_pdf(i);
@@ -36,8 +36,8 @@ FinitizedBinomialDistribution::FinitizedBinomialDistribution(int n, double theta
 FinitizedBinomialDistribution::~FinitizedBinomialDistribution() {
 }
 
-ex FinitizedBinomialDistribution::ntsd_base(symbol x, symbol theta, symbol N){
-    return pow((1 + x), N);
+ex FinitizedBinomialDistribution::ntsd_base(symbol x, symbol theta){
+    return pow((1 + x), m_N);
 }
 
 ex FinitizedBinomialDistribution::ntsf(symbol x, ex pnb) {
@@ -53,17 +53,17 @@ ex FinitizedBinomialDistribution::pdf(symbol x, symbol _theta, ex ntsf, int x_va
 
 }
 
-ex FinitizedBinomialDistribution::fin_pdf(symbol x, symbol param, symbol N, int x_val) {
-    ex pdf_ = pdf(x, param, ntsf(x, ntsd_base(x, param, N)), x_val);
+ex FinitizedBinomialDistribution::fin_pdf(symbol x, symbol param, int x_val) {
+    ex pdf_ = pdf(x, param, ntsf(x, ntsd_base(x, param)), x_val);
     return pdf_;
 }
 
 string FinitizedBinomialDistribution::pdfToString(int val, bool tolatex) {
     stringstream result;
     symbol x("x");
-    symbol param("theta");
+    symbol param("p");
     symbol N("N");
-    ex pdf_ = fin_pdf(x, param, N, val);
+    ex pdf_ = fin_pdf(x, param, val);
     if(tolatex)
         result << latex;
     result << pdf_;
@@ -76,14 +76,8 @@ double FinitizedBinomialDistribution::getProb(int val)  {
 
 double FinitizedBinomialDistribution::fin_pdf(int val) {
     symbol x("x");
-    symbol _param("theta");
+    symbol _param("p");
     symbol N("N");
-    ex pdf_ = fin_pdf(x, _param, N, val);
-    //result << evalf((pdf_.subs(_param == m_theta)).subs(N == m_N));
-    //return std::stod(result.str());
-
-    //ex pdf_ = fin_pdf(x, _param, val);
-    return GiNaC::ex_to<GiNaC::numeric>(evalf(pdf_.subs(_param == m_theta)).subs(N==m_N)).to_double();
+    ex pdf_ = fin_pdf(x, _param, val);
+    return GiNaC::ex_to<GiNaC::numeric>(evalf(pdf_.subs(_param == m_theta))).to_double();
 }
-
-

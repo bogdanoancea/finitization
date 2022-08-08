@@ -23,12 +23,13 @@ dbinom <- function(n, p, N, val = NULL) {
 
 #' @param n The finitization order. It should be an integer > 0.
 #' @export
-getBinomialMFPSUL <- function(n, N) {
-
-    fg <- function(theta) { "x" }
+getBinomialMFPS <- function(n, N) {
+    fg <- function(p) { "x" }
     body(fg)[[2]] <- parse(text = MFPS_binom_pdf(n, N))[[1]]
     solutions <- rootSolve::uniroot.all(fg, c(0,1), n = 10^7, tol = .Machine$double.eps)
-    return((solutions))
+    UL = solutions[length(solutions)]
+    LL = solutions[length(solutions) - 1]
+    return(c(LL, UL))
 }
 
 #' @param n The finitization order. It should be an integer > 0.
@@ -37,16 +38,14 @@ getBinomialMFPSUL <- function(n, N) {
 #' @param latex If TRUE, a string representation of the pdf formatted in Latex format is printed, otherwise it prints
 #' the string representation of the pdf as an R expression.
 #' @export
-printFinitizedBinomialDensity <- function(n, val = NULL, latex = FALSE)  {
+printFinitizedBinomialDensity <- function(n, N, val = NULL, latex = FALSE)  {
     if(!is.null(val)) {
-        x <- c_printFinitizedBinomialDensity(n, val, latex)
-        #NULL
+        x <- c_printFinitizedBinomialDensity(n, N, val, latex)
     } else {
-
         cat(paste0("X", "\t", "pdf\n"))
         for (i in 0:n) {
             cat(paste0(i,":", '\t'))
-            x <- c_printFinitizedBinomialDensity(n, i, latex)
+            x <- c_printFinitizedBinomialDensity(n, N,i, latex)
         }
     }
 }

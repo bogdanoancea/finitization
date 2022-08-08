@@ -41,11 +41,13 @@ printFinitizedPoissonDensity <- function(n, val = NULL, latex = FALSE)  {
 
 #' @param  n The finitization order. It should be an integer > 0.
 #' @export
-getPoissonMFPSUL <- function(n) {
+getPoissonMFPS <- function(n) {
 
     fg<- function(theta) { "x" }
     body(fg)[[2]] <- parse(text = MFPS_pois_pdf(n))[[1]]
-    solutions <- rootSolve::uniroot.all(fg, c(0,1), n = 10^6)
-    return (max(solutions))
+    solutions <- rootSolve::uniroot.all(fg, c(0,1), n = 10^7, tol = .Machine$double.eps)
+    UL = solutions[length(solutions)]
+    LL = solutions[length(solutions) - 1]
+    return(c(LL, UL))
 }
 

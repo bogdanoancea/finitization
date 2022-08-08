@@ -33,8 +33,11 @@ getLogarithmicMFPSUL <- function(n) {
     fg <- function(theta) { "x" }
     body(fg)[[2]] <- parse(text = MFPS_log_pdf(n))[[1]]
     solutions <- rootSolve::uniroot.all(fg, c(0,1), n = 10^7, tol = .Machine$double.eps)
-    return((solutions))
+    UL = solutions[length(solutions)]
+    LL = solutions[length(solutions) - 1]
+    return(c(LL, UL))
 }
+
 
 #' @param n The finitization order. It should be an integer > 0.
 #' @param val The value of the variable for which the probability density function is printed. If NULL, this function prints the
