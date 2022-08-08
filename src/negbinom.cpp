@@ -16,7 +16,7 @@ using namespace std;
 // [[Rcpp::export]]
 IntegerVector rnegbinom(int n, double p, int k, unsigned no) {
     IntegerVector r(no);
-    if( p <= 0 || N <= 0)
+    if( p <= 0 || k <= 0)
         for( int i = 0; i <= no; ++i)
             r[i] = NA_INTEGER;
     else {
