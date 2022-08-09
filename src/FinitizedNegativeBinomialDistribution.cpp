@@ -25,6 +25,7 @@
 
 using namespace std;
 
+
 FinitizedNegativeBinomialDistribution::FinitizedNegativeBinomialDistribution(int n, double p, int k): Finitization(n), m_theta(p), m_k(k) {
     double probs[n+1];
     for( int i = 0; i <= n; ++i) {
@@ -46,9 +47,10 @@ ex FinitizedNegativeBinomialDistribution::ntsf(symbol x, ex pnb) {
 }
 
 ex FinitizedNegativeBinomialDistribution::pdf(symbol x, symbol _theta, ex ntsf, int x_val) {
-    ex optheta = -_theta;
+    ex q = 1 - _theta;
+    ex qneg = -q;
     ex pdf = (ntsf.diff(x, x_val));
-    pdf = pdf.subs(x == optheta) * pow(_theta, x_val) / factorial(x_val);
+    pdf = pdf.subs(x == qneg) * pow( qneg, x_val) / factorial(x_val);
     return pdf;
 
 }
@@ -63,6 +65,7 @@ string FinitizedNegativeBinomialDistribution::pdfToString(int val, bool tolatex)
     symbol x("x");
     symbol param("p");
     ex pdf_ = fin_pdf(x, param, val);
+    Rcout << ntsf(x, ntsd_base(x, param)) << endl;
     if(tolatex)
         result << latex;
     result << pdf_;

@@ -31,7 +31,7 @@ IntegerVector rnegbinom(int n, double p, int k, unsigned no) {
 //' @param n The finitization order. It should be an integer > 0.
 //' @param N The number of trials.
 // [[Rcpp::export]]
-String MFPS_nefbinom_pdf(int n, int k) {
+String MFPS_negbinom_pdf(int n, int k) {
     if(n < 1 || k < 1 )
         return NA_REAL;
 

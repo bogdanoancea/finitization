@@ -80,8 +80,8 @@ rnegbinom <- function(n, p, k, no) {
 
 #' @param n The finitization order. It should be an integer > 0.
 #' @param N The number of trials.
-MFPS_nefbinom_pdf <- function(n, k) {
-    .Call('_finitization_MFPS_nefbinom_pdf', PACKAGE = 'finitization', n, k)
+MFPS_negbinom_pdf <- function(n, k) {
+    .Call('_finitization_MFPS_negbinom_pdf', PACKAGE = 'finitization', n, k)
 }
 
 #' @param n The finitization order. It should be an integer > 0.

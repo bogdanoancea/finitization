@@ -128,15 +128,15 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// MFPS_nefbinom_pdf
-String MFPS_nefbinom_pdf(int n, int k);
-RcppExport SEXP _finitization_MFPS_nefbinom_pdf(SEXP nSEXP, SEXP kSEXP) {
+// MFPS_negbinom_pdf
+String MFPS_negbinom_pdf(int n, int k);
+RcppExport SEXP _finitization_MFPS_negbinom_pdf(SEXP nSEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type n(nSEXP);
     Rcpp::traits::input_parameter< int >::type k(kSEXP);
-    rcpp_result_gen = Rcpp::wrap(MFPS_nefbinom_pdf(n, k));
+    rcpp_result_gen = Rcpp::wrap(MFPS_negbinom_pdf(n, k));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -229,7 +229,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_finitization_c_printFinitizedLogarithmicDensity", (DL_FUNC) &_finitization_c_printFinitizedLogarithmicDensity, 3},
     {"_finitization_c_dlog", (DL_FUNC) &_finitization_c_dlog, 3},
     {"_finitization_rnegbinom", (DL_FUNC) &_finitization_rnegbinom, 4},
-    {"_finitization_MFPS_nefbinom_pdf", (DL_FUNC) &_finitization_MFPS_nefbinom_pdf, 2},
+    {"_finitization_MFPS_negbinom_pdf", (DL_FUNC) &_finitization_MFPS_negbinom_pdf, 2},
     {"_finitization_c_printFinitizedNegativeBinomialDensity", (DL_FUNC) &_finitization_c_printFinitizedNegativeBinomialDensity, 4},
     {"_finitization_c_dnegbinom", (DL_FUNC) &_finitization_c_dnegbinom, 4},
     {"_finitization_rpois", (DL_FUNC) &_finitization_rpois, 3},

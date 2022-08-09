@@ -40,12 +40,12 @@ getNegativeBinomialMFPS <- function(n, k) {
 #' @export
 printFinitizedNegativeBinomialDensity <- function(n, k, val = NULL, latex = FALSE)  {
     if(!is.null(val)) {
-        x <- c_printFinitizedBinomialDensity(n, k, val, latex)
+        x <- c_printFinitizedNegativeBinomialDensity(n, k, val, latex)
     } else {
         cat(paste0("X", "\t", "pdf\n"))
         for (i in 0:n) {
             cat(paste0(i,":", '\t'))
-            x <- c_printFinitizedBinomialDensity(n, k, i, latex)
+            x <- c_printFinitizedNegativeBinomialDensity(n, k, i, latex)
         }
     }
 }
