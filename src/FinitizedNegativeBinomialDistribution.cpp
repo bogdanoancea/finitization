@@ -38,7 +38,7 @@ FinitizedNegativeBinomialDistribution::~FinitizedNegativeBinomialDistribution() 
 }
 
 ex FinitizedNegativeBinomialDistribution::ntsd_base(symbol x, symbol theta){
-    return pow((1/(1-x/theta)), m_k);
+    return pow( 1 /(1-x/(1-theta)), m_k);
 }
 
 ex FinitizedNegativeBinomialDistribution::ntsf(symbol x, ex pnb) {
@@ -47,10 +47,10 @@ ex FinitizedNegativeBinomialDistribution::ntsf(symbol x, ex pnb) {
 }
 
 ex FinitizedNegativeBinomialDistribution::pdf(symbol x, symbol _theta, ex ntsf, int x_val) {
-    ex q = 1 - _theta;
-    ex qneg = -q;
+    ex optheta =  -_theta;
+    //ex qneg = -q;
     ex pdf = (ntsf.diff(x, x_val));
-    pdf = pdf.subs(x == qneg) * pow( qneg, x_val) / factorial(x_val);
+    pdf = pdf.subs(x == optheta) * pow( _theta, x_val) / factorial(x_val);
     return pdf;
 
 }
@@ -63,7 +63,7 @@ ex FinitizedNegativeBinomialDistribution::fin_pdf(symbol x, symbol param, int x_
 string FinitizedNegativeBinomialDistribution::pdfToString(int val, bool tolatex) {
     stringstream result;
     symbol x("x");
-    symbol param("p");
+    symbol param("q");
     ex pdf_ = fin_pdf(x, param, val);
     if(tolatex)
         result << latex;
@@ -77,7 +77,7 @@ double FinitizedNegativeBinomialDistribution::getProb(int val)  {
 
 double FinitizedNegativeBinomialDistribution::fin_pdf(int val) {
     symbol x("x");
-    symbol _param("p");
+    symbol _param("q");
     ex pdf_ = fin_pdf(x, _param, val);
-    return GiNaC::ex_to<GiNaC::numeric>(evalf(pdf_.subs(_param == m_theta))).to_double();
+    return GiNaC::ex_to<GiNaC::numeric>(evalf( pdf_.subs(_param == m_theta))).to_double();
 }

@@ -24,7 +24,7 @@ dnegbinom <- function(n, p, k, val = NULL) {
 #' @param n The finitization order. It should be an integer > 0.
 #' @export
 getNegativeBinomialMFPS <- function(n, k) {
-    fg <- function(p) { "x" }
+    fg <- function(q) { "x" }
     body(fg)[[2]] <- parse(text = MFPS_negbinom_pdf(n, k))[[1]]
     solutions <- rootSolve::uniroot.all(fg, c(0,1), n = 10^7, tol = .Machine$double.eps)
     UL = solutions[length(solutions)]
