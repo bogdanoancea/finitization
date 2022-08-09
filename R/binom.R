@@ -27,10 +27,16 @@ dbinom <- function(n, p, N, val = NULL) {
 getBinomialMFPS <- function(n, N) {
     fg <- function(p) { "x" }
     body(fg)[[2]] <- parse(text = MFPS_binom_pdf(n, N))[[1]]
-    solutions <- rootSolve::uniroot.all(fg, c(0,1), n = 10^7, tol = .Machine$double.eps)
+    U <- 1
+    L <- 0
+    while (is.infinite(fg(U)) )
+        U <- U - .Machine$double.eps
+    while (is.infinite(fg(L)) )
+        L <- L + .Machine$double.eps
+    solutions <- rootSolve::uniroot.all(fg, c(U, L), n = 10^7, tol = .Machine$double.eps)
     UL = solutions[length(solutions)]
     LL = solutions[length(solutions) - 1]
-    return(c(LL, UL))
+    return(c(min(LL,UL), max(LL,UL)))
 }
 
 #' @param n The finitization order. It should be an integer > 0.
