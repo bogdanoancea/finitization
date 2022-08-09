@@ -1,7 +1,7 @@
 
 #' @param n The finitization order. It should be an integer > 0.
-#' @param p
-#' @param N
+#' @param p The parameter of the distribution
+#' @param N The number of trials,
 #' @param val The value of the variable for which the probability density function is computed. If NULL, a data frame containing
 #' all possible values, i.e. {0 .. n}, and the corresponding probabilities is returned.
 #' @export
@@ -22,6 +22,7 @@ dbinom <- function(n, p, N, val = NULL) {
 }
 
 #' @param n The finitization order. It should be an integer > 0.
+#' @param N The number of trials
 #' @export
 getBinomialMFPS <- function(n, N) {
     fg <- function(p) { "x" }
@@ -33,6 +34,7 @@ getBinomialMFPS <- function(n, N) {
 }
 
 #' @param n The finitization order. It should be an integer > 0.
+#' @param N The number of trials
 #' @param val The value of the variable for which the probability density function is printed. If NULL, this function prints the
 #' pdf for all possible values, i.e. {0 .. n}.
 #' @param latex If TRUE, a string representation of the pdf formatted in Latex format is printed, otherwise it prints
@@ -45,7 +47,7 @@ printFinitizedBinomialDensity <- function(n, N, val = NULL, latex = FALSE)  {
         cat(paste0("X", "\t", "pdf\n"))
         for (i in 0:n) {
             cat(paste0(i,":", '\t'))
-            x <- c_printFinitizedBinomialDensity(n, N,i, latex)
+            x <- c_printFinitizedBinomialDensity(n, N, i, latex)
         }
     }
 }
