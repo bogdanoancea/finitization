@@ -29,7 +29,7 @@ getNegativeBinomialMFPS <- function(n, k) {
     solutions <- rootSolve::uniroot.all(fg, c(0,1), n = 10^7, tol = .Machine$double.eps)
     UL = solutions[length(solutions)]
     LL = solutions[length(solutions) - 1]
-    return(c(LL, UL))
+    return(c(min(LL,UL), max(LL,UL)))
 }
 
 #' @param n The finitization order. It should be an integer > 0.

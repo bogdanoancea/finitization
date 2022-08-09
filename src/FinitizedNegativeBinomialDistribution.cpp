@@ -65,7 +65,6 @@ string FinitizedNegativeBinomialDistribution::pdfToString(int val, bool tolatex)
     symbol x("x");
     symbol param("p");
     ex pdf_ = fin_pdf(x, param, val);
-    Rcout << ntsf(x, ntsd_base(x, param)) << endl;
     if(tolatex)
         result << latex;
     result << pdf_;
