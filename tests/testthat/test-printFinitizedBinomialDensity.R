@@ -1,10 +1,12 @@
 test_that("pdf0", {
-  expect_equal(printFinitizedBinomialDensity(2,4,0),"1-4*p+6*p^2")
+    b <- printFinitizedBinomialDensity(2,4,0)
+  expect_true(b == "1-4*p+6*p^2" || b == "1+6*p^2-4*p")
 })
 
 
 test_that("pdf1", {
-    expect_equal(printFinitizedBinomialDensity(2,4,1),"-4*(-1+3*p)*p")
+    b <- printFinitizedBinomialDensity(2,4,1)
+    expect_true( b == "-4*(-1+3*p)*p" || b == "-4*p*(-1+3*p)" )
 })
 
 
