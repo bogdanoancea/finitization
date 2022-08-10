@@ -23,6 +23,7 @@ public:
 protected:
     void setProbs(double *probs);
     ex ntsf(symbol x, ex pnb);
+    virtual ex ntsd_base(symbol x, symbol theta) = 0;
     int m_finitizationOrder;
 
 private:

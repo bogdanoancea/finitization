@@ -58,7 +58,6 @@ string FinitizedBinomialDistribution::pdfToString(int val, bool tolatex) {
     stringstream result;
     symbol x("x");
     symbol param("p");
-    //symbol N("N");
     ex pdf_ = fin_pdf(x, param, val);
     if(tolatex)
         result << latex;

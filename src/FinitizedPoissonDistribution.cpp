@@ -37,7 +37,7 @@ FinitizedPoissonDistribution::FinitizedPoissonDistribution(int n, double theta):
 FinitizedPoissonDistribution::~FinitizedPoissonDistribution() {
 }
 
-ex FinitizedPoissonDistribution::ntsd_base(symbol x){
+ex FinitizedPoissonDistribution::ntsd_base(symbol x, symbol theta){
 	return exp(x);
 }
 
@@ -51,7 +51,7 @@ ex FinitizedPoissonDistribution::pdf(symbol x, symbol _theta, ex ntsf, int x_val
 }
 
 ex FinitizedPoissonDistribution::fin_pdf(symbol x, symbol param, int x_val) {
-	ex pdf_ = pdf(x, param, ntsf(x, ntsd_base(x)), x_val);
+	ex pdf_ = pdf(x, param, ntsf(x, ntsd_base(x, param)), x_val);
 	return pdf_;
 }
 
@@ -77,17 +77,6 @@ double FinitizedPoissonDistribution::fin_pdf(int val) {
 	return GiNaC::ex_to<GiNaC::numeric>(evalf(pdf_.subs(_param == m_theta))).to_double();
 }
 
-
-//
-//
-// double FinitizedPoissonDistribution::fin_pdf(int val, double theta) {
-//     stringstream result;
-//     symbol x("x");
-//     symbol _param("theta");
-//     ex pdf_ = fin_pdf(x, _param, val);
-//     result << evalf(pdf_.subs(_param == theta));
-//     return std::stod(result.str());
-// }
 
 
 
