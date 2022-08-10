@@ -1,17 +1,21 @@
 test_that("pdf", {
-  expect_equal(printFinitizedPoissonDensity(2,0), "1-theta+1/2*theta^2")
+    b <- printFinitizedPoissonDensity(2,0)
+  expect_true(b == "1-theta+1/2*theta^2" || b == "1+1/2*theta^2-theta")
 })
 
 test_that("pdfL", {
-    expect_equal(printFinitizedPoissonDensity(2,0, TRUE), "1-\\theta+\\frac{1}{2} \\theta^{2}")
+    b <- printFinitizedPoissonDensity(2,0, TRUE)
+    expect_true( b == "1-\\theta+\\frac{1}{2} \\theta^{2}" || b == "1+\\frac{1}{2} \\theta^{2}-\\theta" )
 })
 
 test_that("pdf1", {
-    expect_equal(printFinitizedPoissonDensity(2,1), "-(-1+theta)*theta")
+    b <- printFinitizedPoissonDensity(2,1)
+    expect_true( b == "-(-1+theta)*theta" || b == "-theta*(-1+theta)")
 })
 
 test_that("pdfL1", {
-    expect_equal(printFinitizedPoissonDensity(2,1, TRUE), "- \\theta {(-1+\\theta)}")
+    b <- printFinitizedPoissonDensity(2,1, TRUE)
+    expect_true( b == "- {(-1+\\theta)} \\theta" || b =="- \\theta {(-1+\\theta)}")
 })
 
 
