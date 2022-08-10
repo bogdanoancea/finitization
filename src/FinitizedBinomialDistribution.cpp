@@ -40,10 +40,6 @@ ex FinitizedBinomialDistribution::ntsd_base(symbol x, symbol theta){
     return pow((1 + x), m_N);
 }
 
-//candidat la mers in clasa de baza
-ex FinitizedBinomialDistribution::ntsf(symbol x, ex pnb) {
-    return series_to_poly(pnb.series(x == 0, m_finitizationOrder+1));
-}
 
 ex FinitizedBinomialDistribution::pdf(symbol x, symbol _theta, ex ntsf, int x_val) {
     ex optheta = -_theta;

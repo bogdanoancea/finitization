@@ -42,10 +42,6 @@ ex FinitizedLogarithmicDistribution::ntsd_base(symbol x, symbol theta){
     return theta * log(1 - theta -x) / ((theta + x) * log(1-theta));
 }
 
-ex FinitizedLogarithmicDistribution::ntsf(symbol x, ex pnb) {
-    return series_to_poly(pnb.series(x == 0, m_finitizationOrder+1));
-
-}
 
 ex FinitizedLogarithmicDistribution::pdf(symbol x, symbol _theta, ex ntsf, int x_val) {
     ex optheta = -_theta;

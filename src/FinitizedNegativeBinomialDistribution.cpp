@@ -41,14 +41,9 @@ ex FinitizedNegativeBinomialDistribution::ntsd_base(symbol x, symbol theta){
     return pow( 1 /(1-x/(1-theta)), m_k);
 }
 
-ex FinitizedNegativeBinomialDistribution::ntsf(symbol x, ex pnb) {
-    return series_to_poly(pnb.series(x == 0, m_finitizationOrder+1));
-
-}
 
 ex FinitizedNegativeBinomialDistribution::pdf(symbol x, symbol _theta, ex ntsf, int x_val) {
     ex optheta =  -_theta;
-    //ex qneg = -q;
     ex pdf = (ntsf.diff(x, x_val));
     pdf = pdf.subs(x == optheta) * pow( _theta, x_val) / factorial(x_val);
     return pdf;

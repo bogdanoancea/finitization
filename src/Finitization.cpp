@@ -75,3 +75,8 @@ IntegerVector Finitization::rvalues(int no) {
     return result;
 }
 
+ex Finitization::ntsf(symbol x, ex pnb) {
+    return series_to_poly(pnb.series(x == 0, m_finitizationOrder+1));
+
+}
+

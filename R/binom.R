@@ -35,7 +35,10 @@ getBinomialMFPS <- function(n, N) {
         L <- L + .Machine$double.eps
     solutions <- rootSolve::uniroot.all(fg, c(U, L), n = 10^7, tol = .Machine$double.eps)
     UL = solutions[length(solutions)]
-    LL = solutions[length(solutions) - 1]
+    if(length(solutions) > 1)
+        LL = solutions[length(solutions) - 1]
+    else
+        LL = 0
     return(c(min(LL,UL), max(LL,UL)))
 }
 

@@ -1,7 +1,10 @@
 #include <random>
 #include "Rcpp.h"
+#include <ginac/ginac.h>
+
 using namespace std;
 using namespace Rcpp;
+using namespace GiNaC;
 
 #ifndef FINITIZATION_H_
 #define FINITIZATION_H_
@@ -19,7 +22,7 @@ public:
 
 protected:
     void setProbs(double *probs);
-
+    ex ntsf(symbol x, ex pnb);
     int m_finitizationOrder;
 
 private:

@@ -41,10 +41,6 @@ ex FinitizedPoissonDistribution::ntsd_base(symbol x){
 	return exp(x);
 }
 
-ex FinitizedPoissonDistribution::ntsf(symbol x, ex pnb) {
-	return series_to_poly(pnb.series(x == 0, m_finitizationOrder+1));
-
-}
 
 ex FinitizedPoissonDistribution::pdf(symbol x, symbol _theta, ex ntsf, int x_val) {
 	ex optheta = -_theta;

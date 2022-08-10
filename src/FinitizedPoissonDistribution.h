@@ -39,15 +39,12 @@ public:
 	string pdfToString(int val, bool latex) override;
 	double fin_pdf(int val) override;
     double getProb(int val) override;
-    //double getMFPSUL() override;
 
 private:
 	double m_theta;
 	ex ntsd_base(symbol x);
-	ex ntsf(symbol x, ex pnb);
 	ex pdf(symbol x, symbol _theta, ex ntsf,  int x_val);
 	ex fin_pdf(symbol x, symbol param, int x_val);
-	//double fin_pdf(int val, double theta) override;
 };
 
 #endif /* FINITIZEDPOISSONDISTRIBUTION_H_ */
