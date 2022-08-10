@@ -5,7 +5,7 @@ Version: 0.1
 Authors@R: 
     person("Bogdan", "Oancea", , "bogdan.oancea@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "YOUR-ORCID-ID"))
-License:  MIT 
+License: MIT + file LICENSE
 Encoding: UTF-8
 NeedsCompilation: yes
 SystemRequirements: CLN (>= 1.3.6, https://www.ginac.de/CLN/) and
@@ -17,8 +17,10 @@ BugReports: https://github.com/bogdanoancea/finitization/issues
 Imports: Rcpp,
          rootSolve
 Suggests: 
+    testthat (>= 3.0.0),
     knitr,
     rmarkdown
 VignetteBuilder: knitr
 LinkingTo: 
     Rcpp
+Config/testthat/edition: 3

@@ -73,7 +73,6 @@ double FinitizedBinomialDistribution::getProb(int val)  {
 double FinitizedBinomialDistribution::fin_pdf(int val) {
     symbol x("x");
     symbol _param("p");
-    //symbol N("N");
     ex pdf_ = fin_pdf(x, _param, val);
     return GiNaC::ex_to<GiNaC::numeric>(evalf(pdf_.subs(_param == m_theta))).to_double();
 }
