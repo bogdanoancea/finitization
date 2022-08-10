@@ -40,9 +40,9 @@ ex FinitizedBinomialDistribution::ntsd_base(symbol x, symbol theta){
     return pow((1 + x), m_N);
 }
 
+//candidat la mers in clasa de baza
 ex FinitizedBinomialDistribution::ntsf(symbol x, ex pnb) {
     return series_to_poly(pnb.series(x == 0, m_finitizationOrder+1));
-
 }
 
 ex FinitizedBinomialDistribution::pdf(symbol x, symbol _theta, ex ntsf, int x_val) {
@@ -52,7 +52,7 @@ ex FinitizedBinomialDistribution::pdf(symbol x, symbol _theta, ex ntsf, int x_va
     return pdf;
 
 }
-
+//candidat la mers in clasa de baza
 ex FinitizedBinomialDistribution::fin_pdf(symbol x, symbol param, int x_val) {
     ex pdf_ = pdf(x, param, ntsf(x, ntsd_base(x, param)), x_val);
     return pdf_;
@@ -62,7 +62,7 @@ string FinitizedBinomialDistribution::pdfToString(int val, bool tolatex) {
     stringstream result;
     symbol x("x");
     symbol param("p");
-    symbol N("N");
+    //symbol N("N");
     ex pdf_ = fin_pdf(x, param, val);
     if(tolatex)
         result << latex;
@@ -70,6 +70,7 @@ string FinitizedBinomialDistribution::pdfToString(int val, bool tolatex) {
     return result.str();
 }
 
+//in clasa de baza
 double FinitizedBinomialDistribution::getProb(int val)  {
     return fin_pdf(val);
 }
@@ -77,7 +78,7 @@ double FinitizedBinomialDistribution::getProb(int val)  {
 double FinitizedBinomialDistribution::fin_pdf(int val) {
     symbol x("x");
     symbol _param("p");
-    symbol N("N");
+    //symbol N("N");
     ex pdf_ = fin_pdf(x, _param, val);
     return GiNaC::ex_to<GiNaC::numeric>(evalf(pdf_.subs(_param == m_theta))).to_double();
 }

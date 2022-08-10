@@ -13,6 +13,7 @@ Finitization::Finitization(int n): m_finitizationOrder(n), m_unif_double_distrib
      for(int i = 0; i <= n; i++)
         m_values[i] = i;
 	 m_generator.seed(time(0));
+
 }
 
 Finitization::~Finitization() {
