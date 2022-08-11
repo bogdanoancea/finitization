@@ -11,6 +11,6 @@ test_that("logarithmic MFPS 2", {
 })
 
 
-test_that("logarithmic MFPS 2", {
-    expect_equal(round(getLogarithmicMFPS(7), 4), c(0.0085, 0.1406) )
+test_that("logarithmic MFPS 3", {
+    expect_equal(round(getLogarithmicMFPS(7), 3), c(0.008, 0.140) )
 })
