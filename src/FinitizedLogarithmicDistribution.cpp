@@ -27,7 +27,10 @@
 
 using namespace std;
 
-FinitizedLogarithmicDistribution::FinitizedLogarithmicDistribution(int n, double theta): Finitization(n), m_theta(theta) {
+FinitizedLogarithmicDistribution::FinitizedLogarithmicDistribution(int n, double theta): Finitization(n) {
+    m_theta = theta;
+    m_paramSymb = symbol("theta");
+    m_x = symbol("x");
     double probs[n+1];
     for( int i = 0; i <= n; ++i) {
         probs[i] = fin_pdf(i);
@@ -43,24 +46,9 @@ ex FinitizedLogarithmicDistribution::ntsd_base(symbol x, symbol theta){
 }
 
 
-
-string FinitizedLogarithmicDistribution::pdfToString(int val, bool tolatex) {
-    stringstream result;
-    symbol x("x");
-    symbol param("theta");
-    ex pdf_ = fin_pdfSymb(x, param, val);
-    if(tolatex)
-        result << latex;
-    result << pdf_;
-    return result.str();
-}
-
-
 double FinitizedLogarithmicDistribution::fin_pdf(int val) {
-    symbol x("x");
-    symbol _param("theta");
-    ex pdf_ = fin_pdfSymb(x, _param, val);
-    return GiNaC::ex_to<GiNaC::numeric>(evalf(pdf_.subs(_param == m_theta))).to_double();
+    ex pdf_ = fin_pdfSymb(m_x, m_paramSymb, val);
+    return GiNaC::ex_to<GiNaC::numeric>(evalf(pdf_.subs(m_paramSymb == m_theta))).to_double();
 }
 
 

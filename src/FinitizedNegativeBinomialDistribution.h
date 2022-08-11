@@ -36,11 +36,9 @@ public:
     FinitizedNegativeBinomialDistribution(int n, double p, int k);
     virtual ~FinitizedNegativeBinomialDistribution();
 
-    string pdfToString(int val, bool tolatex) override;
     double fin_pdf(int val) override;
 
 private:
-    double m_theta;
     int m_k;
     ex ntsd_base(symbol x, symbol theta) override;
 

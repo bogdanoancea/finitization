@@ -36,11 +36,9 @@ public:
 	FinitizedPoissonDistribution(int n, double theta);
 	virtual ~FinitizedPoissonDistribution();
 
-	string pdfToString(int val, bool latex) override;
 	double fin_pdf(int val) override;
 
 private:
-	double m_theta;
 	ex ntsd_base(symbol x, symbol theta) override;
 };
 

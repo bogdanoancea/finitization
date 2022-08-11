@@ -92,3 +92,12 @@ ex Finitization::fin_pdfSymb(symbol x, symbol param, int x_val) {
     ex pdf_ = pdf(x, param, ntsf(x, ntsd_base(x, param)), x_val);
     return pdf_;
 }
+
+string Finitization::pdfToString(int val, bool tolatex) {
+    stringstream result;
+    ex pdf_ = fin_pdfSymb(m_x, m_paramSymb, val);
+    if(tolatex)
+        result << latex;
+    result << pdf_;
+    return result.str();
+}

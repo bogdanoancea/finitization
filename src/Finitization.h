@@ -15,7 +15,7 @@ public:
 
     virtual ~Finitization();
 
-    virtual string pdfToString(int val, bool tolatex = false) = 0;
+    string pdfToString(int val, bool tolatex = false);
     virtual double fin_pdf(int val)= 0;
     IntegerVector rvalues(int no );
 
@@ -23,10 +23,15 @@ protected:
     void setProbs(double *probs);
     ex ntsf(symbol x, ex pnb);
     ex pdf(symbol x, symbol _theta, ex ntsf, int x_val);
+
     ex fin_pdfSymb(symbol x, symbol param, int x_val);
 
     virtual ex ntsd_base(symbol x, symbol theta) = 0;
     int m_finitizationOrder;
+    double m_theta;
+    symbol m_paramSymb;
+    symbol m_x;
+
 
 private:
 
