@@ -43,7 +43,6 @@ private:
     double m_theta;
     int m_N;
     ex ntsd_base(symbol x, symbol theta) override;
-    ex fin_pdf(symbol x, symbol param, int x_val);
 };
 
 #endif /* FINITIZEDBINOMIALDISTRIBUTION_H_ */

@@ -42,16 +42,11 @@ ex FinitizedPoissonDistribution::ntsd_base(symbol x, symbol theta){
 }
 
 
-ex FinitizedPoissonDistribution::fin_pdf(symbol x, symbol param, int x_val) {
-	ex pdf_ = pdf(x, param, ntsf(x, ntsd_base(x, param)), x_val);
-	return pdf_;
-}
-
 string FinitizedPoissonDistribution::pdfToString(int val, bool tolatex) {
 	stringstream result;
 	symbol x("x");
 	symbol param("theta");
-	ex pdf_ = fin_pdf(x, param, val);
+	ex pdf_ = fin_pdfSymb(x, param, val);
 	if(tolatex)
 	    result << latex;
 	result << pdf_;
@@ -62,7 +57,7 @@ string FinitizedPoissonDistribution::pdfToString(int val, bool tolatex) {
 double FinitizedPoissonDistribution::fin_pdf(int val) {
 	symbol x("x");
 	symbol _param("theta");
-	ex pdf_ = fin_pdf(x, _param, val);
+	ex pdf_ = fin_pdfSymb(x, _param, val);
 	return GiNaC::ex_to<GiNaC::numeric>(evalf(pdf_.subs(_param == m_theta))).to_double();
 }
 

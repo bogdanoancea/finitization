@@ -87,3 +87,8 @@ ex Finitization::pdf(symbol x, symbol _theta, ex ntsf, int x_val) {
     return pdf;
 
 }
+
+ex Finitization::fin_pdfSymb(symbol x, symbol param, int x_val) {
+    ex pdf_ = pdf(x, param, ntsf(x, ntsd_base(x, param)), x_val);
+    return pdf_;
+}
