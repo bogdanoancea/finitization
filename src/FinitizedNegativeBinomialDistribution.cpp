@@ -42,14 +42,6 @@ ex FinitizedNegativeBinomialDistribution::ntsd_base(symbol x, symbol theta){
 }
 
 
-ex FinitizedNegativeBinomialDistribution::pdf(symbol x, symbol _theta, ex ntsf, int x_val) {
-    ex optheta =  -_theta;
-    ex pdf = (ntsf.diff(x, x_val));
-    pdf = pdf.subs(x == optheta) * pow( _theta, x_val) / factorial(x_val);
-    return pdf;
-
-}
-
 ex FinitizedNegativeBinomialDistribution::fin_pdf(symbol x, symbol param, int x_val) {
     ex pdf_ = pdf(x, param, ntsf(x, ntsd_base(x, param)), x_val);
     return pdf_;

@@ -42,7 +42,6 @@ public:
 private:
 	double m_theta;
 	ex ntsd_base(symbol x, symbol theta) override;
-	ex pdf(symbol x, symbol _theta, ex ntsf,  int x_val);
 	ex fin_pdf(symbol x, symbol param, int x_val);
 };
 

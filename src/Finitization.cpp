@@ -80,3 +80,10 @@ ex Finitization::ntsf(symbol x, ex pnb) {
 
 }
 
+ex Finitization::pdf(symbol x, symbol _theta, ex ntsf, int x_val) {
+    ex optheta = -_theta;
+    ex pdf = (ntsf.diff(x, x_val));
+    pdf = pdf.subs(x == optheta) * pow(_theta, x_val) / factorial(x_val);
+    return pdf;
+
+}
