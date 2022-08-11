@@ -65,10 +65,6 @@ string FinitizedBinomialDistribution::pdfToString(int val, bool tolatex) {
     return result.str();
 }
 
-//in clasa de baza
-double FinitizedBinomialDistribution::getProb(int val)  {
-    return fin_pdf(val);
-}
 
 double FinitizedBinomialDistribution::fin_pdf(int val) {
     symbol x("x");

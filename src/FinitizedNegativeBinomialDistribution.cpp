@@ -66,9 +66,6 @@ string FinitizedNegativeBinomialDistribution::pdfToString(int val, bool tolatex)
     return result.str();
 }
 
-double FinitizedNegativeBinomialDistribution::getProb(int val)  {
-    return fin_pdf(val);
-}
 
 double FinitizedNegativeBinomialDistribution::fin_pdf(int val) {
     symbol x("x");

@@ -67,9 +67,6 @@ string FinitizedLogarithmicDistribution::pdfToString(int val, bool tolatex) {
     return result.str();
 }
 
-double FinitizedLogarithmicDistribution::getProb(int val)  {
-    return fin_pdf(val);
-}
 
 double FinitizedLogarithmicDistribution::fin_pdf(int val) {
     symbol x("x");

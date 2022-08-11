@@ -68,7 +68,7 @@ String c_printFinitizedLogarithmicDensity(int n, int val, bool latex = false) {
 //  [[Rcpp::export]]
 double c_dlog(int n, double theta, double val) {
     Finitization* f = new FinitizedLogarithmicDistribution(n, theta);
-    double p =  f->getProb(val);
+    double p =  f->fin_pdf(val);
     delete f;
     return p;
 }

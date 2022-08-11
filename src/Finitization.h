@@ -18,7 +18,6 @@ public:
     virtual string pdfToString(int val, bool tolatex = false) = 0;
     virtual double fin_pdf(int val)= 0;
     IntegerVector rvalues(int no );
-    virtual double getProb(int val)  = 0;
 
 protected:
     void setProbs(double *probs);

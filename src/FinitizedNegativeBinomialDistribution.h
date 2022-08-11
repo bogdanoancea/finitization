@@ -38,7 +38,6 @@ public:
 
     string pdfToString(int val, bool tolatex) override;
     double fin_pdf(int val) override;
-    double getProb(int val) override;
 
 private:
     double m_theta;

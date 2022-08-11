@@ -70,7 +70,7 @@ String c_printFinitizedBinomialDensity(int n, int N, int val, bool latex = false
 //  [[Rcpp::export]]
 double c_dbinom(int n, double p, int N, double val) {
     Finitization* f = new FinitizedBinomialDistribution(n, p, N);
-    double pp =  f->getProb(val);
+    double pp =  f->fin_pdf(val);
     delete f;
     return pp;
 }

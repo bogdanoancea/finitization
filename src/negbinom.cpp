@@ -70,7 +70,7 @@ String c_printFinitizedNegativeBinomialDensity(int n, int k, int val, bool latex
 //  [[Rcpp::export]]
 double c_dnegbinom(int n, double p, int k, double val) {
     Finitization* f = new FinitizedNegativeBinomialDistribution(n, p, k);
-    double pp =  f->getProb(val);
+    double pp =  f->fin_pdf(val);
     delete f;
     return pp;
 }

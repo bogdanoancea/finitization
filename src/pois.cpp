@@ -32,7 +32,7 @@ IntegerVector rpois(int n, double theta, unsigned no) {
 //  [[Rcpp::export]]
 double c_dpois(int n, double theta, double val) {
     Finitization* f = new FinitizedPoissonDistribution(n, theta);
-    double p =  f->getProb(val);
+    double p =  f->fin_pdf(val);
     delete f;
     return p;
 }

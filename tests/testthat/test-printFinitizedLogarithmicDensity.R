@@ -1,4 +1,4 @@
-test_that("pdf0", {
+test_that("pdf2", {
     b <- printFinitizedLogarithmicDensity(2,2)
     expect_true(b == "1/2*theta^2*(2*theta^(-2)*log(1-theta)-2*theta^(-1)*(-1+theta)^(-1)-(-1+theta)^(-2))*log(1-theta)^(-1)"
                 || b == "1/2*theta^2*(2*theta^(-2)-2*log(1-theta)^(-1)*theta^(-1)*(-1+theta)^(-1)-log(1-theta)^(-1)*(-1+theta)^(-2))"
@@ -82,10 +82,7 @@ test_that("pdf0", {
                 || b == "-1/2*(2*(-1+theta)^(-1)*theta^(-2)-2*theta^(-3)*log(1-theta)+(-1+theta)^(-2)*theta^(-1))*theta^3*log(1-theta)^(-1)" )
 })
 
-# test_that("pdf2", {
-#     b <- printFinitizedLogarithmicDensity(2,2)
-#     expect_true(b == "1-1/2*theta^2*(2*theta^(-1)*log(1-theta)^(-1)*(-1+theta)^(-1)+log(1-theta)^(-1)*(-1+theta)^(-2)-2*theta^(-2))+(theta^(-1)-log(1-theta)^(-1)*(-1+theta)^(-1))*theta")
-# })
+
 
 test_that("pdf3", {
      b <- printFinitizedLogarithmicDensity(2,3)

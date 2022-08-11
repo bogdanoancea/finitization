@@ -66,9 +66,6 @@ string FinitizedPoissonDistribution::pdfToString(int val, bool tolatex) {
     return result.str();
 }
 
-double FinitizedPoissonDistribution::getProb(int val)  {
-     return fin_pdf(val);
-}
 
 double FinitizedPoissonDistribution::fin_pdf(int val) {
 	symbol x("x");
