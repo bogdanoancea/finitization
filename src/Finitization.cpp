@@ -101,3 +101,30 @@ string Finitization::pdfToString(int val, bool tolatex) {
     result << pdf_;
     return result.str();
 }
+
+
+// #include <iostream>
+// #include <vector>
+// #include <algorithm>
+// #include <ginac/ginac.h>
+//
+// int main()
+// {
+//     using namespace GiNaC;
+//     symbol x("x");
+//     ex poly(-3*x-5+power(x,2));
+//
+//     std::vector<ex> terms(poly.begin(), poly.end());
+//     std::sort(std::begin(terms), std::end(terms),
+//               [x](const ex& lhs, const ex& rhs) { return lhs.degree(x)>rhs.degree(x); });
+//
+//     bool first{ true };
+//     for(auto term : terms) {
+//         if( first ) first = false;
+//         else if( term.coeff(term)>0) std::cout << '+' ;
+//
+//         std::cout << term;
+//     }
+//
+//     std::cout << std::endl;
+// }
