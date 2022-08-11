@@ -4,7 +4,7 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of finitization is to ...
+The goal of this package is to implement the concept of probability distribution finitization.
 
 ## Installation
 
