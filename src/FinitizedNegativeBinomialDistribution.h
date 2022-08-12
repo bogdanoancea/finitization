@@ -36,7 +36,7 @@ public:
     FinitizedNegativeBinomialDistribution(int n, double p, int k);
     virtual ~FinitizedNegativeBinomialDistribution();
 
-    double fin_pdf(int val) override;
+    //double fin_pdf(int val) override;
 
 private:
     int m_k;

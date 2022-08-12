@@ -45,10 +45,10 @@ ex FinitizedPoissonDistribution::ntsd_base(symbol x, symbol theta){
 }
 
 
-double FinitizedPoissonDistribution::fin_pdf(int val) {
-	ex pdf_ = fin_pdfSymb(m_x, m_paramSymb, val);
-	return GiNaC::ex_to<GiNaC::numeric>(evalf(pdf_.subs(m_paramSymb == m_theta))).to_double();
-}
+// double FinitizedPoissonDistribution::fin_pdf(int val) {
+// 	ex pdf_ = fin_pdfSymb( val);
+// 	return GiNaC::ex_to<GiNaC::numeric>(evalf(pdf_.subs(m_paramSymb == m_theta))).to_double();
+// }
 
 
 

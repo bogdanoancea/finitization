@@ -36,7 +36,7 @@ public:
     FinitizedBinomialDistribution(int n, double theta, int N);
     virtual ~FinitizedBinomialDistribution();
 
-    double fin_pdf(int val) override;
+    //double fin_pdf(int val) override;
 
 private:
     int m_N;

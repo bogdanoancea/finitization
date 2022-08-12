@@ -75,31 +75,35 @@ IntegerVector Finitization::rvalues(int no) {
     return result;
 }
 
-ex Finitization::ntsf(symbol x, ex pnb) {
-    return series_to_poly(pnb.series(x == 0, m_finitizationOrder+1));
-
+ex Finitization::ntsf( ex pnb) {
+    return series_to_poly(pnb.series(m_x == 0, m_finitizationOrder+1));
 }
 
-ex Finitization::pdf(symbol x, symbol _theta, ex ntsf, int x_val) {
-    ex optheta = -_theta;
-    ex pdf = (ntsf.diff(x, x_val));
-    pdf = pdf.subs(x == optheta) * pow(_theta, x_val) / factorial(x_val);
+ex Finitization::pdf(ex ntsf, int x_val) {
+    ex optheta = -m_paramSymb;
+    ex pdf = (ntsf.diff(m_x, x_val));
+    pdf = pdf.subs(m_x == optheta) * pow(m_paramSymb, x_val) / factorial(x_val);
     return pdf;
 
 }
 
-ex Finitization::fin_pdfSymb(symbol x, symbol param, int x_val) {
-    ex pdf_ = pdf(x, param, ntsf(x, ntsd_base(x, param)), x_val);
+ex Finitization::fin_pdfSymb(int x_val) {
+    ex pdf_ = pdf(ntsf(ntsd_base(m_x, m_paramSymb)), x_val);
     return pdf_;
 }
 
 string Finitization::pdfToString(int val, bool tolatex) {
     stringstream result;
-    ex pdf_ = fin_pdfSymb(m_x, m_paramSymb, val);
+    ex pdf_ = fin_pdfSymb(val);
     if(tolatex)
         result << latex;
     result << pdf_;
     return result.str();
+}
+
+double Finitization::fin_pdf(int val) {
+    ex pdf_ = fin_pdfSymb(val);
+    return GiNaC::ex_to<GiNaC::numeric>(evalf(pdf_.subs(m_paramSymb == m_theta))).to_double();
 }
 
 
