@@ -194,19 +194,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// c_printFinitizedPoissonDensity
-String c_printFinitizedPoissonDensity(int n, int val, bool latex);
-RcppExport SEXP _finitization_c_printFinitizedPoissonDensity(SEXP nSEXP, SEXP valSEXP, SEXP latexSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< int >::type val(valSEXP);
-    Rcpp::traits::input_parameter< bool >::type latex(latexSEXP);
-    rcpp_result_gen = Rcpp::wrap(c_printFinitizedPoissonDensity(n, val, latex));
-    return rcpp_result_gen;
-END_RCPP
-}
 // MFPS_pois_pdf
 String MFPS_pois_pdf(int n);
 RcppExport SEXP _finitization_MFPS_pois_pdf(SEXP nSEXP) {
@@ -215,6 +202,41 @@ BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type n(nSEXP);
     rcpp_result_gen = Rcpp::wrap(MFPS_pois_pdf(n));
+    return rcpp_result_gen;
+END_RCPP
+}
+// c_printDensity
+String c_printDensity(int n, int val, Rcpp::List const& params, int dtype, bool latex);
+RcppExport SEXP _finitization_c_printDensity(SEXP nSEXP, SEXP valSEXP, SEXP paramsSEXP, SEXP dtypeSEXP, SEXP latexSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< int >::type val(valSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List const& >::type params(paramsSEXP);
+    Rcpp::traits::input_parameter< int >::type dtype(dtypeSEXP);
+    Rcpp::traits::input_parameter< bool >::type latex(latexSEXP);
+    rcpp_result_gen = Rcpp::wrap(c_printDensity(n, val, params, dtype, latex));
+    return rcpp_result_gen;
+END_RCPP
+}
+// getPoissonType
+int getPoissonType();
+RcppExport SEXP _finitization_getPoissonType() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(getPoissonType());
+    return rcpp_result_gen;
+END_RCPP
+}
+// getNegativeBinomialType
+int getNegativeBinomialType();
+RcppExport SEXP _finitization_getNegativeBinomialType() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(getNegativeBinomialType());
     return rcpp_result_gen;
 END_RCPP
 }
@@ -234,8 +256,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_finitization_c_dnegbinom", (DL_FUNC) &_finitization_c_dnegbinom, 4},
     {"_finitization_rpois", (DL_FUNC) &_finitization_rpois, 3},
     {"_finitization_c_dpois", (DL_FUNC) &_finitization_c_dpois, 3},
-    {"_finitization_c_printFinitizedPoissonDensity", (DL_FUNC) &_finitization_c_printFinitizedPoissonDensity, 3},
     {"_finitization_MFPS_pois_pdf", (DL_FUNC) &_finitization_MFPS_pois_pdf, 1},
+    {"_finitization_c_printDensity", (DL_FUNC) &_finitization_c_printDensity, 5},
+    {"_finitization_getPoissonType", (DL_FUNC) &_finitization_getPoissonType, 0},
+    {"_finitization_getNegativeBinomialType", (DL_FUNC) &_finitization_getNegativeBinomialType, 0},
     {NULL, NULL, 0}
 };
 

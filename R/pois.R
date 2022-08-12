@@ -1,3 +1,4 @@
+#' @include utils.R
 
 #' @param n The finitization order. It should be an integer > 0.
 #' @param val The value of the variable for which the probability density function is computed. If NULL, a data frame containing
@@ -27,15 +28,11 @@ dpois <- function(n, theta, val = NULL) {
 #' the string representation of the pdf as an R expression.
 #' @export
 printFinitizedPoissonDensity <- function(n, val = NULL, latex = FALSE)  {
-    if(!is.null(val)) {
-        x<-c_printFinitizedPoissonDensity(n, val, latex)
-        #NULL
-    } else {
-        cat(paste0("X", "\t", "pdf\n"))
-        for (i in 0:n) {
-            cat(paste0(i,":", '\t'))
-            x<-c_printFinitizedPoissonDensity(n, i, latex)
-        }
+    if( n < 1 ) {
+        cat("n shlould be an integer > 0\n")
+    }  else {
+        params <- NULL
+        printDensity(n, val, params, getPoissonType(), latex)
     }
 }
 

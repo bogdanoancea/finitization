@@ -1,4 +1,5 @@
-
+#' @include utils.R
+#'
 #' @param n The finitization order. It should be an integer > 0.
 #' @param q The parameter of the distribution
 #' @param k The number of trials.
@@ -51,13 +52,11 @@ getNegativeBinomialMFPS <- function(n, k) {
 #' the string representation of the pdf as an R expression.
 #' @export
 printFinitizedNegativeBinomialDensity <- function(n, k, val = NULL, latex = FALSE)  {
-    if(!is.null(val)) {
-        x <- c_printFinitizedNegativeBinomialDensity(n, k, val, latex)
+    if(n < 1) {
+        cat("n shlould be an integer > 0\n")
     } else {
-        cat(paste0("X", "\t", "pdf\n"))
-        for (i in 0:n) {
-            cat(paste0(i,":", '\t'))
-            x <- c_printFinitizedNegativeBinomialDensity(n, k, i, latex)
-        }
+        params<-list()
+        params["k"] = k
+        printDensity(n, val, params, getNegativeBinomialType(), latex)
     }
 }

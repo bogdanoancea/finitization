@@ -26,6 +26,7 @@ protected:
 
     ex fin_pdfSymb(int x_val);
     virtual ex ntsd_base(symbol x, symbol theta) = 0;
+
     int m_finitizationOrder;
     double m_theta;
     symbol m_paramSymb;

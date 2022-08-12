@@ -121,16 +121,25 @@ c_dpois <- function(n, theta, val) {
 }
 
 #' @param n The finitization order. It should be an integer > 0.
-#' @param theta The parameter of the Poisson distribution.
-#' @param val The value of the variable for which the probability density function is computed.
-#' @param latex If true it returns a Latex formatted string representation of the pdf,otherwise it returns
-#' the string representation of the pdf as an R expression.
-c_printFinitizedPoissonDensity <- function(n, val, latex = FALSE) {
-    .Call('_finitization_c_printFinitizedPoissonDensity', PACKAGE = 'finitization', n, val, latex)
+MFPS_pois_pdf <- function(n) {
+    .Call('_finitization_MFPS_pois_pdf', PACKAGE = 'finitization', n)
 }
 
 #' @param n The finitization order. It should be an integer > 0.
-MFPS_pois_pdf <- function(n) {
-    .Call('_finitization_MFPS_pois_pdf', PACKAGE = 'finitization', n)
+#' @param val The value of the variable for which the probability density function is computed.
+#' @param params
+#' @parama dtype
+#' @param latex If true it returns a Latex formatted string representation of the pdf,otherwise it returns
+#' the string representation of the pdf as an R expression.
+c_printDensity <- function(n, val, params, dtype, latex = FALSE) {
+    .Call('_finitization_c_printDensity', PACKAGE = 'finitization', n, val, params, dtype, latex)
+}
+
+getPoissonType <- function() {
+    .Call('_finitization_getPoissonType', PACKAGE = 'finitization')
+}
+
+getNegativeBinomialType <- function() {
+    .Call('_finitization_getNegativeBinomialType', PACKAGE = 'finitization')
 }
 

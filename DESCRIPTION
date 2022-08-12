@@ -24,3 +24,11 @@ VignetteBuilder: knitr
 LinkingTo: 
     Rcpp
 Config/testthat/edition: 3
+Collate: 
+    'RcppExports.R'
+    'binom.R'
+    'finitization.R'
+    'log.R'
+    'utils.R'
+    'negbinom.R'
+    'pois.R'
