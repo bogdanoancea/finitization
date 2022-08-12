@@ -240,6 +240,26 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// getBinomialType
+int getBinomialType();
+RcppExport SEXP _finitization_getBinomialType() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(getBinomialType());
+    return rcpp_result_gen;
+END_RCPP
+}
+// getLogarithmicType
+int getLogarithmicType();
+RcppExport SEXP _finitization_getLogarithmicType() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(getLogarithmicType());
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_finitization_rbinom", (DL_FUNC) &_finitization_rbinom, 4},
@@ -260,6 +280,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_finitization_c_printDensity", (DL_FUNC) &_finitization_c_printDensity, 5},
     {"_finitization_getPoissonType", (DL_FUNC) &_finitization_getPoissonType, 0},
     {"_finitization_getNegativeBinomialType", (DL_FUNC) &_finitization_getNegativeBinomialType, 0},
+    {"_finitization_getBinomialType", (DL_FUNC) &_finitization_getBinomialType, 0},
+    {"_finitization_getLogarithmicType", (DL_FUNC) &_finitization_getLogarithmicType, 0},
     {NULL, NULL, 0}
 };
 

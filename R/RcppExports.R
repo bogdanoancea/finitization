@@ -127,8 +127,8 @@ MFPS_pois_pdf <- function(n) {
 
 #' @param n The finitization order. It should be an integer > 0.
 #' @param val The value of the variable for which the probability density function is computed.
-#' @param params
-#' @parama dtype
+#' @param params Other parameters of the distribution.
+#' @param dtype The type of the distribution: Poisson, Binomial, NegativeBinomial, Logaritmic
 #' @param latex If true it returns a Latex formatted string representation of the pdf,otherwise it returns
 #' the string representation of the pdf as an R expression.
 c_printDensity <- function(n, val, params, dtype, latex = FALSE) {
@@ -141,5 +141,13 @@ getPoissonType <- function() {
 
 getNegativeBinomialType <- function() {
     .Call('_finitization_getNegativeBinomialType', PACKAGE = 'finitization')
+}
+
+getBinomialType <- function() {
+    .Call('_finitization_getBinomialType', PACKAGE = 'finitization')
+}
+
+getLogarithmicType <- function() {
+    .Call('_finitization_getLogarithmicType', PACKAGE = 'finitization')
 }
 

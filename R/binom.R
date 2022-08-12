@@ -50,13 +50,11 @@ getBinomialMFPS <- function(n, N) {
 #' the string representation of the pdf as an R expression.
 #' @export
 printFinitizedBinomialDensity <- function(n, N, val = NULL, latex = FALSE)  {
-    if(!is.null(val)) {
-        x <- c_printFinitizedBinomialDensity(n, N, val, latex)
+    if(n < 1) {
+        cat("n shlould be an integer > 0\n")
     } else {
-        cat(paste0("X", "\t", "pdf\n"))
-        for (i in 0:n) {
-            cat(paste0(i,":", '\t'))
-            x <- c_printFinitizedBinomialDensity(n, N, i, latex)
-        }
+        params<-list()
+        params["N"] = N
+        printDensity(n, val, params, getBinomialType(), latex)
     }
 }

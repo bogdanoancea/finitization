@@ -38,7 +38,7 @@ getLogarithmicMFPS <- function(n) {
         U <- U - .Machine$double.eps
     while (is.infinite(fg(L)) )
         L <- L + .Machine$double.eps
-    solutions <- rootSolve::uniroot.all(fg, c(U, L), n = 10^7, tol = .Machine$double.eps)
+    solutions <- rootSolve::uniroot.all(fg, c(U, L), n = 10^7, tol = .Machine$double.eps, maxiter = 10^6)
     UL = solutions[length(solutions)]
     if(length(solutions) > 1)
         LL = solutions[length(solutions) - 1]
@@ -55,15 +55,10 @@ getLogarithmicMFPS <- function(n) {
 #' the string representation of the pdf as an R expression.
 #' @export
 printFinitizedLogarithmicDensity <- function(n, val = NULL, latex = FALSE)  {
-    if (!is.null(val)) {
-        x <- c_printFinitizedLogarithmicDensity(n, val, latex)
-        #NULL
+    if(n < 1) {
+        cat("n shlould be an integer > 0\n")
     } else {
-
-        cat(paste0("X", "\t", "pdf\n"))
-        for (i in 0:n) {
-            cat(paste0(i,":", '\t'))
-            x <- c_printFinitizedLogarithmicDensity(n, i, latex)
-        }
+        params <- NULL
+        printDensity(n, val, params, getLogarithmicType(), latex)
     }
 }
