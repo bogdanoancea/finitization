@@ -31,7 +31,7 @@ String c_printDensity(int n, int val, Rcpp::List const &params, int dtype, bool 
         f = new FinitizedPoissonDistribution(n, 0.1);
         break;
     case DistributionType::LOGARITHMIC:
-        f = new FinitizedPoissonDistribution(n, 0);
+        f = new FinitizedLogarithmicDistribution(n, 0);
         break;
     case DistributionType::BINOMIAL:
         if(params.containsElementNamed("N")) {
