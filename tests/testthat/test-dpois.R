@@ -6,9 +6,10 @@ test_that("dpois values", {
 
 
 test_that("dpois values 2", {
-    expect_equal(dpois(7, 0.15, 9), 0)
+    expect_equal(dpois(7, 0.15, 9), NULL)
 })
 
 test_that("dpois values 3", {
-    expect_equal(round(dpois(7, 0.15, 4), 11), 1.815513e-05)
+    result <- data.frame(val = 4, prob = 1.815513e-05)
+    expect_equal(round(dpois(7, 0.15, 4), 11), result )
 })

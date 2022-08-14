@@ -29,9 +29,9 @@ test_that("pdfL2", {
 
 
 test_that("pdf3", {
-  capture.output(expect_equal(printFinitizedPoissonDensity(2,3), "0"))
+  capture.output(expect_equal(printFinitizedPoissonDensity(2,3), NULL))
 })
 
 test_that("pdfL3", {
-  capture.output(expect_equal(printFinitizedPoissonDensity(2,3, TRUE), "0"))
+  capture.output(expect_equal(printFinitizedPoissonDensity(2,3, TRUE), NULL))
 })

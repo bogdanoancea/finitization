@@ -1,6 +1,6 @@
 
 #' Title
-#'
+
 #' @param n
 #' @param val
 #' @param params
@@ -12,17 +12,20 @@
 #'
 #' @examples
 printDensity <- function(n, val, params, type, latex) {
-    if(!is.null(val)) {
-        cat(paste0("X", "\t", "pdf\n"))
-        cat(paste0(val,":", '\t'))
-        x <- c_printDensity(n, val, params, type, latex)
-    } else {
-        cat(paste0("X", "\t", "pdf\n"))
-        for (i in 0:n) {
-            cat(paste0(i,":", '\t'))
-            x <- c_printDensity(n, i, params, type, latex)
-        }
+    if(is.null(val))
+        lim <- 0:n
+    else
+        lim <- val
+
+    cat(paste0("X", "\t", "pdf\n"))
+    result <- vector(length = length(lim))
+    k <- 1
+    for (i in lim) {
+        cat(paste0(i, '\t'))
+        result[k] <- c_printDensity(n, i, params, type, latex)
+        k <- k + 1
     }
+    return(result)
 }
 
 #' Title
@@ -72,13 +75,13 @@ checkPoissonTheta <- function(theta) {
 checkVals <- function(n, val) {
     result = TRUE
     if( sum(sapply(val,trunc) != val) != 0  ) {
-        message("val sholuld be an integer\n")
+        message("val should have only integer values\n")
         result = FALSE
     }
 
     if (result) {
         if (!(val >= 0 && val <= n)) {
-            message(paste0("val sholuld be a vector of integers with values between 0 and ", n, "\n"))
+            message(paste0("val should be an integer or a vector of integers with values between 0 and ", n, "\n"))
             result = FALSE
         }
     }

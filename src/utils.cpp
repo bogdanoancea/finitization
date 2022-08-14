@@ -114,8 +114,10 @@ NumericVector c_d(int n, IntegerVector val, Rcpp::List const &params, int dtype)
         if(val.size() == 1)
             result[0] =  f->fin_pdf(val[0]);
         else {
-            for(int i = 0; i< val.size(); ++i)
-                result[i] = f->fin_pdf(val[0]);
+            for(int i = 0; i< val.size(); ++i) {
+                result[i] = f->fin_pdf(val[i]);
+                //Rcout << result[i] << endl;
+            }
         }
         delete f;
     }

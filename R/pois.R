@@ -16,12 +16,12 @@ dpois <- function(n, theta, val = NULL) {
     if (!is.null(val)) {
         if( !checkVals(n, val))
             return(invisible(NULL))
-        d <- c_d(n, val, list("theta" = theta), getPoissonType())
-        df <- data.frame(val = val, prob = d)
+        lim <- val
     } else {
-        p <- c_d(n, seq(0,n), list("theta" = theta), getPoissonType())
-        df <- data.frame(val = seq(0,n), prob = p)
+        lim <- seq(0,n)
     }
+    d <- c_d(n, lim, list("theta" = theta), getPoissonType())
+    df <- data.frame(val = lim, prob = d)
     return(df)
 }
 
@@ -35,8 +35,11 @@ printFinitizedPoissonDensity <-
     function(n, val = NULL, latex = FALSE)  {
         if(!checkFinitizationOrder(n))
             return(NULL)
-        printDensity(n, val, NULL, getPoissonType(), latex)
+        if( !is.null(val) && !checkVals(n, val))
+            return(invisible(NULL))
 
+        r <- printDensity(n, val, NULL, getPoissonType(), latex)
+        return(r)
     }
 
 #' @param  n The finitization order. It should be an integer > 0.
