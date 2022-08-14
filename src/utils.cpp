@@ -19,10 +19,10 @@ using namespace std;
 //' @param latex If true it returns a Latex formatted string representation of the pdf,otherwise it returns
 //' the string representation of the pdf as an R expression.
 // [[Rcpp::export]]
-String c_printDensity(int n, int val, Rcpp::List const &params, int dtype, bool latex = false) {
+StringVector c_printDensity(int n, IntegerVector val, Rcpp::List const &params, int dtype, bool latex = false) {
 
     Finitization* f = nullptr;
-    string result;
+    StringVector result(val.size());
     NumericVector N(1);
     NumericVector k(1);
 
@@ -55,11 +55,13 @@ String c_printDensity(int n, int val, Rcpp::List const &params, int dtype, bool 
     }
 
     if(f) {
-        result =  f->pdfToString(val, latex);
-        Rcout << result << endl;
+        for(int i = 0; i < val.size(); ++i) {
+            result[i] =  f->pdfToString(val[i], latex);
+            //Rcout << result[i] << endl;
+        }
         delete f;
     }
-    return String(result);
+    return result;
 
 }
 

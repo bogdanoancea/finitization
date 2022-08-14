@@ -18,11 +18,10 @@ printDensity <- function(n, val, params, type, latex) {
         lim <- val
 
     cat(paste0("X", "\t", "pdf\n"))
-    result <- vector(length = length(lim))
+    result <- c_printDensity(n, lim, params, type, latex)
     k <- 1
     for (i in lim) {
-        cat(paste0(i, '\t'))
-        result[k] <- c_printDensity(n, i, params, type, latex)
+        cat(paste0(i, '\t', result[k], '\n'))
         k <- k + 1
     }
     return(result)
@@ -74,6 +73,10 @@ checkPoissonTheta <- function(theta) {
 
 checkVals <- function(n, val) {
     result = TRUE
+    if(is.logical(val)) {
+        result = FALSE
+        message("val should have only integer values\n")
+    }
     if( sum(sapply(val,trunc) != val) != 0  ) {
         message("val should have only integer values\n")
         result = FALSE

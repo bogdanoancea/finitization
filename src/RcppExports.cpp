@@ -152,13 +152,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // c_printDensity
-String c_printDensity(int n, int val, Rcpp::List const& params, int dtype, bool latex);
+StringVector c_printDensity(int n, IntegerVector val, Rcpp::List const& params, int dtype, bool latex);
 RcppExport SEXP _finitization_c_printDensity(SEXP nSEXP, SEXP valSEXP, SEXP paramsSEXP, SEXP dtypeSEXP, SEXP latexSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< int >::type val(valSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type val(valSEXP);
     Rcpp::traits::input_parameter< Rcpp::List const& >::type params(paramsSEXP);
     Rcpp::traits::input_parameter< int >::type dtype(dtypeSEXP);
     Rcpp::traits::input_parameter< bool >::type latex(latexSEXP);
