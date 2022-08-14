@@ -27,32 +27,6 @@ IntegerVector rpois(int n, double theta, unsigned no) {
     return r;
 }
 
-//' @param n The finitization order. It should be an integer > 0.
-//' @param theta The parameter of the Poisson distribution.
-//' @param val The value of the variable for which the probability density function is computed.
-//  [[Rcpp::export]]
-double c_dpois(int n, double theta, double val) {
-    Finitization* f = new FinitizedPoissonDistribution(n, theta);
-    double p =  f->fin_pdf(val);
-    delete f;
-    return p;
-}
-
-// //' @param n The finitization order. It should be an integer > 0.
-// //' @param theta The parameter of the Poisson distribution.
-// //' @param val The value of the variable for which the probability density function is computed.
-// //' @param latex If true it returns a Latex formatted string representation of the pdf,otherwise it returns
-// //' the string representation of the pdf as an R expression.
-// // [[Rcpp::export]]
-// String c_printFinitizedPoissonDensity(int n, int val, bool latex = false) {
-//     //String result = c_printDensity(n, val, nullptr, DistributionType::POISSON, latex);
-//     // Finitization* f = new FinitizedPoissonDistribution(n, 1);
-//     // string result =  f->pdfToString(val, latex);
-//     // Rcout << result << endl;
-//     // delete f;
-//     return String("");
-//
-// }
 
 //' @param n The finitization order. It should be an integer > 0.
 // [[Rcpp::export]]

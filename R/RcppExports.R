@@ -17,18 +17,6 @@ MFPS_binom_pdf <- function(n, N) {
 }
 
 #' @param n The finitization order. It should be an integer > 0.
-#' @param p The parameter of the binomial distribution, i.e. the probability of success.
-#' @param N The number of trials.
-#' @param val  The value of the variable for which the string representation of the probability density function is returned.
-#' If NULL, this function returns the pdf for all possible values, i.e. {0 .. n}.
-#' @param latex If TRUE, a string representation of the pdf formatted in Latex format is returned, otherwise it returns
-#'  the string representation of the pdf as an R expression.
-#' @export
-c_printFinitizedBinomialDensity <- function(n, N, val, latex = FALSE) {
-    .Call('_finitization_c_printFinitizedBinomialDensity', PACKAGE = 'finitization', n, N, val, latex)
-}
-
-#' @param n The finitization order. It should be an integer > 0.
 #' @param N The number of trials.
 #' @param val The value of the variable for which the probability density function is computed.
 #' @param p The parameter of the Binomial distribution: the success probability for each trial.
@@ -48,17 +36,6 @@ rlog <- function(n, theta, no) {
 #' @param n The finitization order. It should be an integer > 0.
 MFPS_log_pdf <- function(n) {
     .Call('_finitization_MFPS_log_pdf', PACKAGE = 'finitization', n)
-}
-
-#' @param n The finitization order. It should be an integer > 0.
-#' @param theta theta The parameter of the logarithmic distribution.
-#' @param val  The value of the variable for which the string reprsentation of the probability density function is returned.
-#' If NULL, this function returns the pdf for all possible values, i.e. {0 .. n}.
-#' @param latex If TRUE, a string representation of the pdf formatted in Latex format is returned, otherwise it returns
-#'  the string representation of the pdf as an R expression.
-#' @export
-c_printFinitizedLogarithmicDensity <- function(n, val, latex = FALSE) {
-    .Call('_finitization_c_printFinitizedLogarithmicDensity', PACKAGE = 'finitization', n, val, latex)
 }
 
 #' @param n The finitization order. It should be an integer > 0.
@@ -85,18 +62,6 @@ MFPS_negbinom_pdf <- function(n, k) {
 }
 
 #' @param n The finitization order. It should be an integer > 0.
-#' @param p The parameter of the binomial distribution, i.e. the probability of success.
-#' @param N The number of trials.
-#' @param val  The value of the variable for which the string representation of the probability density function is returned.
-#' If NULL, this function returns the pdf for all possible values, i.e. {0 .. n}.
-#' @param latex If TRUE, a string representation of the pdf formatted in Latex format is returned, otherwise it returns
-#'  the string representation of the pdf as an R expression.
-#' @export
-c_printFinitizedNegativeBinomialDensity <- function(n, k, val, latex = FALSE) {
-    .Call('_finitization_c_printFinitizedNegativeBinomialDensity', PACKAGE = 'finitization', n, k, val, latex)
-}
-
-#' @param n The finitization order. It should be an integer > 0.
 #' @param N The number of trials.
 #' @param val The value of the variable for which the probability density function is computed.
 #' @param p The parameter of the Binomial distribution: the success probability for each trial.
@@ -114,13 +79,6 @@ rpois <- function(n, theta, no) {
 }
 
 #' @param n The finitization order. It should be an integer > 0.
-#' @param theta The parameter of the Poisson distribution.
-#' @param val The value of the variable for which the probability density function is computed.
-c_dpois <- function(n, theta, val) {
-    .Call('_finitization_c_dpois', PACKAGE = 'finitization', n, theta, val)
-}
-
-#' @param n The finitization order. It should be an integer > 0.
 MFPS_pois_pdf <- function(n) {
     .Call('_finitization_MFPS_pois_pdf', PACKAGE = 'finitization', n)
 }
@@ -133,6 +91,16 @@ MFPS_pois_pdf <- function(n) {
 #' the string representation of the pdf as an R expression.
 c_printDensity <- function(n, val, params, dtype, latex = FALSE) {
     .Call('_finitization_c_printDensity', PACKAGE = 'finitization', n, val, params, dtype, latex)
+}
+
+#' @param n The finitization order. It should be an integer > 0.
+#' @param val The value of the variable for which the probability density function is computed.
+#' @param params Other parameters of the distribution.
+#' @param dtype The type of the distribution: Poisson, Binomial, NegativeBinomial, Logaritmic
+#' @param latex If true it returns a Latex formatted string representation of the pdf,otherwise it returns
+#' the string representation of the pdf as an R expression.
+c_d <- function(n, val, params, dtype) {
+    .Call('_finitization_c_d', PACKAGE = 'finitization', n, val, params, dtype)
 }
 
 getPoissonType <- function() {

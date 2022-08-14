@@ -42,24 +42,6 @@ String MFPS_log_pdf(int n) {
 }
 
 
-//' @param n The finitization order. It should be an integer > 0.
-//' @param theta theta The parameter of the logarithmic distribution.
-//' @param val  The value of the variable for which the string reprsentation of the probability density function is returned.
-//' If NULL, this function returns the pdf for all possible values, i.e. {0 .. n}.
-//' @param latex If TRUE, a string representation of the pdf formatted in Latex format is returned, otherwise it returns
-//'  the string representation of the pdf as an R expression.
-//' @export
-// [[Rcpp::export]]
-String c_printFinitizedLogarithmicDensity(int n, int val, bool latex = false) {
-    Finitization* f = new FinitizedLogarithmicDistribution(n, 0.01);
-    string result =  f->pdfToString(val, latex);
-    Rcout << result << endl;
-    delete f;
-    return String(result);
-
-}
-
-
 
 //' @param n The finitization order. It should be an integer > 0.
 //' @param val The value of the variable for which the probability density function is computed.

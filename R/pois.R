@@ -1,24 +1,28 @@
 #' @include utils.R
 
 #' @param n The finitization order. It should be an integer > 0.
+#'
+#' @param theta The parameter of the Poisson distribution.
+#'
 #' @param val The value of the variable for which the probability density function is computed. If NULL, a data frame containing
 #' all possible values, i.e. {0 .. n}, and the corresponding probabilities is returned.
-#' @param theta The parameter of the Poisson distribution.
+#'
 #' @export
 dpois <- function(n, theta, val = NULL) {
-    if(!is.null(val)) {
-        return (c_dpois(n, theta, val))
+    if ( !checkFinitizationOrder(n))
+        return(invisible(NULL) )
+    if ( !checkPoissonTheta(theta) )
+        return(invisible(NULL))
+    if (!is.null(val)) {
+        if( !checkVals(n, val))
+            return(invisible(NULL))
+        d <- c_d(n, val, list("theta" = theta), getPoissonType())
+        df <- data.frame(val = val, prob = d)
     } else {
-        df <- data.frame(matrix(ncol = 2, nrow = 0))
-
-        for (i in 0:n) {
-            p <- c_dpois(n, theta, i)
-            df <- rbind(df, c(i, p))
-        }
-        x <- c("val", "prob")
-        colnames(df) <- x
-        return (df)
+        p <- c_d(n, seq(0,n), list("theta" = theta), getPoissonType())
+        df <- data.frame(val = seq(0,n), prob = p)
     }
+    return(df)
 }
 
 #' @param n The finitization order. It should be an integer > 0.
@@ -27,34 +31,34 @@ dpois <- function(n, theta, val = NULL) {
 #' @param latex If TRUE, a string representation of the pdf formatted in Latex format is printed, otherwise it prints
 #' the string representation of the pdf as an R expression.
 #' @export
-printFinitizedPoissonDensity <- function(n, val = NULL, latex = FALSE)  {
-    if( n < 1 ) {
-        cat("n shlould be an integer > 0\n")
-    }  else {
-        params <- NULL
-        printDensity(n, val, params, getPoissonType(), latex)
+printFinitizedPoissonDensity <-
+    function(n, val = NULL, latex = FALSE)  {
+        if(!checkFinitizationOrder(n))
+            return(NULL)
+        printDensity(n, val, NULL, getPoissonType(), latex)
+
     }
-}
 
 #' @param  n The finitization order. It should be an integer > 0.
 #' @export
 getPoissonMFPS <- function(n) {
-
-    fg <- function(theta) { "x" }
+    fg <- function(theta) {
+        "x"
+    }
     body(fg)[[2]] <- parse(text = MFPS_pois_pdf(n))[[1]]
     U <- 1
     L <- 0
 
-    while (is.infinite(fg(U)) )
+    while (is.infinite(fg(U)))
         U <- U - .Machine$double.eps
-    while (is.infinite(fg(L)) )
+    while (is.infinite(fg(L)))
         L <- L + .Machine$double.eps
-    solutions <- rootSolve::uniroot.all(fg, c(U, L), n = 10^7, tol = .Machine$double.eps)
+    solutions <-
+        rootSolve::uniroot.all(fg, c(U, L), n = 10 ^ 7, tol = .Machine$double.eps)
     UL = solutions[length(solutions)]
-    if(length(solutions) > 1)
+    if (length(solutions) > 1)
         LL = solutions[length(solutions) - 1]
     else
         LL = 0
-    return(c(min(LL,UL), max(LL,UL)))
+    return(c(min(LL, UL), max(LL, UL)))
 }
-

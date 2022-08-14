@@ -91,7 +91,7 @@ test_that("pdf3", {
 
 
 test_that("pdf1", {
-    (b <- printFinitizedLogarithmicDensity(1,1))
+    capture.output(b <- printFinitizedLogarithmicDensity(1,1))
     expect_true( b == "-theta*(theta^(-1)*log(1-theta)-(-1+theta)^(-1))*log(1-theta)^(-1)"
                 || b == "-(theta^(-1)-(-1+theta)^(-1)*log(1-theta)^(-1))*theta"
                 || b == "-(theta^(-2)*log(1-theta)-(-1+theta)^(-1)*theta^(-1))*theta^2*log(1-theta)^(-1)"

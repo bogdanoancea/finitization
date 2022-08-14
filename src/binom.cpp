@@ -43,24 +43,6 @@ String MFPS_binom_pdf(int n, int N) {
 
 
 
-//' @param n The finitization order. It should be an integer > 0.
-//' @param p The parameter of the binomial distribution, i.e. the probability of success.
-//' @param N The number of trials.
-//' @param val  The value of the variable for which the string representation of the probability density function is returned.
-//' If NULL, this function returns the pdf for all possible values, i.e. {0 .. n}.
-//' @param latex If TRUE, a string representation of the pdf formatted in Latex format is returned, otherwise it returns
-//'  the string representation of the pdf as an R expression.
-//' @export
-// [[Rcpp::export]]
-String c_printFinitizedBinomialDensity(int n, int N, int val, bool latex = false) {
-    Finitization* f = new FinitizedBinomialDistribution(n, 0.1, N);
-    string result =  f->pdfToString(val, latex);
-    Rcout << result << endl;
-    delete f;
-    return String(result);
-}
-
-
 
 //' @param n The finitization order. It should be an integer > 0.
 //' @param N The number of trials.
