@@ -9,16 +9,16 @@
 #'
 #' @export
 dpois <- function(n, theta, val = NULL) {
-    if ( !checkFinitizationOrder(n))
-        return(invisible(NULL) )
-    if ( !checkPoissonTheta(theta) )
+    if (!checkFinitizationOrder(n))
+        return(invisible(NULL))
+    if (!checkPoissonTheta(theta))
         return(invisible(NULL))
     if (!is.null(val)) {
-        if( !checkVals(n, val))
+        if (!checkVals(n, val))
             return(invisible(NULL))
         lim <- val
     } else {
-        lim <- seq(0,n)
+        lim <- seq(0, n)
     }
     d <- c_d(n, lim, list("theta" = theta), getPoissonType())
     df <- data.frame(val = lim, prob = d)
@@ -33,9 +33,9 @@ dpois <- function(n, theta, val = NULL) {
 #' @export
 printFinitizedPoissonDensity <-
     function(n, val = NULL, latex = FALSE)  {
-        if(!checkFinitizationOrder(n))
+        if (!checkFinitizationOrder(n))
             return(NULL)
-        if( !is.null(val) && !checkVals(n, val))
+        if (!is.null(val) && !checkVals(n, val))
             return(invisible(NULL))
 
         r <- printDensity(n, val, NULL, getPoissonType(), latex)
