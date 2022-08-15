@@ -75,52 +75,45 @@ StringVector c_printDensity(int n, IntegerVector val, Rcpp::List const &params, 
 NumericVector c_d(int n, IntegerVector val, Rcpp::List const &params, int dtype) {
     Finitization* f = nullptr;
     NumericVector result(val.size());
-    NumericVector par(params.size());
+    double, theta, N, p, k, q;
     switch(dtype) {
     case DistributionType::POISSON:
         if(params.containsElementNamed("theta")) {
-            par[0] = Rcpp::as < double >( params["theta"]);
-            f = new FinitizedPoissonDistribution(n, par[0]);
+            theta = Rcpp::as < double >( params["theta"]);
+            f = new FinitizedPoissonDistribution(n, theta);
         }
         break;
     case DistributionType::LOGARITHMIC:
         if(params.containsElementNamed("theta")) {
-            par[0] = Rcpp::as < double >( params["theta"]);
-            f = new FinitizedLogarithmicDistribution(n, par[0]);
+            theta = Rcpp::as < double >( params["theta"]);
+            f = new FinitizedLogarithmicDistribution(n, theta);
         }
         break;
     case DistributionType::BINOMIAL:
         if(params.containsElementNamed("N") && params.containsElementNamed("p")) {
-            par[0] = Rcpp::as < int >( params["N"]);
-            par[1] = Rcpp::as < double >( params["p"]);
-            f = new FinitizedBinomialDistribution(n, par[1], par[0]);
+            N = Rcpp::as < int >( params["N"]);
+            p = Rcpp::as < double >( params["p"]);
+            f = new FinitizedBinomialDistribution(n, p, N);
         }
         else
-            Rcerr << "Parameter N of the Binomial distribution not provided!" << endl;
+            Rcerr << "Binomial distribution parameter(s) not provided!" << endl;
         break;
-
     case DistributionType::NEGATIVEBINOMIAL:
         if(params.containsElementNamed("k") && params.containsElementNamed("q")) {
-            par[0] = Rcpp::as < int >( params["k"]);
-            par[1] = Rcpp::as < double >( params["q"]);
-            f = new FinitizedNegativeBinomialDistribution(n, par[1], par[0]);
+            k = Rcpp::as < int >( params["k"]);
+            q = Rcpp::as < double >( params["q"]);
+            f = new FinitizedNegativeBinomialDistribution(n, q, k);
         }
         else
-            Rcerr << "Parameter k of the Negative Binomial distribution not provided!" << endl;
+            Rcerr << "Negative Binomial distribution parameter(s) not provided!" << endl;
         break;
     default:
         Rcerr << " Distribution type unsupported!" << endl;
     }
 
     if(f) {
-        if(val.size() == 1)
-            result[0] =  f->fin_pdf(val[0]);
-        else {
-            for(int i = 0; i< val.size(); ++i) {
-                result[i] = f->fin_pdf(val[i]);
-                //Rcout << result[i] << endl;
-            }
-        }
+        for(int i = 0; i< val.size(); ++i)
+            result[i] = f->fin_pdf(val[i]);
         delete f;
     }
     return result;
