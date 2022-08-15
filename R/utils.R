@@ -90,3 +90,21 @@ checkVals <- function(n, val) {
     }
     return(result)
 }
+
+findSolutions <- function(func) {
+    U <- 1
+    L <- 0
+
+    while (is.infinite(func(U)))
+        U <- U - .Machine$double.eps
+    while (is.infinite(func(L)))
+        L <- L + .Machine$double.eps
+    solutions <-
+        rootSolve::uniroot.all(func, c(U, L), n = 10 ^ 7, tol = .Machine$double.eps)
+    UL = solutions[length(solutions)]
+    if (length(solutions) > 1)
+        LL = solutions[length(solutions) - 1]
+    else
+        LL = 0
+    return(c(min(LL, UL), max(LL, UL)))
+}

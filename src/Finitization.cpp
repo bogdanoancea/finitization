@@ -61,7 +61,7 @@ void Finitization::setProbs(double* p) {
 
 }
 
-
+#pragma unroll 4
 IntegerVector Finitization::rvalues(int no) {
     IntegerVector result(no);
     int* r = result.begin();

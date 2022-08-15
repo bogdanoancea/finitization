@@ -3,7 +3,6 @@
 #include <vector>
 
 #include "FinitizedPoissonDistribution.h"
-#include "DistributionType.h"
 
 using namespace Rcpp;
 using namespace std;
