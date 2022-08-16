@@ -1,3 +1,4 @@
+//#include <RcppParallel.h>
 #include <Rcpp.h>
 #include <string>
 #include <vector>
@@ -9,8 +10,35 @@
 #include "FinitizedNegativeBinomialDistribution.h"
 #include "DistributionType.h"
 
-using namespace Rcpp;
+
+//using namespace RcppParallel;
 using namespace std;
+
+// // [[Rcpp::depends(RcppParallel)]]
+// struct DP : public Worker
+// {
+//
+//     const RVector<int> vals;
+//     RVector<double> probs;
+//     Finitization* pf;
+//
+//     // initialize with source and destination
+//     DP(const IntegerVector &v, NumericVector& p, Finitization*& f): vals(v), probs(p), pf(f){
+//         Rcout << "dimensiunea vals" << vals.size() << endl;
+//         Rcout << "dimensiunea probs" << probs.size() << endl;
+//     }
+//
+//     // take the square root of the range of elements requested
+//     void operator()(std::size_t begin, std::size_t end) {
+//         //Rcout << endl << begin << ":" << end << endl;
+//         for(std::size_t i = begin; i < end; ++i)
+//             //probs[i] =
+//             pf->fin_pdf(vals[i]);
+//             //Rcout << vals[i] << endl;
+//     }
+// };
+
+
 
 //' @param n The finitization order. It should be an integer > 0.
 //' @param val The value of the variable for which the probability density function is computed.
@@ -23,8 +51,7 @@ StringVector c_printDensity(int n, IntegerVector val, Rcpp::List const &params, 
 
     Finitization* f = nullptr;
     StringVector result(val.size());
-    NumericVector N(1);
-    NumericVector k(1);
+    double N, k;
 
     switch(dtype) {
     case DistributionType::POISSON:
@@ -35,8 +62,8 @@ StringVector c_printDensity(int n, IntegerVector val, Rcpp::List const &params, 
         break;
     case DistributionType::BINOMIAL:
         if(params.containsElementNamed("N")) {
-            N[0] = Rcpp::as < int >( params["N"]);
-            f = new FinitizedBinomialDistribution(n, 0, N[0]);
+            N = Rcpp::as < int >( params["N"]);
+            f = new FinitizedBinomialDistribution(n, 0, N);
         }
         else
             Rcerr << "Parameter N of the Binomial distribution not provided!" << endl;
@@ -44,8 +71,8 @@ StringVector c_printDensity(int n, IntegerVector val, Rcpp::List const &params, 
 
     case DistributionType::NEGATIVEBINOMIAL:
         if(params.containsElementNamed("k")) {
-            k[0] = Rcpp::as < int >( params["k"]);
-            f = new FinitizedNegativeBinomialDistribution(n, 0, k[0]);
+            k = Rcpp::as < int >( params["k"]);
+            f = new FinitizedNegativeBinomialDistribution(n, 0, k);
         }
         else
             Rcerr << "Parameter k of the Negative Binomial distribution not provided!" << endl;
@@ -57,7 +84,6 @@ StringVector c_printDensity(int n, IntegerVector val, Rcpp::List const &params, 
     if(f) {
         for(int i = 0; i < val.size(); ++i) {
             result[i] =  f->pdfToString(val[i], latex);
-            //Rcout << result[i] << endl;
         }
         delete f;
     }
@@ -112,13 +138,105 @@ NumericVector c_d(int n, IntegerVector val, Rcpp::List const &params, int dtype)
     }
 
     if(f) {
+        // DP dp(val, result, f);
+        // parallelFor(0, val.size(), dp, 20);
         for(int i = 0; i< val.size(); ++i)
             result[i] = f->fin_pdf(val[i]);
+        delete f;
+    }
+
+    return result;
+}
+
+
+
+
+// [[Rcpp::export]]
+IntegerVector rvalues(int n, Rcpp::List const &params, int no, int dtype) {
+    Finitization* f = nullptr;
+    IntegerVector result(no);
+    double theta, N, p, k, q;
+    switch(dtype) {
+    case DistributionType::POISSON:
+        if(params.containsElementNamed("theta")) {
+            theta = Rcpp::as < double >( params["theta"]);
+            f = new FinitizedPoissonDistribution(n, theta);
+        }
+        break;
+    case DistributionType::LOGARITHMIC:
+        if(params.containsElementNamed("theta")) {
+            theta = Rcpp::as < double >( params["theta"]);
+            f = new FinitizedLogarithmicDistribution(n, theta);
+        }
+        break;
+    case DistributionType::BINOMIAL:
+        if(params.containsElementNamed("N") && params.containsElementNamed("p")) {
+            N = Rcpp::as < int >( params["N"]);
+            p = Rcpp::as < double >( params["p"]);
+            f = new FinitizedBinomialDistribution(n, p, N);
+        }
+        else
+            Rcerr << "Binomial distribution parameter(s) not provided!" << endl;
+        break;
+    case DistributionType::NEGATIVEBINOMIAL:
+        if(params.containsElementNamed("k") && params.containsElementNamed("q")) {
+            k = Rcpp::as < int >( params["k"]);
+            q = Rcpp::as < double >( params["q"]);
+            f = new FinitizedNegativeBinomialDistribution(n, q, k);
+        }
+        else
+            Rcerr << "Negative Binomial distribution parameter(s) not provided!" << endl;
+        break;
+    default:
+        Rcerr << " Distribution type unsupported!" << endl;
+    }
+
+    if(f) {
+        result = f->rvalues(no);
         delete f;
     }
     return result;
 }
 
+// [[Rcpp::export]]
+String MFPS_pdf(int n, Rcpp::List const &params, int dtype ) {
+    Finitization* f = nullptr;
+    String result;
+    double  N, k;
+    switch(dtype) {
+    case DistributionType::POISSON:
+        f = new FinitizedPoissonDistribution(n, 0.01);
+        break;
+    case DistributionType::LOGARITHMIC:
+        f = new FinitizedLogarithmicDistribution(n, 0.01);
+        break;
+    case DistributionType::BINOMIAL:
+        if(params.containsElementNamed("N") ) {
+            N = Rcpp::as < int >( params["N"]);
+            f = new FinitizedBinomialDistribution(n, 0.1, N);
+        }
+        else
+            Rcerr << "Binomial distribution parameter(s) not provided!" << endl;
+        break;
+    case DistributionType::NEGATIVEBINOMIAL:
+        if(params.containsElementNamed("k")) {
+            k = Rcpp::as < int >( params["k"]);
+            f = new FinitizedNegativeBinomialDistribution(n, 0.1, k);
+        }
+        else
+            Rcerr << "Negative Binomial distribution parameter(s) not provided!" << endl;
+        break;
+    default:
+        Rcerr << " Distribution type unsupported!" << endl;
+    }
+
+    if(f) {
+        result = f->pdfToString(n-1);
+        delete f;
+    }
+    return result;
+
+}
 
 
 // [[Rcpp::export]]
@@ -140,4 +258,7 @@ int getBinomialType() {
 int getLogarithmicType() {
     return DistributionType::LOGARITHMIC;
 }
+
+
+
 

@@ -34,12 +34,12 @@ dpois <- function(n, theta, val = NULL) {
 printFinitizedPoissonDensity <-
     function(n, val = NULL, latex = FALSE)  {
         if (!checkFinitizationOrder(n))
-            return(NULL)
+            return(invisible(NULL))
         if (!is.null(val) && !checkVals(n, val))
             return(invisible(NULL))
 
         r <- printDensity(n, val, NULL, getPoissonType(), latex)
-        return(r)
+        return(invisible(r))
     }
 
 #' @param  n The finitization order. It should be an integer > 0.
@@ -51,7 +51,27 @@ getPoissonMFPS <- function(n) {
     fg <- function(theta) {
         "x"
     }
-    body(fg)[[2]] <- parse(text = MFPS_pois_pdf(n))[[1]]
+    body(fg)[[2]] <- parse(text = MFPS_pdf(n, NULL, getPoissonType()))[[1]]
 
     return(findSolutions(fg))
+}
+
+#' Title
+#'
+#' @param n
+#' @param theta
+#' @param no
+#'
+#' @return
+#' @export
+#'
+#' @examples
+rpois <- function(n, theta, no) {
+    if (!checkFinitizationOrder(n))
+        return(invisible(NULL))
+    if (!checkPoissonTheta(theta))
+        return(invisible(NULL))
+    if (!checkNoValues(no))
+        return(invisible(NULL))
+    return(rvalues(n, list("theta" = theta), no, getPoissonType()))
 }

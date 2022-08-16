@@ -86,7 +86,7 @@
 
 test_that("pdf3", {
      capture.output(b <- printFinitizedLogarithmicDensity(2,3))
-     expect_true(b == "0")
+     expect_true(is.null(b))
 })
 
 

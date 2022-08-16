@@ -11,9 +11,10 @@ test_that("dnegbinom values 1", {
 })
 
 test_that("dnegbinom values 2", {
-    expect_equal(dnegbinom(4,0.11,4, 5), 0)
+    expect_true(is.null(dnegbinom(4,0.11,4, 5)))
 })
 
 test_that("dnegbinom values 3", {
-    expect_equal(round(dnegbinom(3,0.15,4,3), 7), 0.1099125)
+    result <- data.frame(val = c(3), prob = c(0.1099125))
+    expect_equal(round(dnegbinom(3,0.15,4,3), 7), result)
 })

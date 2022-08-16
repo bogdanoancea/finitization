@@ -11,9 +11,10 @@ test_that("dbinom values 1", {
 })
 
 test_that("dbinom values 2", {
-    expect_equal(dbinom(4,0.15,4, 5), 0)
+    expect_true(is.null(dbinom(4, 0.15, 4, 5)))
 })
 
 test_that("dbinom values 3", {
-    expect_equal(round(dbinom(3,0.15,4, 3), 4), 0.0135)
+    result <- data.frame(val = 3, prob = 0.0135)
+    expect_equal(round(dbinom(3, 0.15, 4, 3), 4), result)
 })

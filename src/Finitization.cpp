@@ -10,6 +10,7 @@ Finitization::Finitization(int n): m_finitizationOrder(n), m_unif_double_distrib
      m_alias = new int[m_finitizationOrder+1];
      m_prob = new double[m_finitizationOrder+1];
      m_values = new int[m_finitizationOrder+1];
+     m_ntsfFirstTime = true;
      for(int i = 0; i <= n; i++)
         m_values[i] = i;
 	 m_generator.seed(time(0));
@@ -61,7 +62,6 @@ void Finitization::setProbs(double* p) {
 
 }
 
-#pragma unroll 4
 IntegerVector Finitization::rvalues(int no) {
     IntegerVector result(no);
     int* r = result.begin();
@@ -76,7 +76,12 @@ IntegerVector Finitization::rvalues(int no) {
 }
 
 ex Finitization::ntsf( ex pnb) {
-    return series_to_poly(pnb.series(m_x == 0, m_finitizationOrder+1));
+
+    if(m_ntsfFirstTime) {
+        m_ntsfSymb = series_to_poly(pnb.series(m_x == 0, m_finitizationOrder+1));
+        m_ntsfFirstTime = false;
+    }
+    return m_ntsfSymb;
 }
 
 ex Finitization::pdf(ex ntsf, int x_val) {

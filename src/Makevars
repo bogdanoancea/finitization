@@ -3,3 +3,4 @@ PKG_LIBS = -L/usr/local/lib  -lginac -lcln -lgmp
 PKG_CXXFLAGS = -I/usr/local/include -O3 -mavx2
 
 
+PKG_LIBS += $(shell ${R_HOME}/bin/Rscript -e "RcppParallel::RcppParallelLibs()")

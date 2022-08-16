@@ -41,6 +41,8 @@ private:
     int*  m_alias;
     double* m_prob;
     int* m_values;
+    bool m_ntsfFirstTime;
+    ex m_ntsfSymb;
 
 
 };

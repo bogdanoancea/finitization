@@ -27,6 +27,8 @@ printDensity <- function(n, val, params, type, latex) {
     return(result)
 }
 
+
+
 #' Title
 #'
 #' @param n
@@ -71,6 +73,105 @@ checkPoissonTheta <- function(theta) {
     return(result)
 }
 
+checkLogarithmicTheta <- function(theta) {
+    result = TRUE
+    if (!is.double(theta)) {
+        message("theta should be a double\n")
+        result = FALSE
+    } else {
+        if ( !(theta > 0  && theta <= 1) ) {
+            message("the parameter of the finitized logarithmic distribution should be between 0 and 1\n")
+            result = FALSE
+        }
+    }
+    return(result)
+}
+
+#' Title
+#'
+#' @param p
+#'
+#' @return
+#' @export
+#'
+#' @examples
+checkBinomialP <- function(p) {
+    result = TRUE
+    if (!is.double(p)) {
+        message("p should be a double\n")
+        result = FALSE
+    } else {
+        if ( !(p >= 0  && p <= 1) ) {
+            message("the parameter of the finitized binomial distribution should be between 0 and 1\n")
+            result = FALSE
+        }
+    }
+    return(result)
+}
+
+
+#' Title
+#'
+#' @param q
+#'
+#' @return
+#' @export
+#'
+#' @examples
+checkNegBinomialQ <- function(q) {
+    result = TRUE
+    if (!is.double(q)) {
+        message("q should be a double\n")
+        result = FALSE
+    } else {
+        if ( !(q >= 0  && q <= 1) ) {
+            message("the parameter of the finitized negative binomial distribution should be between 0 and 1\n")
+            result = FALSE
+        }
+    }
+    return(result)
+}
+
+#' Title
+#'
+#' @param N
+#'
+#' @return
+#' @export
+#'
+#' @examples
+checkBinomialN <- function(N) {
+    result = TRUE
+    if(trunc(N) != N)
+        warning(paste0(N, " will be converted to an integer"))
+    if(N < 0) {
+        message(paste0("invalid argument: ", N))
+        result = FALSE
+    }
+    return(result)
+}
+
+#' Title
+#'
+#' @param k
+#'
+#' @return
+#' @export
+#'
+#' @examples
+checkNegBinomialK <- function(k) {
+    result = TRUE
+    if(trunc(k) != k)
+        warning(paste0(k, " will be converted to an integer"))
+    if(k < 0) {
+        message(paste0("invalid argument: ", k))
+        result = FALSE
+    }
+    return(result)
+}
+
+
+
 checkVals <- function(n, val) {
     result = TRUE
     if(is.logical(val)) {
@@ -107,4 +208,17 @@ findSolutions <- function(func) {
     else
         LL = 0
     return(c(min(LL, UL), max(LL, UL)))
+}
+
+
+
+checkNoValues <- function(no) {
+    result = TRUE
+    if(trunc(no) != no)
+        warning(paste0(no, " will be converted to an integer"))
+    if(no < 0) {
+        message(paste0("invalid argument: ", no))
+        result = FALSE
+    }
+    return(result)
 }

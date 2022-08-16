@@ -10,147 +10,6 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// rbinom
-IntegerVector rbinom(int n, double p, int N, unsigned no);
-RcppExport SEXP _finitization_rbinom(SEXP nSEXP, SEXP pSEXP, SEXP NSEXP, SEXP noSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< double >::type p(pSEXP);
-    Rcpp::traits::input_parameter< int >::type N(NSEXP);
-    Rcpp::traits::input_parameter< unsigned >::type no(noSEXP);
-    rcpp_result_gen = Rcpp::wrap(rbinom(n, p, N, no));
-    return rcpp_result_gen;
-END_RCPP
-}
-// MFPS_binom_pdf
-String MFPS_binom_pdf(int n, int N);
-RcppExport SEXP _finitization_MFPS_binom_pdf(SEXP nSEXP, SEXP NSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< int >::type N(NSEXP);
-    rcpp_result_gen = Rcpp::wrap(MFPS_binom_pdf(n, N));
-    return rcpp_result_gen;
-END_RCPP
-}
-// c_dbinom
-double c_dbinom(int n, double p, int N, double val);
-RcppExport SEXP _finitization_c_dbinom(SEXP nSEXP, SEXP pSEXP, SEXP NSEXP, SEXP valSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< double >::type p(pSEXP);
-    Rcpp::traits::input_parameter< int >::type N(NSEXP);
-    Rcpp::traits::input_parameter< double >::type val(valSEXP);
-    rcpp_result_gen = Rcpp::wrap(c_dbinom(n, p, N, val));
-    return rcpp_result_gen;
-END_RCPP
-}
-// rlog
-IntegerVector rlog(int n, double theta, unsigned no);
-RcppExport SEXP _finitization_rlog(SEXP nSEXP, SEXP thetaSEXP, SEXP noSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< double >::type theta(thetaSEXP);
-    Rcpp::traits::input_parameter< unsigned >::type no(noSEXP);
-    rcpp_result_gen = Rcpp::wrap(rlog(n, theta, no));
-    return rcpp_result_gen;
-END_RCPP
-}
-// MFPS_log_pdf
-String MFPS_log_pdf(int n);
-RcppExport SEXP _finitization_MFPS_log_pdf(SEXP nSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    rcpp_result_gen = Rcpp::wrap(MFPS_log_pdf(n));
-    return rcpp_result_gen;
-END_RCPP
-}
-// c_dlog
-double c_dlog(int n, double theta, double val);
-RcppExport SEXP _finitization_c_dlog(SEXP nSEXP, SEXP thetaSEXP, SEXP valSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< double >::type theta(thetaSEXP);
-    Rcpp::traits::input_parameter< double >::type val(valSEXP);
-    rcpp_result_gen = Rcpp::wrap(c_dlog(n, theta, val));
-    return rcpp_result_gen;
-END_RCPP
-}
-// rnegbinom
-IntegerVector rnegbinom(int n, double p, int k, unsigned no);
-RcppExport SEXP _finitization_rnegbinom(SEXP nSEXP, SEXP pSEXP, SEXP kSEXP, SEXP noSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< double >::type p(pSEXP);
-    Rcpp::traits::input_parameter< int >::type k(kSEXP);
-    Rcpp::traits::input_parameter< unsigned >::type no(noSEXP);
-    rcpp_result_gen = Rcpp::wrap(rnegbinom(n, p, k, no));
-    return rcpp_result_gen;
-END_RCPP
-}
-// MFPS_negbinom_pdf
-String MFPS_negbinom_pdf(int n, int k);
-RcppExport SEXP _finitization_MFPS_negbinom_pdf(SEXP nSEXP, SEXP kSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< int >::type k(kSEXP);
-    rcpp_result_gen = Rcpp::wrap(MFPS_negbinom_pdf(n, k));
-    return rcpp_result_gen;
-END_RCPP
-}
-// c_dnegbinom
-double c_dnegbinom(int n, double p, int k, double val);
-RcppExport SEXP _finitization_c_dnegbinom(SEXP nSEXP, SEXP pSEXP, SEXP kSEXP, SEXP valSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< double >::type p(pSEXP);
-    Rcpp::traits::input_parameter< int >::type k(kSEXP);
-    Rcpp::traits::input_parameter< double >::type val(valSEXP);
-    rcpp_result_gen = Rcpp::wrap(c_dnegbinom(n, p, k, val));
-    return rcpp_result_gen;
-END_RCPP
-}
-// rpois
-IntegerVector rpois(int n, double theta, unsigned no);
-RcppExport SEXP _finitization_rpois(SEXP nSEXP, SEXP thetaSEXP, SEXP noSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< double >::type theta(thetaSEXP);
-    Rcpp::traits::input_parameter< unsigned >::type no(noSEXP);
-    rcpp_result_gen = Rcpp::wrap(rpois(n, theta, no));
-    return rcpp_result_gen;
-END_RCPP
-}
-// MFPS_pois_pdf
-String MFPS_pois_pdf(int n);
-RcppExport SEXP _finitization_MFPS_pois_pdf(SEXP nSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    rcpp_result_gen = Rcpp::wrap(MFPS_pois_pdf(n));
-    return rcpp_result_gen;
-END_RCPP
-}
 // c_printDensity
 StringVector c_printDensity(int n, IntegerVector val, Rcpp::List const& params, int dtype, bool latex);
 RcppExport SEXP _finitization_c_printDensity(SEXP nSEXP, SEXP valSEXP, SEXP paramsSEXP, SEXP dtypeSEXP, SEXP latexSEXP) {
@@ -177,6 +36,33 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Rcpp::List const& >::type params(paramsSEXP);
     Rcpp::traits::input_parameter< int >::type dtype(dtypeSEXP);
     rcpp_result_gen = Rcpp::wrap(c_d(n, val, params, dtype));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rvalues
+IntegerVector rvalues(int n, Rcpp::List const& params, int no, int dtype);
+RcppExport SEXP _finitization_rvalues(SEXP nSEXP, SEXP paramsSEXP, SEXP noSEXP, SEXP dtypeSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List const& >::type params(paramsSEXP);
+    Rcpp::traits::input_parameter< int >::type no(noSEXP);
+    Rcpp::traits::input_parameter< int >::type dtype(dtypeSEXP);
+    rcpp_result_gen = Rcpp::wrap(rvalues(n, params, no, dtype));
+    return rcpp_result_gen;
+END_RCPP
+}
+// MFPS_pdf
+String MFPS_pdf(int n, Rcpp::List const& params, int dtype);
+RcppExport SEXP _finitization_MFPS_pdf(SEXP nSEXP, SEXP paramsSEXP, SEXP dtypeSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List const& >::type params(paramsSEXP);
+    Rcpp::traits::input_parameter< int >::type dtype(dtypeSEXP);
+    rcpp_result_gen = Rcpp::wrap(MFPS_pdf(n, params, dtype));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -222,19 +108,10 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_finitization_rbinom", (DL_FUNC) &_finitization_rbinom, 4},
-    {"_finitization_MFPS_binom_pdf", (DL_FUNC) &_finitization_MFPS_binom_pdf, 2},
-    {"_finitization_c_dbinom", (DL_FUNC) &_finitization_c_dbinom, 4},
-    {"_finitization_rlog", (DL_FUNC) &_finitization_rlog, 3},
-    {"_finitization_MFPS_log_pdf", (DL_FUNC) &_finitization_MFPS_log_pdf, 1},
-    {"_finitization_c_dlog", (DL_FUNC) &_finitization_c_dlog, 3},
-    {"_finitization_rnegbinom", (DL_FUNC) &_finitization_rnegbinom, 4},
-    {"_finitization_MFPS_negbinom_pdf", (DL_FUNC) &_finitization_MFPS_negbinom_pdf, 2},
-    {"_finitization_c_dnegbinom", (DL_FUNC) &_finitization_c_dnegbinom, 4},
-    {"_finitization_rpois", (DL_FUNC) &_finitization_rpois, 3},
-    {"_finitization_MFPS_pois_pdf", (DL_FUNC) &_finitization_MFPS_pois_pdf, 1},
     {"_finitization_c_printDensity", (DL_FUNC) &_finitization_c_printDensity, 5},
     {"_finitization_c_d", (DL_FUNC) &_finitization_c_d, 4},
+    {"_finitization_rvalues", (DL_FUNC) &_finitization_rvalues, 4},
+    {"_finitization_MFPS_pdf", (DL_FUNC) &_finitization_MFPS_pdf, 3},
     {"_finitization_getPoissonType", (DL_FUNC) &_finitization_getPoissonType, 0},
     {"_finitization_getNegativeBinomialType", (DL_FUNC) &_finitization_getNegativeBinomialType, 0},
     {"_finitization_getBinomialType", (DL_FUNC) &_finitization_getBinomialType, 0},

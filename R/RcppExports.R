@@ -2,88 +2,6 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 #' @param n The finitization order. It should be an integer > 0.
-#' @param p The parameter of the Binomial distribution: the sucess probability for each trial.
-#' @param N The number of trials.
-#' @param no The number of the random values to be generated according to the finitized Binomial distribution.
-#' @export
-rbinom <- function(n, p, N, no) {
-    .Call('_finitization_rbinom', PACKAGE = 'finitization', n, p, N, no)
-}
-
-#' @param n The finitization order. It should be an integer > 0.
-#' @param N The number of trials.
-MFPS_binom_pdf <- function(n, N) {
-    .Call('_finitization_MFPS_binom_pdf', PACKAGE = 'finitization', n, N)
-}
-
-#' @param n The finitization order. It should be an integer > 0.
-#' @param N The number of trials.
-#' @param val The value of the variable for which the probability density function is computed.
-#' @param p The parameter of the Binomial distribution: the success probability for each trial.
-#' @export
-c_dbinom <- function(n, p, N, val) {
-    .Call('_finitization_c_dbinom', PACKAGE = 'finitization', n, p, N, val)
-}
-
-#' @param n The finitization order. It should be an integer > 0.
-#' @param theta The parameter of the logarithmic distribution.
-#' @param no The number of random values to be generated according to the finitized logarithmic distribution.
-#' @export
-rlog <- function(n, theta, no) {
-    .Call('_finitization_rlog', PACKAGE = 'finitization', n, theta, no)
-}
-
-#' @param n The finitization order. It should be an integer > 0.
-MFPS_log_pdf <- function(n) {
-    .Call('_finitization_MFPS_log_pdf', PACKAGE = 'finitization', n)
-}
-
-#' @param n The finitization order. It should be an integer > 0.
-#' @param val The value of the variable for which the probability density function is computed.
-#' @param theta The parameter of the logarithmic distribution.
-#' @export
-c_dlog <- function(n, theta, val) {
-    .Call('_finitization_c_dlog', PACKAGE = 'finitization', n, theta, val)
-}
-
-#' @param n The finitization order. It should be an integer > 0.
-#' @param p The parameter of the Binomial distribution: the sucess probability for each trial.
-#' @param N The number of trials.
-#' @param no The number of the random values to be generated according to the finitized Binomial distribution.
-#' @export
-rnegbinom <- function(n, p, k, no) {
-    .Call('_finitization_rnegbinom', PACKAGE = 'finitization', n, p, k, no)
-}
-
-#' @param n The finitization order. It should be an integer > 0.
-#' @param N The number of trials.
-MFPS_negbinom_pdf <- function(n, k) {
-    .Call('_finitization_MFPS_negbinom_pdf', PACKAGE = 'finitization', n, k)
-}
-
-#' @param n The finitization order. It should be an integer > 0.
-#' @param N The number of trials.
-#' @param val The value of the variable for which the probability density function is computed.
-#' @param p The parameter of the Binomial distribution: the success probability for each trial.
-#' @export
-c_dnegbinom <- function(n, p, k, val) {
-    .Call('_finitization_c_dnegbinom', PACKAGE = 'finitization', n, p, k, val)
-}
-
-#' @param n The finitization order. It should be an integer > 0.
-#' @param theta The parameter of the Poisson distribution.
-#' @param no The number of the random values to be generated according to the finitized Poisson distribution.
-#' @export
-rpois <- function(n, theta, no) {
-    .Call('_finitization_rpois', PACKAGE = 'finitization', n, theta, no)
-}
-
-#' @param n The finitization order. It should be an integer > 0.
-MFPS_pois_pdf <- function(n) {
-    .Call('_finitization_MFPS_pois_pdf', PACKAGE = 'finitization', n)
-}
-
-#' @param n The finitization order. It should be an integer > 0.
 #' @param val The value of the variable for which the probability density function is computed.
 #' @param params Other parameters of the distribution.
 #' @param dtype The type of the distribution: Poisson, Binomial, NegativeBinomial, Logaritmic
@@ -101,6 +19,14 @@ c_printDensity <- function(n, val, params, dtype, latex = FALSE) {
 #' the string representation of the pdf as an R expression.
 c_d <- function(n, val, params, dtype) {
     .Call('_finitization_c_d', PACKAGE = 'finitization', n, val, params, dtype)
+}
+
+rvalues <- function(n, params, no, dtype) {
+    .Call('_finitization_rvalues', PACKAGE = 'finitization', n, params, no, dtype)
+}
+
+MFPS_pdf <- function(n, params, dtype) {
+    .Call('_finitization_MFPS_pdf', PACKAGE = 'finitization', n, params, dtype)
 }
 
 getPoissonType <- function() {

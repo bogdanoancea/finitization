@@ -6,7 +6,7 @@ test_that("dpois values", {
 
 
 test_that("dpois values 2", {
-    expect_equal(dpois(7, 0.15, 9), NULL)
+    expect_true(is.null(dpois(7, 0.15, 9)))
 })
 
 test_that("dpois values 3", {

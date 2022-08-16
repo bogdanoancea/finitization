@@ -15,7 +15,7 @@ test_that("pdf2", {
 })
 
 test_that("pdf3", {
-  capture.output(expect_equal(printFinitizedBinomialDensity(2,4,3),"0"))
+  capture.output(expect_equal(printFinitizedBinomialDensity(2,4,3), NULL))
 })
 
 
@@ -24,5 +24,5 @@ test_that("pdf2L", {
 })
 
 test_that("pdf3L", {
-  capture.output(expect_equal(printFinitizedBinomialDensity(2,4,3, TRUE),"0"))
+  capture.output(expect_equal(printFinitizedBinomialDensity(2,4,3, TRUE), NULL))
 })

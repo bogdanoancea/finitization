@@ -16,6 +16,6 @@ test_that("log values 2", {
     expect_equal(sum(round(x,9)!=y), 0)
 })
 
-test_that("dbinom values 3", {
-    expect_equal(round(dlog(4,0.2, 5), 4), 0)
+test_that("log values 3", {
+    expect_true(is.null(dlog(4,0.2, 5)))
 })
