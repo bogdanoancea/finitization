@@ -75,7 +75,7 @@ StringVector c_printDensity(int n, IntegerVector val, Rcpp::List const &params, 
 NumericVector c_d(int n, IntegerVector val, Rcpp::List const &params, int dtype) {
     Finitization* f = nullptr;
     NumericVector result(val.size());
-    double, theta, N, p, k, q;
+    double theta, N, p, k, q;
     switch(dtype) {
     case DistributionType::POISSON:
         if(params.containsElementNamed("theta")) {
