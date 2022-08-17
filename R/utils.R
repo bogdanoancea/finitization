@@ -39,6 +39,10 @@ printDensity <- function(n, val, params, type, latex) {
 #' @examples
 checkFinitizationOrder <- function(n) {
     result = TRUE
+    if(length(n) > 1) {
+        message(paste0("invalid argument: ", n))
+        result = FALSE
+    }
     if (trunc(n) != n) {
         message("n should be an integer number\n")
         result = FALSE
@@ -61,6 +65,10 @@ checkFinitizationOrder <- function(n) {
 #' @examples
 checkPoissonTheta <- function(theta) {
     result = TRUE
+    if(length(theta) > 1)  {
+        message(paste0("invalid argument: ", theta))
+        result = FALSE
+    }
     if (!is.double(theta)) {
         message("theta should be a double\n")
         result = FALSE
@@ -75,6 +83,11 @@ checkPoissonTheta <- function(theta) {
 
 checkLogarithmicTheta <- function(theta) {
     result = TRUE
+    if(length(theta) > 1 ) {
+        message(paste0("invalid argument: ", theta))
+        result = FALSE
+    }
+
     if (!is.double(theta)) {
         message("theta should be a double\n")
         result = FALSE
@@ -97,6 +110,10 @@ checkLogarithmicTheta <- function(theta) {
 #' @examples
 checkBinomialP <- function(p) {
     result = TRUE
+    if(length(p) > 1) {
+        message(paste0("invalid argument: ", p))
+        result = FALSE
+    }
     if (!is.double(p)) {
         message("p should be a double\n")
         result = FALSE
@@ -120,6 +137,10 @@ checkBinomialP <- function(p) {
 #' @examples
 checkNegBinomialQ <- function(q) {
     result = TRUE
+    if(length(q) > 1 ) {
+        message(paste0("invalid argument: ", q))
+        result = FALSE
+    }
     if (!is.double(q)) {
         message("q should be a double\n")
         result = FALSE
@@ -142,6 +163,10 @@ checkNegBinomialQ <- function(q) {
 #' @examples
 checkBinomialN <- function(N) {
     result = TRUE
+    if(length(N) > 1 ) {
+        message(paste0("invalid argument: ", N))
+        result = FALSE
+    }
     if(trunc(N) != N)
         warning(paste0(N, " will be converted to an integer"))
     if(N < 0) {
@@ -184,7 +209,7 @@ checkVals <- function(n, val) {
     }
 
     if (result) {
-        if (!(val >= 0 && val <= n)) {
+        if (!(all(val >= 0 ) && all(val <= n))) {
             message(paste0("val should be an integer or a vector of integers with values between 0 and ", n, "\n"))
             result = FALSE
         }
@@ -214,6 +239,10 @@ findSolutions <- function(func) {
 
 checkNoValues <- function(no) {
     result = TRUE
+    if(length(no) > 1) {
+        message(paste0("invalid argument: ", no))
+        result = FALSE
+    }
     if(trunc(no) != no)
         warning(paste0(no, " will be converted to an integer"))
     if(no < 0) {

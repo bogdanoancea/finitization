@@ -37,21 +37,27 @@ dpois <- function(n, theta, val = NULL) {
         lim <- seq(0, n)
     }
     d <- c_d(n, lim, list("theta" = theta), getPoissonType())
+    if(any(d < 0) || any(d > 1))
+        warning(paste0("be sure that you provided parameter ", theta, " inside the maximum feasible parameter space"))
+
+    if(any(d < 0) || any(d > 1))
+        warning("be sure that you provided parameters inside the maximum feasible parameter space")
+
     df <- data.frame(val = lim, prob = d)
     return(df)
 }
 
 #' The string representation of the probability density function for the finitized Poisson distribution.
 #'
-#' \code{printFinitizedPoissonDensity(n, theta, latex)} computes and prints the string
-#' representation of the probability density function for the finitized Poisson distribution with parameter \code{theta}.
+#' \code{printFinitizedPoissonDensity(n, val, latex)} computes and prints the string
+#' representation of the probability density function for the finitized Poisson distribution.
 #'
 #' @param n The finitization order. It should be an integer > 0.
 #' @param val The value of the variable for which the probability density function is printed. If NULL, this function computes the
 #' string representation of the pdf for all possible values, i.e. \code{{0 .. n}}.
 #' @param latex If TRUE, a string representation of the pdf formatted in Latex format is printed, otherwise this function prints
 #' the string representation of the pdf as an R expression.
-#' @return This function silently returns the vector of type \code{\link[base]{character}} with the string representation of the pdf(s).
+#' @return This function silently returns a vector of type \code{\link[base]{character}} with the string representation of the pdf(s).
 #' The length of the vector is the same with the length of the parameter \code{val}, i.e. one element for each value in \code{val}.
 #'
 #' @examples
@@ -77,8 +83,7 @@ printFinitizedPoissonDensity <-
 
 #' Maximum feasible parameter space  for the finitized Poisson distribution.
 #'
-#' \code{getPoissonMFPS(n)} computes and returns the maximum feasible parameter space for the finitized Poisson distribution with parameter
-#' \code{theta}.
+#' \code{getPoissonMFPS(n)} computes and returns the maximum feasible parameter space for the finitized Poisson distribution.
 #'
 #' @param  n The finitization order. It should be an integer > 0.
 #' @return A vector with two elements where the first element is the lower limit of the maximum feasible parameter space

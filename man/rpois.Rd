@@ -2,7 +2,7 @@
 % Please edit documentation in R/pois.R
 \name{rpois}
 \alias{rpois}
-\title{Random values generation}
+\title{Random values generation  for the finitized Poisson distribution.}
 \usage{
 rpois(n, theta, no)
 }

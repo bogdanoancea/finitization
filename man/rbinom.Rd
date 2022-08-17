@@ -2,16 +2,28 @@
 % Please edit documentation in R/binom.R
 \name{rbinom}
 \alias{rbinom}
-\title{Title}
+\title{Random values generation for the finitized Binomial distribution.}
 \usage{
 rbinom(n, p, N, no)
 }
 \arguments{
-\item{no}{}
+\item{n}{The finitization order. It should be an integer > 1.}
+
+\item{p}{The parameter of the finitized Binomial distribution - the success probability for each trial.\eqn{p \in [0,1]}}
+
+\item{N}{The number of trials.\code{ n = 0, 1, 2, ...}}
+
+\item{no}{The number of random values to be generated.}
 }
 \value{
-
+\code{rpois} returns a vector of type \code{\link[base]{integer}} containing random values generated according to the finitized Binomial distribution.
+The number of values is given by the parameter \code{no}.
 }
 \description{
-Title
+\code{rbinom(n, p, N, no)} generates random values according to the finitized Binomial distribution with parameters \code{p, N}.
+}
+\examples{
+library(finitization)
+rbinom(2, 0.5, 2, 10)
+
 }

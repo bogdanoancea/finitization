@@ -2,16 +2,28 @@
 % Please edit documentation in R/negbinom.R
 \name{rnegbinom}
 \alias{rnegbinom}
-\title{Title}
+\title{Random values generation for the finitized Negative Binomial distribution.}
 \usage{
 rnegbinom(n, q, k, no)
 }
 \arguments{
-\item{no}{}
+\item{n}{The finitization order. It should be an integer > 1.}
+
+\item{q}{The parameter of the finitized Negative Binomial distribution - the success probability for each trial.\eqn{q \in [0,1]}}
+
+\item{k}{The number of failures until the experiment is stopped,\code{k > 0}.}
+
+\item{no}{The number of random values to be generated.}
 }
 \value{
-
+\code{rpois} returns a vector of type \code{\link[base]{integer}} containing random values generated according to the finitized Negative
+Binomial distribution. The number of values is given by the parameter \code{no}.
 }
 \description{
-Title
+\code{rnegbinom(n, q, k, no)} generates random values according to the finitized Binomial distribution with parameters \code{q,k}.
+}
+\examples{
+library(finitization)
+rnegbinom(2, 0.5, 2, 10)
+
 }

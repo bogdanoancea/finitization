@@ -2,7 +2,7 @@
 % Please edit documentation in R/pois.R
 \name{getPoissonMFPS}
 \alias{getPoissonMFPS}
-\title{Maximum feasible parameter space}
+\title{Maximum feasible parameter space  for the finitized Poisson distribution.}
 \usage{
 getPoissonMFPS(n)
 }
@@ -14,8 +14,7 @@ A vector with two elements where the first element is the lower limit of the max
 and the second is the upper limit.
 }
 \description{
-\code{getPoissonMFPS(n)} computes and returns the maximum feasible parameter space for the finitized Poisson distribution with parameter
-\code{theta}.
+\code{getPoissonMFPS(n)} computes and returns the maximum feasible parameter space for the finitized Poisson distribution.
 }
 \examples{
 library(finitization)
