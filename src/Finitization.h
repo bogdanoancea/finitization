@@ -45,6 +45,7 @@ private:
     int* m_values;
     bool m_ntsfFirstTime;
     ex m_ntsfSymb;
+    std::unordered_map<int, ex> m_cache;
 
 
 };

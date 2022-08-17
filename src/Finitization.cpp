@@ -87,7 +87,16 @@ ex Finitization::ntsf( ex pnb) {
 
 ex Finitization::pdf(ex ntsf, int x_val) {
     ex optheta = -m_paramSymb;
-    ex pdf = (ntsf.diff(m_x, x_val));
+    ex pdf;
+    if( x_val > 1 && m_cache.find(x_val-1) != m_cache.end()) {
+        pdf = m_cache[x_val-1].diff(m_x, 1);
+        m_cache.insert({x_val, pdf});
+    }
+    else {
+        pdf = ntsf.diff(m_x, x_val);
+        m_cache.insert({x_val, pdf});
+    }
+
     pdf = pdf.subs(m_x == optheta) * pow(m_paramSymb, x_val) / factorial(x_val);
     return pdf;
 
