@@ -31,6 +31,8 @@ protected:
     double m_theta;
     symbol m_paramSymb;
     symbol m_x;
+    double* m_dprobs;
+    bool m_finish;
 
 
 private:

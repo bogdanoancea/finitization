@@ -6,14 +6,14 @@
 using namespace std;
 using namespace std::chrono;
 
-Finitization::Finitization(int n): m_finitizationOrder(n), m_unif_double_distribution{0.0, 1.0}, m_unif_int_distribution(0,n) {
-     m_alias = new int[m_finitizationOrder+1];
-     m_prob = new double[m_finitizationOrder+1];
-     m_values = new int[m_finitizationOrder+1];
-     m_ntsfFirstTime = true;
-     for(int i = 0; i <= n; i++)
+Finitization::Finitization(int n): m_finitizationOrder(n), m_dprobs{nullptr}, m_finish{false}, m_unif_double_distribution{0.0, 1.0}, m_unif_int_distribution(0,n) {
+    m_alias = new int[m_finitizationOrder+1];
+    m_prob = new double[m_finitizationOrder+1];
+    m_values = new int[m_finitizationOrder+1];
+    m_ntsfFirstTime = true;
+    for(int i = 0; i <= n; i++)
         m_values[i] = i;
-	 m_generator.seed(time(0));
+    m_generator.seed(time(0));
 
 }
 
@@ -21,6 +21,7 @@ Finitization::~Finitization() {
     delete[] m_alias;
     delete[] m_prob;
     delete[] m_values;
+    delete[] m_dprobs;
 }
 
 void Finitization::setProbs(double* p) {
@@ -107,33 +108,11 @@ string Finitization::pdfToString(int val, bool tolatex) {
 }
 
 double Finitization::fin_pdf(int val) {
-    ex pdf_ = fin_pdfSymb(val);
-    return GiNaC::ex_to<GiNaC::numeric>(evalf(pdf_.subs(m_paramSymb == m_theta))).to_double();
+    if(m_finish && val <= m_finitizationOrder)
+        return m_dprobs[val];
+    else {
+        ex pdf_ = fin_pdfSymb(val);
+        return GiNaC::ex_to<GiNaC::numeric>(evalf(pdf_.subs(m_paramSymb == m_theta))).to_double();
+    }
 }
 
-
-// #include <iostream>
-// #include <vector>
-// #include <algorithm>
-// #include <ginac/ginac.h>
-//
-// int main()
-// {
-//     using namespace GiNaC;
-//     symbol x("x");
-//     ex poly(-3*x-5+power(x,2));
-//
-//     std::vector<ex> terms(poly.begin(), poly.end());
-//     std::sort(std::begin(terms), std::end(terms),
-//               [x](const ex& lhs, const ex& rhs) { return lhs.degree(x)>rhs.degree(x); });
-//
-//     bool first{ true };
-//     for(auto term : terms) {
-//         if( first ) first = false;
-//         else if( term.coeff(term)>0) std::cout << '+' ;
-//
-//         std::cout << term;
-//     }
-//
-//     std::cout << std::endl;
-// }

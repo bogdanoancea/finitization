@@ -23,18 +23,18 @@
 #include "FinitizedPoissonDistribution.h"
 #include <ginac/ginac.h>
 
-
 using namespace std;
 
 FinitizedPoissonDistribution::FinitizedPoissonDistribution(int n, double theta): Finitization(n) {
     m_theta = theta;
     m_paramSymb = symbol("theta");
     m_x = symbol("x");
-	double probs[n+1];
+	m_dprobs = new double[n+1];
 	for( int i = 0; i <= n; ++i) {
-		probs[i] = fin_pdf(i);
+		m_dprobs[i] = fin_pdf(i);
 	}
-	setProbs(probs);
+	setProbs(m_dprobs);
+	m_finish = true;
 }
 
 FinitizedPoissonDistribution::~FinitizedPoissonDistribution() {
@@ -44,11 +44,6 @@ ex FinitizedPoissonDistribution::ntsd_base(symbol x, symbol theta){
 	return exp(x);
 }
 
-
-// double FinitizedPoissonDistribution::fin_pdf(int val) {
-// 	ex pdf_ = fin_pdfSymb( val);
-// 	return GiNaC::ex_to<GiNaC::numeric>(evalf(pdf_.subs(m_paramSymb == m_theta))).to_double();
-// }
 
 
 
