@@ -2,16 +2,26 @@
 % Please edit documentation in R/pois.R
 \name{rpois}
 \alias{rpois}
-\title{Title}
+\title{Random values generation}
 \usage{
 rpois(n, theta, no)
 }
 \arguments{
-\item{no}{}
+\item{n}{The finitization order. It should be an integer > 1.}
+
+\item{theta}{The parameter of the Poisson distribution.}
+
+\item{no}{The number of random values to be generated.}
 }
 \value{
-
+\code{rpois} returns a vector of type \code{\link[base]{integer}} containing random values generated according to the finitized Poisson distribution.
+The number of values is given by the parameter \code{no}.
 }
 \description{
-Title
+\code{rpois(n, theta, no)} generates random values according to the finitized Poisson distribution with parameter \code{theta}.
+}
+\examples{
+library(finitization)
+rpois(2, 0.5, 10)
+
 }
