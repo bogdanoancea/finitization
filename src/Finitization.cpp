@@ -1,10 +1,10 @@
 #include "Finitization.h"
 #include <iostream>
 #include <Rcpp.h>
-#include <chrono>
+
 
 using namespace std;
-using namespace std::chrono;
+
 
 Finitization::Finitization(int n): m_finitizationOrder(n), m_dprobs{nullptr}, m_finish{false}, m_unif_double_distribution{0.0, 1.0}, m_unif_int_distribution(0,n) {
     m_alias = new int[m_finitizationOrder+1];

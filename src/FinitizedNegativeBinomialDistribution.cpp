@@ -30,11 +30,12 @@ FinitizedNegativeBinomialDistribution::FinitizedNegativeBinomialDistribution(int
     m_theta = p;
     m_paramSymb = symbol("q");
     m_x = symbol("x");
-    double probs[n+1];
+    m_dprobs = new double[n+1];
     for( int i = 0; i <= n; ++i) {
-        probs[i] = fin_pdf(i);
+        m_dprobs[i] = fin_pdf(i);
     }
-    setProbs(probs);
+    setProbs(m_dprobs);
+    m_finish = true;
 }
 
 FinitizedNegativeBinomialDistribution::~FinitizedNegativeBinomialDistribution() {
@@ -44,8 +45,3 @@ ex FinitizedNegativeBinomialDistribution::ntsd_base(symbol x, symbol theta){
     return pow( 1 /(1-x/(1-theta)), m_k);
 }
 
-
-// double FinitizedNegativeBinomialDistribution::fin_pdf(int val) {
-//     ex pdf_ = fin_pdfSymb(val);
-//     return GiNaC::ex_to<GiNaC::numeric>(evalf( pdf_.subs(m_paramSymb == m_theta))).to_double();
-// }
