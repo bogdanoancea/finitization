@@ -85,7 +85,7 @@ printFinitizedBinomialDensity <-
         }
         if (!checkIntegerValue(n))
             return(invisible(NULL))
-        if (!checkBinomialN(N))
+        if (!checkIntegerValue(N))
             return(invisible(NULL))
         if (!is.null(val) && !checkVals(n, val))
             return(invisible(NULL))
@@ -123,7 +123,7 @@ getBinomialMFPS <- function(n, N) {
 
     if(!checkIntegerValue(n))
         return(invisible(NULL))
-    if (!checkBinomialN(N))
+    if (!checkIntegerValue(N))
         return(invisible(NULL))
 
     fg <- function(p) {

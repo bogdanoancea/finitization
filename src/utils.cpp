@@ -1,9 +1,5 @@
-//#include <RcppParallel.h>
 #include <Rcpp.h>
 #include <string>
-#include <vector>
-
-
 #include "FinitizedLogarithmicDistribution.h"
 #include "FinitizedPoissonDistribution.h"
 #include "FinitizedBinomialDistribution.h"
@@ -11,41 +7,18 @@
 #include "DistributionType.h"
 
 
-//using namespace RcppParallel;
 using namespace std;
 
-// // [[Rcpp::depends(RcppParallel)]]
-// struct DP : public Worker
-// {
-//
-//     const RVector<int> vals;
-//     RVector<double> probs;
-//     Finitization* pf;
-//
-//     // initialize with source and destination
-//     DP(const IntegerVector &v, NumericVector& p, Finitization*& f): vals(v), probs(p), pf(f){
-//         Rcout << "dimensiunea vals" << vals.size() << endl;
-//         Rcout << "dimensiunea probs" << probs.size() << endl;
-//     }
-//
-//     // take the square root of the range of elements requested
-//     void operator()(std::size_t begin, std::size_t end) {
-//         //Rcout << endl << begin << ":" << end << endl;
-//         for(std::size_t i = begin; i < end; ++i)
-//             //probs[i] =
-//             pf->fin_pdf(vals[i]);
-//             //Rcout << vals[i] << endl;
-//     }
-// };
-
-
-
+//' Generates a string representation of the probability density function.
+//'
 //' @param n The finitization order. It should be an integer > 0.
 //' @param val The value of the variable for which the probability density function is computed.
-//' @param params Other parameters of the distribution.
+//' @param params Other parameters of the distribution. They are provided in a list with named items, where the name
+//' of an item is the name of the parameter.
 //' @param dtype The type of the distribution: Poisson, Binomial, NegativeBinomial, Logaritmic
-//' @param latex If true it returns a Latex formatted string representation of the pdf,otherwise it returns
+//' @param latex If true it returns a Latex formatted string representation of the pdf, otherwise it returns
 //' the string representation of the pdf as an R expression.
+//' @return a string representation of the pdf.
 // [[Rcpp::export]]
 StringVector c_printDensity(int n, IntegerVector val, Rcpp::List const &params, int dtype, bool latex = false) {
 
@@ -91,12 +64,16 @@ StringVector c_printDensity(int n, IntegerVector val, Rcpp::List const &params, 
 
 }
 
+//' Computes the probability density of a finitized distribution.
+//'
 //' @param n The finitization order. It should be an integer > 0.
 //' @param val The value of the variable for which the probability density function is computed.
-//' @param params Other parameters of the distribution.
+//' @param params Other parameters of the distribution. They are provided in a list with named items, where the name
+//' of an item is the name of the parameter.
 //' @param dtype The type of the distribution: Poisson, Binomial, NegativeBinomial, Logaritmic
 //' @param latex If true it returns a Latex formatted string representation of the pdf,otherwise it returns
 //' the string representation of the pdf as an R expression.
+//' @return a\code{NumericVector} with the values of the density for each value provide in \code{val}.
 // [[Rcpp::export]]
 NumericVector c_d(int n, IntegerVector val, Rcpp::List const &params, int dtype) {
     Finitization* f = nullptr;
@@ -138,8 +115,6 @@ NumericVector c_d(int n, IntegerVector val, Rcpp::List const &params, int dtype)
     }
 
     if(f) {
-        // DP dp(val, result, f);
-        // parallelFor(0, val.size(), dp, 20);
         for(int i = 0; i< val.size(); ++i)
             result[i] = f->fin_pdf(val[i]);
         delete f;
@@ -149,8 +124,14 @@ NumericVector c_d(int n, IntegerVector val, Rcpp::List const &params, int dtype)
 }
 
 
-
-
+//' Random values generation.
+//'
+//' @param n The finitization order. It should be an integer > 0.
+//' @param params Other parameters of the distribution. They are provided in a list with named items, where the name
+//' of an item is the name of the parameter.
+//' @param dtype The type of the distribution: Poisson, Binomial, NegativeBinomial, Logaritmic.
+//' @param no The number of random values to be generated.
+//' @return a\code{NumericVector} with the random values generated.
 // [[Rcpp::export]]
 IntegerVector rvalues(int n, Rcpp::List const &params, int no, int dtype) {
     Finitization* f = nullptr;
@@ -198,6 +179,13 @@ IntegerVector rvalues(int n, Rcpp::List const &params, int no, int dtype) {
     return result;
 }
 
+//' Computes the expression of the \code{pdf(n-1)} needed to compute the maximu feasible parameter space.
+//'
+//' @param n The finitization order. It should be an integer > 0.
+//' @param params Other parameters of the distribution. They are provided in a list with named items, where the name
+//' of an item is the name of the parameter.
+//' @param dtype The type of the distribution: Poisson, Binomial, NegativeBinomial, Logaritmic.
+//' @return the expression of the \code{pdf(n-1)}.
 // [[Rcpp::export]]
 String MFPS_pdf(int n, Rcpp::List const &params, int dtype ) {
     Finitization* f = nullptr;
@@ -238,22 +226,35 @@ String MFPS_pdf(int n, Rcpp::List const &params, int dtype ) {
 
 }
 
-
+//' The Poisson distribution type.
+//'
+//' @return the Poisson distribution type.
 // [[Rcpp::export]]
 int getPoissonType() {
     return DistributionType::POISSON;
 }
 
+//' The Negative Binomial distribution type.
+//'
+//' @return the Negative Binomial distribution type.
 // [[Rcpp::export]]
 int getNegativeBinomialType() {
     return DistributionType::NEGATIVEBINOMIAL;
 }
 
+
+//' The Binomial distribution type.
+//'
+//' @return the Binomial distribution type.
 // [[Rcpp::export]]
 int getBinomialType() {
     return DistributionType::BINOMIAL;
 }
 
+
+//' The Logarithmic distribution type.
+//'
+//' @return the Logarithmic distribution type.
 // [[Rcpp::export]]
 int getLogarithmicType() {
     return DistributionType::LOGARITHMIC;

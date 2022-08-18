@@ -36,32 +36,6 @@ printDensity <- function(n, val, params, type, latex) {
 
 
 
-#' Checks if the finitization order is correct.
-#'
-#' Checks if the parameter passed as the finitization order satisfies \code{length(n) == 1} (no vectors with more than one element are allowed),
-#' and if it is an integer > 1. If the value passed through this parameter does not meet these criteria, the function returns FALSE, otherwise it
-#' returns TRUE.
-#'
-#' @param n The finitization order.
-#'
-#' @return TRUE if \code{length(n)==1} and \code{n} is an integer number with \code{n >= 1}, FALSE otherwise.
-checkFinitizationOrder <- function(n) {
-    result = TRUE
-    if(length(n) != 1) {
-        message(paste0("Invalid argument: ", n))
-        result = FALSE
-    }
-    if (trunc(n) != n) {
-        message("n should be an integer number\n")
-        result = FALSE
-    } else {
-        if ( n < 1) {
-            message("n should be an integer greater than zero\n")
-            result = FALSE
-        }
-    }
-    return(result)
-}
 
 #' Checks the validity of the parameter \code{theta} of the finitized Poisson and/or Logarithmic distribution.
 #'
@@ -146,35 +120,9 @@ checkNegBinomialQ <- function(q) {
     return(result)
 }
 
-#' Checks the validity of the parameter \code{N} (the number of trials) of the finitized Binomial distribution.
-#'
-#' Checks if the parameter \code{N} of the finitized Binomial distribution satisfies \code{length(N) == 1} (no vectors with more than one element are allowed),
-#' and if it is an integer greater than 0. If \code{N} is not an integer number, it will be converted to an integer value.
-#' If the value passed through this parameter does not meet these criteria, the function returns FALSE, otherwise it
-#' returns TRUE.
-#'
-#' @param N The parameter (the number of trials) of the finitized Binomial distribution.
-#'
-#' @return TRUE if \code{length(N) == 1} and \code{N} is an integer greater than 0, FALSE otherwise.
-checkBinomialN <- function(N) {
-    result = TRUE
-    if(length(N) != 1 ) {
-        message(paste0("Invalid argument: ", N))
-        result = FALSE
-    }
-    if(trunc(N) != N)
-        warning(paste0(N, " will be converted to an integer"))
-    if(N < 0) {
-        message("The number of trials (N) should have values > 0")
-        result = FALSE
-    }
-    return(result)
-}
-
-
 #' Checks if the values of the variable are valid.
 #'
-#' Checks if the values of the variable are valid, i.e. \code{{0, 1, 2, ... n}}, where \code{n} is the finitization order.
+#' Checks if the values of the variable are valid, i.e. they belong to \code{{0, 1, 2, ... n}}, where \code{n} is the finitization order.
 #'
 #' @param n The finitization order of the distribution
 #' @param val a vector with the values of the variable.

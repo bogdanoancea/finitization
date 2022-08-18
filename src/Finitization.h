@@ -8,6 +8,9 @@ using namespace GiNaC;
 
 #ifndef FINITIZATION_H_
 #define FINITIZATION_H_
+
+
+
 class Finitization {
 
 public:

@@ -1,8 +1,4 @@
 #include "Finitization.h"
-#include <iostream>
-#include <Rcpp.h>
-
-
 using namespace std;
 
 

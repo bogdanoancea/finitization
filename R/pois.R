@@ -96,7 +96,7 @@ getPoissonMFPS <- function(n) {
         message("Argument n is missing!\n")
         return(invisible(NULL))
     }
-    if(!checkFinitizationOrder(n))
+    if(!checkIntegerValue(n))
         return(invisible(NULL))
 
     fg <- function(theta) {

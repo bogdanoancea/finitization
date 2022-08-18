@@ -15,5 +15,5 @@ checkVals(n, val)
 TRUE if all values in \code{val} are integers and they are in the set \code{{0, 1, 2, ... n}}, FALSE otherwise.
 }
 \description{
-Checks if the values of the variable are valid, i.e. \code{{0, 1, 2, ... n}}, where \code{n} is the finitization order.
+Checks if the values of the variable are valid, i.e. they belong to \code{{0, 1, 2, ... n}}, where \code{n} is the finitization order.
 }
