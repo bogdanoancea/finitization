@@ -2,16 +2,18 @@
 % Please edit documentation in R/utils.R
 \name{checkBinomialP}
 \alias{checkBinomialP}
-\title{Title}
+\title{Checks the validity of the parameter \code{p} (the rate of success) of the finitized Binomial distribution.}
 \usage{
 checkBinomialP(p)
 }
 \arguments{
-\item{p}{}
+\item{p}{The parameter of the finitized Binomial distribution.}
 }
 \value{
-
+TRUE if \code{length(p) == 1} and \code{p} is a double in \link{0,1} interval, FALSE otherwise.
 }
 \description{
-Title
+Checks if the parameter \code{p} of the finitized Binomial distribution satisfies \code{length(p) == 1} (no vectors with more than one element are allowed),
+and if it is a double with values in \link{0,1}. If the value passed through this parameter does not meet these criteria, the function returns FALSE, otherwise it
+returns TRUE.
 }

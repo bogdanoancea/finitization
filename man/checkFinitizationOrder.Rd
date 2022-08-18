@@ -2,16 +2,18 @@
 % Please edit documentation in R/utils.R
 \name{checkFinitizationOrder}
 \alias{checkFinitizationOrder}
-\title{Title}
+\title{Checks if the finitization order is correct.}
 \usage{
 checkFinitizationOrder(n)
 }
 \arguments{
-\item{n}{}
+\item{n}{The finitization order.}
 }
 \value{
-
+TRUE if \code{length(n)==1} and \code{n} is an integer number with \code{n >= 1}, FALSE otherwise.
 }
 \description{
-Title
+Checks if the parameter passed as the finitization order satisfies \code{length(n) == 1} (no vectors with more than one element are allowed),
+and if it is an integer > 1. If the value passed through this parameter does not meet these criteria, the function returns FALSE, otherwise it
+returns TRUE.
 }

@@ -19,23 +19,23 @@
 dnegbinom <- function(n, q, k, val = NULL) {
 
     if(missing(n)) {
-        message("argument n is missing!\n")
+        message("Argument n is missing!\n")
         return(invisible(NULL))
     }
     if(missing(q)) {
-        message("argument q is missing!\n")
+        message("Argument q is missing!\n")
         return(invisible(NULL))
     }
     if(missing(k)) {
-        message("argument k is missing!\n")
+        message("Argument k is missing!\n")
         return(invisible(NULL))
     }
 
-    if (!checkFinitizationOrder(n))
+    if (!checkIntegerValue(n))
         return(invisible(NULL))
     if (!checkNegBinomialQ(q))
         return(invisible(NULL))
-    if (!checkNegBinomialK(k))
+    if (!checkIntegerValue(k))
         return(invisible(NULL))
 
     if (!is.null(val)) {
@@ -47,7 +47,8 @@ dnegbinom <- function(n, q, k, val = NULL) {
     }
     d <- c_d(n, lim, list("q" = q, "k" = k), getNegativeBinomialType())
     if(any(d < 0) || any(d > 1))
-        warning(paste0("be sure that you provided parameter ", q, " inside the maximum feasible parameter space"))
+        warning(paste0("Be sure that you provided parameter ", q, " inside the maximum feasible parameter space"))
+
     df <- data.frame(val = lim, prob = d)
     return(df)
 }
@@ -70,21 +71,17 @@ dnegbinom <- function(n, q, k, val = NULL) {
 #' @export
 getNegativeBinomialMFPS <- function(n, k) {
     if(missing(n)) {
-        message("argument n is missing!\n")
+        message("Argument n is missing!\n")
         return(invisible(NULL))
     }
     if(missing(k)) {
-        message("argument k is missing!\n")
+        message("Argument k is missing!\n")
         return(invisible(NULL))
     }
 
-    if (!checkFinitizationOrder(n))
+    if (!checkIntegerValue(n))
         return(invisible(NULL))
-    if (!checkNegBinomialK(k))
-        return(invisible(NULL))
-    if(!checkFinitizationOrder(n))
-        return(invisible(NULL))
-    if (!checkNegBinomialK(k))
+    if (!checkIntegerValue(k))
         return(invisible(NULL))
 
     fg <- function(q) {
@@ -118,16 +115,16 @@ getNegativeBinomialMFPS <- function(n, k) {
 printFinitizedNegativeBinomialDensity <-
     function(n, k, val = NULL, latex = FALSE)  {
         if(missing(n)) {
-            message("argument n is missing!\n")
+            message("Argument n is missing!\n")
             return(invisible(NULL))
         }
         if(missing(k)) {
-            message("argument k is missing!\n")
+            message("Argument k is missing!\n")
             return(invisible(NULL))
         }
-        if (!checkFinitizationOrder(n))
+        if (!checkIntegerValue(n))
             return(invisible(NULL))
-        if (!checkNegBinomialK(k))
+        if (!checkIntegerValue(k))
             return(invisible(NULL))
         if (!is.null(val) && !checkVals(n, val))
             return(invisible(NULL))
@@ -157,29 +154,29 @@ printFinitizedNegativeBinomialDensity <-
 #' @export
 rnegbinom <- function(n, q, k, no) {
     if(missing(n)) {
-        message("argument n is missing!\n")
+        message("Argument n is missing!\n")
         return(invisible(NULL))
     }
     if(missing(q)) {
-        message("argument q is missing!\n")
+        message("Argument q is missing!\n")
         return(invisible(NULL))
     }
     if(missing(k)) {
-        message("argument k is missing!\n")
+        message("Argument k is missing!\n")
         return(invisible(NULL))
     }
     if(missing(no)) {
-        message("argument no is missing!\n")
+        message("Argument no is missing!\n")
         return(invisible(NULL))
     }
 
-    if (!checkFinitizationOrder(n))
+    if (!checkIntegerValue(n))
         return(invisible(NULL))
     if (!checkNegBinomialQ(q))
         return(invisible(NULL))
-    if (!checkNegBinomialK(k))
+    if (!checkIntegerValue(k))
         return(invisible(NULL))
-    if (!checkNoValues(no))
+    if (!checkIntegerValue(no))
         return(invisible(NULL))
 
     return(rvalues(n, list("q" = q, "k" = k), no, getNegativeBinomialType()))

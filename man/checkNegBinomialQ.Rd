@@ -2,16 +2,18 @@
 % Please edit documentation in R/utils.R
 \name{checkNegBinomialQ}
 \alias{checkNegBinomialQ}
-\title{Title}
+\title{Checks the validity of the parameter \code{q} (the rate of success) of the finitized Negative Binomial distribution.}
 \usage{
 checkNegBinomialQ(q)
 }
 \arguments{
-\item{q}{}
+\item{q}{The parameter of the finitized Negative Binomial distribution.}
 }
 \value{
-
+TRUE if \code{length(q) == 1} and \code{q} is a double in \link{0,1} interval, FALSE otherwise.
 }
 \description{
-Title
+Checks if the parameter \code{q} of the finitized Negative Binomial distribution satisfies \code{length(q) == 1} (no vectors with more than one element are allowed),
+and if it is a double with values in \link{0,1}. If the value passed through this parameter does not meet these criteria, the function returns FALSE, otherwise it
+returns TRUE.
 }

@@ -2,16 +2,19 @@
 % Please edit documentation in R/utils.R
 \name{checkBinomialN}
 \alias{checkBinomialN}
-\title{Title}
+\title{Checks the validity of the parameter \code{N} (the number of trials) of the finitized Binomial distribution.}
 \usage{
 checkBinomialN(N)
 }
 \arguments{
-\item{N}{}
+\item{N}{The parameter (the number of trials) of the finitized Binomial distribution.}
 }
 \value{
-
+TRUE if \code{length(N) == 1} and \code{N} is an integer greater than 0, FALSE otherwise.
 }
 \description{
-Title
+Checks if the parameter \code{N} of the finitized Binomial distribution satisfies \code{length(N) == 1} (no vectors with more than one element are allowed),
+and if it is an integer greater than 0. If \code{N} is not an integer number, it will be converted to an integer value.
+If the value passed through this parameter does not meet these criteria, the function returns FALSE, otherwise it
+returns TRUE.
 }

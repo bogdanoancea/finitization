@@ -18,23 +18,23 @@
 #' @export
 dbinom <- function(n, p, N, val = NULL) {
     if(missing(n)) {
-        message("argument n is missing!\n")
+        message("Argument n is missing!\n")
         return(invisible(NULL))
     }
     if(missing(p)) {
-        message("argument p is missing!\n")
+        message("Argument p is missing!\n")
         return(invisible(NULL))
     }
     if(missing(N)) {
-        message("argument N is missing!\n")
+        message("Argument N is missing!\n")
         return(invisible(NULL))
     }
 
-    if (!checkFinitizationOrder(n))
+    if (!checkIntegerValue(n))
         return(invisible(NULL))
     if (!checkBinomialP(p))
         return(invisible(NULL))
-    if (!checkBinomialN(N))
+    if (!checkIntegerValue(N))
         return(invisible(NULL))
 
     if (!is.null(val)) {
@@ -76,14 +76,14 @@ dbinom <- function(n, p, N, val = NULL) {
 printFinitizedBinomialDensity <-
     function(n, N, val = NULL, latex = FALSE)  {
         if(missing(n)) {
-            message("argument n is missing!\n")
+            message("Argument n is missing!\n")
             return(invisible(NULL))
         }
         if(missing(N)) {
-            message("argument N is missing!\n")
+            message("Argument N is missing!\n")
             return(invisible(NULL))
         }
-        if (!checkFinitizationOrder(n))
+        if (!checkIntegerValue(n))
             return(invisible(NULL))
         if (!checkBinomialN(N))
             return(invisible(NULL))
@@ -113,15 +113,15 @@ printFinitizedBinomialDensity <-
 #' @export
 getBinomialMFPS <- function(n, N) {
     if(missing(n)) {
-        message("argument n is missing!\n")
+        message("Argument n is missing!\n")
         return(invisible(NULL))
     }
     if(missing(N)) {
-        message("argument N is missing!\n")
+        message("Argument N is missing!\n")
         return(invisible(NULL))
     }
 
-    if(!checkFinitizationOrder(n))
+    if(!checkIntegerValue(n))
         return(invisible(NULL))
     if (!checkBinomialN(N))
         return(invisible(NULL))
@@ -155,41 +155,30 @@ getBinomialMFPS <- function(n, N) {
 #' @export
 rbinom <- function(n, p, N, no) {
     if(missing(n)) {
-        message("argument n is missing!\n")
+        message("Argument n is missing!\n")
         return(invisible(NULL))
     }
     if(missing(N)) {
-        message("argument N is missing!\n")
+        message("Argument N is missing!\n")
         return(invisible(NULL))
     }
     if(missing(p)) {
-        message("argument p is missing!\n")
+        message("Argument p is missing!\n")
         return(invisible(NULL))
     }
     if(missing(no)) {
-        message("argument no is missing!\n")
+        message("Argument no is missing!\n")
         return(invisible(NULL))
     }
 
-    if (!checkFinitizationOrder(n))
+    if (!checkIntegerValue(n))
         return(invisible(NULL))
     if (!checkBinomialP(p))
         return(invisible(NULL))
-    if (!checkBinomialN(N))
+    if (!checkIntegerValue(N))
         return(invisible(NULL))
-    if (!checkNoValues(no))
+    if (!checkIntegerValue(no))
         return(invisible(NULL))
 
     return(rvalues(n, list("p" = p, "N" = N), no, getBinomialType()))
 }
-
-
-
-
-
-
-
-
-
-
-

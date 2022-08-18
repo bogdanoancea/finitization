@@ -2,7 +2,8 @@
 % Please edit documentation in R/utils.R
 \name{printDensity}
 \alias{printDensity}
-\title{Title}
+\title{Title
+Prints the density function for finitized}
 \usage{
 printDensity(n, val, params, type, latex)
 }
@@ -14,4 +15,8 @@ printDensity(n, val, params, type, latex)
 }
 \description{
 Title
+Prints the density function for finitized
+}
+\examples{
+
 }

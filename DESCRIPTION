@@ -17,14 +17,13 @@ RoxygenNote: 7.1.2
 URL: https://github.com/bogdanoancea/finitization
 BugReports: https://github.com/bogdanoancea/finitization/issues
 Imports: Rcpp,
-         RcppParallel,
          rootSolve
 Suggests: 
     testthat (>= 3.0.0),
     knitr,
     rmarkdown
 VignetteBuilder: knitr
-LinkingTo: Rcpp, RcppParallel
+LinkingTo: Rcpp
 Config/testthat/edition: 3
 Collate: 
     'RcppExports.R'

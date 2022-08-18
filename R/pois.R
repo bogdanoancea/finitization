@@ -17,17 +17,16 @@
 #' @export
 dpois <- function(n, theta, val = NULL) {
     if(missing(n)) {
-        message("argument n is missing!\n")
+        message("Argument n is missing!\n")
         return(invisible(NULL))
     }
     if(missing(theta)) {
-        message("argument theta is missing!\n")
+        message("Argument theta is missing!\n")
         return(invisible(NULL))
     }
-
-    if (!checkFinitizationOrder(n))
+    if (!checkIntegerValue(n))
         return(invisible(NULL))
-    if (!checkPoissonTheta(theta))
+    if (!checkTheta(theta))
         return(invisible(NULL))
     if (!is.null(val)) {
         if (!checkVals(n, val))
@@ -38,10 +37,7 @@ dpois <- function(n, theta, val = NULL) {
     }
     d <- c_d(n, lim, list("theta" = theta), getPoissonType())
     if(any(d < 0) || any(d > 1))
-        warning(paste0("be sure that you provided parameter ", theta, " inside the maximum feasible parameter space"))
-
-    if(any(d < 0) || any(d > 1))
-        warning("be sure that you provided parameters inside the maximum feasible parameter space")
+        warning(paste0("Be sure that you provided parameter ", theta, " inside the maximum feasible parameter space"))
 
     df <- data.frame(val = lim, prob = d)
     return(df)
@@ -69,10 +65,10 @@ dpois <- function(n, theta, val = NULL) {
 printFinitizedPoissonDensity <-
     function(n, val = NULL, latex = FALSE)  {
         if(missing(n)) {
-            message("argument n is missing!\n")
+            message("Argument n is missing!\n")
             return(invisible(NULL))
         }
-        if (!checkFinitizationOrder(n))
+        if (!checkIntegerValue(n))
             return(invisible(NULL))
         if (!is.null(val) && !checkVals(n, val))
             return(invisible(NULL))
@@ -97,7 +93,7 @@ printFinitizedPoissonDensity <-
 #' @export
 getPoissonMFPS <- function(n) {
     if(missing(n)) {
-        message("argument n is missing!\n")
+        message("Argument n is missing!\n")
         return(invisible(NULL))
     }
     if(!checkFinitizationOrder(n))
@@ -131,23 +127,24 @@ getPoissonMFPS <- function(n) {
 #' @export
 rpois <- function(n, theta, no) {
     if(missing(n)) {
-        message("argument n is missing!\n")
+        message("Argument n is missing!\n")
         return(invisible(NULL))
     }
     if(missing(theta)) {
-        message("argument theta is missing!\n")
+        message("Argument theta is missing!\n")
         return(invisible(NULL))
     }
     if(missing(no)) {
-        message("argument no is missing!\n")
+        message("Argument no is missing!\n")
         return(invisible(NULL))
     }
 
-    if (!checkFinitizationOrder(n))
+    if (!checkIntegerValue(n))
         return(invisible(NULL))
-    if (!checkPoissonTheta(theta))
+    if (!checkTheta(theta))
         return(invisible(NULL))
-    if (!checkNoValues(no))
+    if (!checkIntegerValue(no))
         return(invisible(NULL))
-    return(rvalues(n, list("theta" = theta), no, getPoissonType()))
+
+        return(rvalues(n, list("theta" = theta), no, getPoissonType()))
 }
