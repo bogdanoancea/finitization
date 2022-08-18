@@ -10,7 +10,7 @@ checkNegBinomialQ(q)
 \item{q}{The parameter of the finitized Negative Binomial distribution.}
 }
 \value{
-TRUE if \code{length(q) == 1} and \code{q} is a double in \link{0,1} interval, FALSE otherwise.
+TRUE if \code{length(q) == 1} and \code{q} is a double in \code{[0,1]} interval, FALSE otherwise.
 }
 \description{
 Checks if the parameter \code{q} of the finitized Negative Binomial distribution satisfies \code{length(q) == 1} (no vectors with more than one element are allowed),

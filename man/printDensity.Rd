@@ -16,12 +16,12 @@ string representation of the pdf for all possible values, i.e. \code{{0 .. n}}.}
 the name of an item is the name of the parameters, and the value of an item is the value of the corresponding parameter.}
 
 \item{type}{The distribution type. It could have one of the values returned by:
-\begin{itemize}
+\itemize{
 \item getPoissonType()
 \item getBinomialType()
 \item getNegativeBinomialType()
 \item getLogarithmicType()
-\end{itemize}}
+}}
 
 \item{latex}{if TRUE, a Latex string of the pdf is printed and returned, otherwise the string has the format of an R expression.}
 }

@@ -9,12 +9,12 @@
 #' @param params The parameters of the finitized distribution. \code{params} is a named list containig the parameters needed for a specific distribution:
 #' the name of an item is the name of the parameters, and the value of an item is the value of the corresponding parameter.
 #' @param type The distribution type. It could have one of the values returned by:
-#' \begin{itemize}
+#' \itemize{
 #' \item getPoissonType()
 #' \item getBinomialType()
 #' \item getNegativeBinomialType()
 #' \item getLogarithmicType()
-#' \end{itemize}
+#' }
 #' @param latex if TRUE, a Latex string of the pdf is printed and returned, otherwise the string has the format of an R expression.
 #'
 #' @return the string representation of the finitized probability distribution function.
@@ -40,12 +40,12 @@ printDensity <- function(n, val, params, type, latex) {
 #' Checks the validity of the parameter \code{theta} of the finitized Poisson and/or Logarithmic distribution.
 #'
 #' Checks if the parameter of the finitized Poisson distribution satisfies \code{length(theta) == 1} (no vectors with more than one element are allowed),
-#' and if it is a double with values in [0,1]. If the value passed through this parameter does not meet these criteria, the function returns FALSE, otherwise it
+#' and if it is a double with values in \code{[0,1]}. If the value passed through this parameter does not meet these criteria, the function returns FALSE, otherwise it
 #' returns TRUE.
 #'
 #' @param theta The parameter of the finitized Poisson distribution.
 #'
-#' @return TRUE if \code{length(theta) == 1} and \code{theta} is a double in [0,1] interval, FALSE otherwise.
+#' @return TRUE if \code{length(theta) == 1} and \code{theta} is a double in\code {[0,1]} interval, FALSE otherwise.
 checkTheta <- function(theta) {
     result = TRUE
     if(length(theta) != 1)  {
@@ -68,12 +68,12 @@ checkTheta <- function(theta) {
 #' Checks the validity of the parameter \code{p} (the rate of success) of the finitized Binomial distribution.
 #'
 #' Checks if the parameter \code{p} of the finitized Binomial distribution satisfies \code{length(p) == 1} (no vectors with more than one element are allowed),
-#' and if it is a double with values in [0,1]. If the value passed through this parameter does not meet these criteria, the function returns FALSE, otherwise it
+#' and if it is a double with values in \code{[0,1]}. If the value passed through this parameter does not meet these criteria, the function returns FALSE, otherwise it
 #' returns TRUE.
 #'
 #' @param p The parameter of the finitized Binomial distribution.
 #'
-#' @return TRUE if \code{length(p) == 1} and \code{p} is a double in [0,1] interval, FALSE otherwise.
+#' @return TRUE if \code{length(p) == 1} and \code{p} is a double in \code{[0,1]} interval, FALSE otherwise.
 checkBinomialP <- function(p) {
     result = TRUE
     if(length(p) != 1) {
@@ -96,12 +96,12 @@ checkBinomialP <- function(p) {
 #' Checks the validity of the parameter \code{q} (the rate of success) of the finitized Negative Binomial distribution.
 #'
 #' Checks if the parameter \code{q} of the finitized Negative Binomial distribution satisfies \code{length(q) == 1} (no vectors with more than one element are allowed),
-#' and if it is a double with values in [0,1]. If the value passed through this parameter does not meet these criteria, the function returns FALSE, otherwise it
+#' and if it is a double with values in \code{[0,1]}. If the value passed through this parameter does not meet these criteria, the function returns FALSE, otherwise it
 #' returns TRUE.
 #'
 #' @param q The parameter of the finitized Negative Binomial distribution.
 #'
-#' @return TRUE if \code{length(q) == 1} and \code{q} is a double in [0,1] interval, FALSE otherwise.
+#' @return TRUE if \code{length(q) == 1} and \code{q} is a double in \code{[0,1]} interval, FALSE otherwise.
 checkNegBinomialQ <- function(q) {
     result = TRUE
     if(length(q) != 1 ) {

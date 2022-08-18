@@ -10,7 +10,7 @@ checkBinomialP(p)
 \item{p}{The parameter of the finitized Binomial distribution.}
 }
 \value{
-TRUE if \code{length(p) == 1} and \code{p} is a double in \link{0,1} interval, FALSE otherwise.
+TRUE if \code{length(p) == 1} and \code{p} is a double in \code{[0,1]} interval, FALSE otherwise.
 }
 \description{
 Checks if the parameter \code{p} of the finitized Binomial distribution satisfies \code{length(p) == 1} (no vectors with more than one element are allowed),

@@ -10,7 +10,7 @@ rvalues(n, params, no, dtype)
 \item{n}{The finitization order. It should be an integer > 0.}
 
 \item{params}{Other parameters of the distribution. They are provided in a list with named items, where the name
-of an item is thename of the parameter.}
+of an item is the name of the parameter.}
 
 \item{no}{The number of random values to be generated.}
 

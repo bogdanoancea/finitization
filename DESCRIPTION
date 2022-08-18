@@ -5,7 +5,7 @@ Version: 0.1
 Authors@R: 
     person("Bogdan", "Oancea", , "bogdan.oancea@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "YOUR-ORCID-ID"))
-License: MIT + file LICENSE
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
 NeedsCompilation: yes

@@ -12,12 +12,9 @@ c_d(n, val, params, dtype)
 \item{val}{The value of the variable for which the probability density function is computed.}
 
 \item{params}{Other parameters of the distribution. They are provided in a list with named items, where the name
-of an item is thename of the parameter.}
+of an item is the name of the parameter.}
 
-\item{dtype}{The type of the distribution: Poisson, Binomial, NegativeBinomial, Logaritmic}
-
-\item{latex}{If true it returns a Latex formatted string representation of the pdf,otherwise it returns
-the string representation of the pdf as an R expression.}
+\item{dtype}{The type of the distribution: Poisson, Binomial, NegativeBinomial, Logaritmic.}
 }
 \value{
 a\code{NumericVector} with the values of the density for each value provide in \code{val}.

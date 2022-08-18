@@ -10,7 +10,9 @@ using namespace GiNaC;
 #define FINITIZATION_H_
 
 
-
+/**
+ *
+ */
 class Finitization {
 
 public:

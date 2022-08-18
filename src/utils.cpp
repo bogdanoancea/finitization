@@ -15,7 +15,7 @@ using namespace std;
 //' @param val The value of the variable for which the probability density function is computed.
 //' @param params Other parameters of the distribution. They are provided in a list with named items, where the name
 //' of an item is the name of the parameter.
-//' @param dtype The type of the distribution: Poisson, Binomial, NegativeBinomial, Logaritmic
+//' @param dtype The type of the distribution: Poisson, Binomial, NegativeBinomial, Logaritmic.
 //' @param latex If true it returns a Latex formatted string representation of the pdf, otherwise it returns
 //' the string representation of the pdf as an R expression.
 //' @return a string representation of the pdf.
@@ -70,9 +70,7 @@ StringVector c_printDensity(int n, IntegerVector val, Rcpp::List const &params, 
 //' @param val The value of the variable for which the probability density function is computed.
 //' @param params Other parameters of the distribution. They are provided in a list with named items, where the name
 //' of an item is the name of the parameter.
-//' @param dtype The type of the distribution: Poisson, Binomial, NegativeBinomial, Logaritmic
-//' @param latex If true it returns a Latex formatted string representation of the pdf,otherwise it returns
-//' the string representation of the pdf as an R expression.
+//' @param dtype The type of the distribution: Poisson, Binomial, NegativeBinomial, Logaritmic.
 //' @return a\code{NumericVector} with the values of the density for each value provide in \code{val}.
 // [[Rcpp::export]]
 NumericVector c_d(int n, IntegerVector val, Rcpp::List const &params, int dtype) {
