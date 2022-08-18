@@ -14,6 +14,6 @@ TRUE if \code{length(q) == 1} and \code{q} is a double in \code{[0,1]} interval,
 }
 \description{
 Checks if the parameter \code{q} of the finitized Negative Binomial distribution satisfies \code{length(q) == 1} (no vectors with more than one element are allowed),
-and if it is a double with values in \link{0,1}. If the value passed through this parameter does not meet these criteria, the function returns FALSE, otherwise it
+and if it is a double with values in \code{[0,1]}. If the value passed through this parameter does not meet these criteria, the function returns FALSE, otherwise it
 returns TRUE.
 }

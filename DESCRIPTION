@@ -1,11 +1,11 @@
 Package: finitization
-Title: Implements the finitization of some probability distributions
+Title: Finitization of probability distributions
 Description: This package implements the finitization concept for some probability distributions. A finitized distribution allows one to generate random variates faster than the widely used method that uses the inverse CDF.
 Version: 0.1
 Authors@R: 
     person("Bogdan", "Oancea", , "bogdan.oancea@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "YOUR-ORCID-ID"))
-License: GPL-3
+License: file LICENSE
 Encoding: UTF-8
 LazyData: true
 NeedsCompilation: yes

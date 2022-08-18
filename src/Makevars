@@ -1,5 +1,5 @@
 CXX_STD=CXX11
-PKG_CXXFLAGS = -I/usr/local/include -O3 -mavx2
+PKG_CXXFLAGS = -I/usr/local/include
 PKG_LIBS = -L/usr/local/lib  -lginac -lcln -lgmp
 
 

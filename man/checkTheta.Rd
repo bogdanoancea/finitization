@@ -10,10 +10,10 @@ checkTheta(theta)
 \item{theta}{The parameter of the finitized Poisson distribution.}
 }
 \value{
-TRUE if \code{length(theta) == 1} and \code{theta} is a double in \link{0,1} interval, FALSE otherwise.
+TRUE if \code{length(theta) == 1} and \code{theta} is a double in\code{[0,1]} interval, FALSE otherwise.
 }
 \description{
 Checks if the parameter of the finitized Poisson distribution satisfies \code{length(theta) == 1} (no vectors with more than one element are allowed),
-and if it is a double with values in \link{0,1}. If the value passed through this parameter does not meet these criteria, the function returns FALSE, otherwise it
+and if it is a double with values in \code{[0,1]}. If the value passed through this parameter does not meet these criteria, the function returns FALSE, otherwise it
 returns TRUE.
 }

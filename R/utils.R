@@ -45,7 +45,7 @@ printDensity <- function(n, val, params, type, latex) {
 #'
 #' @param theta The parameter of the finitized Poisson distribution.
 #'
-#' @return TRUE if \code{length(theta) == 1} and \code{theta} is a double in\code {[0,1]} interval, FALSE otherwise.
+#' @return TRUE if \code{length(theta) == 1} and \code{theta} is a double in\code{[0,1]} interval, FALSE otherwise.
 checkTheta <- function(theta) {
     result = TRUE
     if(length(theta) != 1)  {
