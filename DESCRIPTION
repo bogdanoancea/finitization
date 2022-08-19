@@ -1,6 +1,6 @@
 Package: finitization
 Title: Finitization of probability distributions
-Description: This package implements the finitization concept for some probability distributions. A finitized distribution allows one to generate random variates faster than the widely used method that uses the inverse CDF.
+Description: This package implements the finitization concept for some probability distributions. A finitized distribution of order n preserves the first n moments of the originial distribution and allows one to generate random variates faster than the widely used method that uses the inverse CDF.
 Version: 0.1
 Authors@R: 
     person("Bogdan", "Oancea", , "bogdan.oancea@gmail.com", role = c("aut", "cre"),
