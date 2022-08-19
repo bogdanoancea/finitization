@@ -4,7 +4,7 @@ Description: This package implements the finitization concept for some probabili
 Version: 0.1
 Authors@R: 
     person("Bogdan", "Oancea", , "bogdan.oancea@gmail.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+           comment = c(ORCID = "https://orcid.org/0000-0001-6987-5137"))
 License: file LICENSE
 Encoding: UTF-8
 LazyData: true
