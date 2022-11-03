@@ -17,3 +17,22 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(finitization)
 ```
+
+
+# Finitization of Power Series Family of Probability Distributions
+
+## The finitization concept
+
+## Properties of finitized probability distributions
+
+## Usage of finitized probability distributions
+
+## Finitized Poisson distribution
+
+## Finitized Negative Binomial distribution
+
+## Finitized Binomial distribution
+
+## Finitized Logarithmic distribution
+
+
