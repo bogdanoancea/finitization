@@ -12,3 +12,4 @@ the Negative Binomial distribution type.
 \description{
 The Negative Binomial distribution type.
 }
+\keyword{internal}

@@ -31,3 +31,4 @@ the string representation of the finitized probability distribution function.
 \description{
 Prints and returns the density function for finitized probability distributions.
 }
+\keyword{internal}

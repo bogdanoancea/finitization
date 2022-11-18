@@ -16,7 +16,7 @@
 #' \item getLogarithmicType()
 #' }
 #' @param latex if TRUE, a Latex string of the pdf is printed and returned, otherwise the string has the format of an R expression.
-#'
+#' @keywords internal
 #' @return the string representation of the finitized probability distribution function.
 printDensity <- function(n, val, params, type, latex) {
     if(is.null(val))
@@ -44,7 +44,7 @@ printDensity <- function(n, val, params, type, latex) {
 #' returns TRUE.
 #'
 #' @param theta The parameter of the finitized Poisson distribution.
-#'
+#' @keywords internal
 #' @return TRUE if \code{length(theta) == 1} and \code{theta} is a double in\code{[0,1]} interval, FALSE otherwise.
 checkTheta <- function(theta) {
     result = TRUE
@@ -72,7 +72,7 @@ checkTheta <- function(theta) {
 #' returns TRUE.
 #'
 #' @param p The parameter of the finitized Binomial distribution.
-#'
+#' @keywords internal
 #' @return TRUE if \code{length(p) == 1} and \code{p} is a double in \code{[0,1]} interval, FALSE otherwise.
 checkBinomialP <- function(p) {
     result = TRUE
@@ -100,7 +100,7 @@ checkBinomialP <- function(p) {
 #' returns TRUE.
 #'
 #' @param q The parameter of the finitized Negative Binomial distribution.
-#'
+#' @keywords internal
 #' @return TRUE if \code{length(q) == 1} and \code{q} is a double in \code{[0,1]} interval, FALSE otherwise.
 checkNegBinomialQ <- function(q) {
     result = TRUE
@@ -126,7 +126,7 @@ checkNegBinomialQ <- function(q) {
 #'
 #' @param n The finitization order of the distribution
 #' @param val a vector with the values of the variable.
-#'
+#' @keywords internal
 #' @return TRUE if all values in \code{val} are integers and they are in the set \code{{0, 1, 2, ... n}}, FALSE otherwise.
 checkVals <- function(n, val) {
     result = TRUE
@@ -154,7 +154,7 @@ checkVals <- function(n, val) {
 #' the find the maximum feasible parameter space for a finitized distribution. After finding the solutions, it builds the interval
 #' which represents the maximum feasible parameter space.
 #' @param func a function. The actual parameter will be \code{pdf(n-1)}.
-#'
+#' @keywords internal
 #' @return a vector with two values: the lower and the upper limits of the maximum feasible parameter space.
 findSolutions <- function(func) {
     U <- 1
@@ -183,7 +183,7 @@ findSolutions <- function(func) {
 #' If the value passed through this parameter does not meet these criteria, the function returns FALSE, otherwise it
 #' returns TRUE.
 #' @param no the parameter to be checked for validity.
-#'
+#' @keywords internal
 #' @return TRUE if \code{length(no) == 1} and \code{no} is an integer greater than 0, FALSE otherwise.
 checkIntegerValue <- function(no) {
     result = TRUE

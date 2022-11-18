@@ -12,3 +12,4 @@ the Logarithmic distribution type.
 \description{
 The Logarithmic distribution type.
 }
+\keyword{internal}

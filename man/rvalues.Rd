@@ -22,3 +22,4 @@ a\code{NumericVector} with the random values generated.
 \description{
 Random values generation.
 }
+\keyword{internal}

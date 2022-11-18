@@ -22,3 +22,4 @@ a\code{NumericVector} with the values of the density for each value provide in \
 \description{
 Computes the probability density of a finitized distribution.
 }
+\keyword{internal}

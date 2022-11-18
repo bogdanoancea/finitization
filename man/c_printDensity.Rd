@@ -25,3 +25,4 @@ a string representation of the pdf.
 \description{
 Generates a string representation of the probability density function.
 }
+\keyword{internal}

@@ -17,3 +17,4 @@ It is used to actually solve the equation \eqn{pdf(n-1) = 0} needed
 the find the maximum feasible parameter space for a finitized distribution. After finding the solutions, it builds the interval
 which represents the maximum feasible parameter space.
 }
+\keyword{internal}

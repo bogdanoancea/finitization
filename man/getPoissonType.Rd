@@ -12,3 +12,4 @@ the Poisson distribution type.
 \description{
 The Poisson distribution type.
 }
+\keyword{internal}

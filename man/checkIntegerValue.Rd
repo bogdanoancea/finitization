@@ -18,3 +18,4 @@ and if it is an integer greater than 0. If \code{no} is not an integer number, i
 If the value passed through this parameter does not meet these criteria, the function returns FALSE, otherwise it
 returns TRUE.
 }
+\keyword{internal}

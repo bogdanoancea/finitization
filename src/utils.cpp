@@ -18,6 +18,7 @@ using namespace std;
 //' @param dtype The type of the distribution: Poisson, Binomial, NegativeBinomial, Logaritmic.
 //' @param latex If true it returns a Latex formatted string representation of the pdf, otherwise it returns
 //' the string representation of the pdf as an R expression.
+//' @keywords internal
 //' @return a string representation of the pdf.
 // [[Rcpp::export]]
 StringVector c_printDensity(int n, IntegerVector val, Rcpp::List const &params, int dtype, bool latex = false) {
@@ -71,6 +72,7 @@ StringVector c_printDensity(int n, IntegerVector val, Rcpp::List const &params, 
 //' @param params Other parameters of the distribution. They are provided in a list with named items, where the name
 //' of an item is the name of the parameter.
 //' @param dtype The type of the distribution: Poisson, Binomial, NegativeBinomial, Logaritmic.
+//' @keywords internal
 //' @return a\code{NumericVector} with the values of the density for each value provide in \code{val}.
 // [[Rcpp::export]]
 NumericVector c_d(int n, IntegerVector val, Rcpp::List const &params, int dtype) {
@@ -129,6 +131,7 @@ NumericVector c_d(int n, IntegerVector val, Rcpp::List const &params, int dtype)
 //' of an item is the name of the parameter.
 //' @param dtype The type of the distribution: Poisson, Binomial, NegativeBinomial, Logaritmic.
 //' @param no The number of random values to be generated.
+//' @keywords internal
 //' @return a\code{NumericVector} with the random values generated.
 // [[Rcpp::export]]
 IntegerVector rvalues(int n, Rcpp::List const &params, int no, int dtype) {
@@ -183,6 +186,7 @@ IntegerVector rvalues(int n, Rcpp::List const &params, int no, int dtype) {
 //' @param params Other parameters of the distribution. They are provided in a list with named items, where the name
 //' of an item is the name of the parameter.
 //' @param dtype The type of the distribution: Poisson, Binomial, NegativeBinomial, Logaritmic.
+//' @keywords internal
 //' @return the expression of the \code{pdf(n-1)}.
 // [[Rcpp::export]]
 String MFPS_pdf(int n, Rcpp::List const &params, int dtype ) {
@@ -227,6 +231,7 @@ String MFPS_pdf(int n, Rcpp::List const &params, int dtype ) {
 //' The Poisson distribution type.
 //'
 //' @return the Poisson distribution type.
+//' @keywords internal
 // [[Rcpp::export]]
 int getPoissonType() {
     return DistributionType::POISSON;
@@ -235,6 +240,7 @@ int getPoissonType() {
 //' The Negative Binomial distribution type.
 //'
 //' @return the Negative Binomial distribution type.
+//' @keywords internal
 // [[Rcpp::export]]
 int getNegativeBinomialType() {
     return DistributionType::NEGATIVEBINOMIAL;
@@ -244,6 +250,7 @@ int getNegativeBinomialType() {
 //' The Binomial distribution type.
 //'
 //' @return the Binomial distribution type.
+//' @keywords internal
 // [[Rcpp::export]]
 int getBinomialType() {
     return DistributionType::BINOMIAL;
@@ -253,6 +260,7 @@ int getBinomialType() {
 //' The Logarithmic distribution type.
 //'
 //' @return the Logarithmic distribution type.
+//' @keywords internal
 // [[Rcpp::export]]
 int getLogarithmicType() {
     return DistributionType::LOGARITHMIC;

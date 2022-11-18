@@ -12,3 +12,4 @@ the Binomial distribution type.
 \description{
 The Binomial distribution type.
 }
+\keyword{internal}

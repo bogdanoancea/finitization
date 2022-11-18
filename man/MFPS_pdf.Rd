@@ -20,3 +20,4 @@ the expression of the \code{pdf(n-1)}.
 \description{
 Computes the expression of the \code{pdf(n-1)} needed to compute the maximu feasible parameter space.
 }
+\keyword{internal}
