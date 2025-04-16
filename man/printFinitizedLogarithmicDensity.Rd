@@ -9,19 +9,15 @@ printFinitizedLogarithmicDensity(n, val = NULL, latex = FALSE)
 \arguments{
 \item{n}{The finitization order. It should be an integer > 0.}
 
-\item{val}{The value of the variable for which the probability density function is printed. If NULL, this function computes the
-string representation of the pdf for all possible values, i.e. \code{{0 .. n}}.}
+\item{val}{The value for which the pdf is printed. If \code{NULL}, the pdf for all values (0 ... n) is printed.}
 
-\item{latex}{If TRUE, a string representation of the pdf formatted in Latex format is printed, otherwise this function prints
-the string representation of the pdf as an R expression.}
+\item{latex}{Logical; if TRUE the output is formatted in LaTeX.}
 }
 \value{
-This function silently returns a vector of type \code{\link[base]{character}} with the string representation of the pdf(s).
-The length of the vector is the same with the length of the parameter \code{val}, i.e. one element for each value in \code{val}.
+A character vector containing the string representation(s) of the pdf.
 }
 \description{
-\code{printFinitizedLogarithmicDensity(n, val, latex)} computes and prints the string
-representation of the probability density function for the finitized Logarithmic distribution.
+\code{printFinitizedLogarithmicDensity(n, val, latex)} computes and prints the string representation of the pdf.
 }
 \examples{
 library(finitization)

@@ -2,7 +2,7 @@
 % Please edit documentation in R/log.R
 \name{getLogarithmicMFPS}
 \alias{getLogarithmicMFPS}
-\title{Maximum feasible parameter space  for the finitized Logarithmic distribution.}
+\title{Maximum feasible parameter space for the finitized Logarithmic distribution.}
 \usage{
 getLogarithmicMFPS(n)
 }
@@ -10,8 +10,7 @@ getLogarithmicMFPS(n)
 \item{n}{The finitization order. It should be an integer > 0.}
 }
 \value{
-A vector with two elements where the first element is the lower limit of the maximum feasible parameter space
-and the second is the upper limit.
+A vector with two elements where the first element is the lower limit and the second is the upper limit.
 }
 \description{
 \code{getLogarithmicMFPS(n)} computes and returns the maximum feasible parameter space for the finitized Logarithmic distribution.

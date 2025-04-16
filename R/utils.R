@@ -191,8 +191,10 @@ checkIntegerValue <- function(no) {
         message(paste0("Invalid argument: ", no))
         result = FALSE
     }
-    if(trunc(no) != no)
-        warning(paste0(no, " will be converted to an integer"))
+    if(trunc(no) != no) {
+        #warning(paste0(no, " will be converted to an integer"))
+        result = FALSE
+    }
     if(no < 0) {
         message(paste0("Invalid argument: ", no))
         result = FALSE

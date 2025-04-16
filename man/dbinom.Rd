@@ -4,27 +4,30 @@
 \alias{dbinom}
 \title{The density for the finitized Binomial distribution.}
 \usage{
-dbinom(n, p, N, val = NULL)
+dbinom(n, p, N, val = NULL, log = FALSE)
 }
 \arguments{
-\item{n}{The finitization order. It should be an integer > 0.}
+\item{n}{The finitization order. An integer > 0.}
 
-\item{p}{The parameter of the finitized Binomial distribution - the success probability for each trial.\eqn{p \in [0,1]}}
+\item{p}{The success probability for each trial (must satisfy 0 <= p <= 1).}
 
-\item{N}{The number of trials.\code{ n = 0, 1, 2, ...}}
+\item{N}{The number of trials.}
 
-\item{val}{A vector with the values of the variable for which the probability density is computed. If NULL, a data frame containing
-all possible values, i.e. \code{{0 .. n}}, and the corresponding probabilities is returned.}
+\item{val}{A vector of values at which the density is computed. If \code{NULL},
+a data frame containing all possible values (from 0 to n) and the corresponding densities is returned.}
+
+\item{log}{Logical; if TRUE, the (natural) logarithm of the probabilities is returned.}
 }
 \value{
-a \code{data.frame} object with two columns: \code{val} containing the values passed in parameter \code{val} and \code{prob}
-containing the corresponding densities.
+A \code{data.frame} with two columns: \code{val}, which contains the values, and \code{prob},
+which contains the corresponding density (or log density if \code{log = TRUE}).
 }
 \description{
-\code{dbinom(n, p, N, val)} computes the finitized Binomial density for \code{val}.
+\code{dbinom(n, p, N, val, log)} computes the finitized Binomial density for each value in \code{val}.
 }
 \examples{
 library(finitization)
 dbinom(4, 0.5, 4)
+dbinom(4, 0.5, 4, log = TRUE)
 
 }

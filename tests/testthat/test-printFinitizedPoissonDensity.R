@@ -1,37 +1,68 @@
-test_that("pdf", {
-  capture.output(b <- printFinitizedPoissonDensity(2,0))
-  expect_true(b == "1-theta+1/2*theta^2" || b == "1+1/2*theta^2-theta")
+test_that("Non-LaTeX output for val = 0 is correct", {
+    # Capture the output for val = 0 (non-LaTeX mode)
+    capture.output(out <- printFinitizedPoissonDensity(2, val = 0))
+    out <- trimws(out)
+
+    # Acceptable equivalent strings
+    expected <- c("1-theta+1/2*theta^2", "1+1/2*theta^2-theta")
+
+    expect_true(out == expected[1] || out == expected[2])
 })
 
-test_that("pdfL", {
-  capture.output(b <- printFinitizedPoissonDensity(2,0, TRUE))
-    expect_true( b == "1-\\theta+\\frac{1}{2} \\theta^{2}" || b == "1+\\frac{1}{2} \\theta^{2}-\\theta" )
+test_that("LaTeX output for val = 0 is correct", {
+    capture.output(out <- printFinitizedPoissonDensity(2, val = 0, latex = TRUE))
+    out <- trimws(out)
+
+    expected <- c("1-\\theta+\\frac{1}{2} \\theta^{2}", "1+\\frac{1}{2} \\theta^{2}-\\theta")
+
+    expect_true(out %in% expected)
 })
 
-test_that("pdf1", {
-  capture.output(b <- printFinitizedPoissonDensity(2,1))
-    expect_true( b == "-(-1+theta)*theta" || b == "-theta*(-1+theta)")
+test_that("Non-LaTeX output for val = 1 is correct", {
+    capture.output(out <- printFinitizedPoissonDensity(2, val = 1))
+    out <- trimws(out)
+
+    expected <- c("-(-1+theta)*theta", "-theta*(-1+theta)")
+
+    expect_true(out %in% expected)
 })
 
-test_that("pdfL1", {
-  capture.output(b <- printFinitizedPoissonDensity(2,1, TRUE))
-    expect_true( b == "- {(-1+\\theta)} \\theta" || b =="- \\theta {(-1+\\theta)}")
+test_that("LaTeX output for val = 1 is correct", {
+    capture.output(out <- printFinitizedPoissonDensity(2, val = 1, latex = TRUE))
+    out <- trimws(out)
+
+    expected <- c("- {(-1+\\theta)} \\theta", "- \\theta {(-1+\\theta)}")
+
+    expect_true(out %in% expected)
 })
 
+test_that("Non-LaTeX output for val = 2 is correct", {
+    capture.output(out <- printFinitizedPoissonDensity(2, val = 2))
+    out <- trimws(out)
 
-test_that("pdf2", {
-  capture.output(expect_equal(printFinitizedPoissonDensity(2,2), "1/2*theta^2"))
+    expect_equal(out, "1/2*theta^2")
 })
 
-test_that("pdfL2", {
-  capture.output(expect_equal(printFinitizedPoissonDensity(2,2, TRUE), "\\frac{1}{2}  \\theta^{2}"))
+test_that("LaTeX output for val = 2 is correct", {
+    capture.output(out <- printFinitizedPoissonDensity(2, val = 2, latex = TRUE))
+    out <- trimws(out)
+
+    expect_equal(out, "\\frac{1}{2}  \\theta^{2}")
 })
 
+test_that("Output and return value for an invalid 'val' (nonexistent index) are handled correctly (non-LaTeX)", {
+    capture.output(out <- printFinitizedPoissonDensity(2, val = 3))
 
-test_that("pdf3", {
-  capture.output(expect_equal(printFinitizedPoissonDensity(2,3), NULL))
+    # Expect no printed output.
+    expect_equal(length(out), 0)
+    # And the function should return NULL.
+    expect_null(printFinitizedPoissonDensity(2, val = 3))
 })
 
-test_that("pdfL3", {
-  capture.output(expect_equal(printFinitizedPoissonDensity(2,3, TRUE), NULL))
+test_that("Output and return value for an invalid 'val' (nonexistent index) are handled correctly (LaTeX)", {
+    capture.output(out <- printFinitizedPoissonDensity(2, val = 3, latex = TRUE))
+
+    expect_equal(length(out), 0)
+    expect_null(printFinitizedPoissonDensity(2, val = 3, latex = TRUE))
 })
+

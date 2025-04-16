@@ -2,7 +2,7 @@
 % Please edit documentation in R/log.R
 \name{rlog}
 \alias{rlog}
-\title{Random values generation  for the finitized Logarithmic distribution.}
+\title{Random values generation for the finitized Logarithmic distribution.}
 \usage{
 rlog(n, theta, no)
 }
@@ -14,11 +14,10 @@ rlog(n, theta, no)
 \item{no}{The number of random values to be generated.}
 }
 \value{
-\code{rlog} returns a vector of type \code{\link[base]{integer}} containing random values generated according to the finitized Logarithmic distribution.
-The number of values is given by the parameter \code{no}.
+A vector of integers containing random values generated from the finitized Logarithmic distribution.
 }
 \description{
-\code{rlog(n, theta, no)} generates random values according to the finitized Logarithmic distribution with parameter \code{theta}.
+\code{rlog(n, theta, no)} generates random values according to the finitized Logarithmic distribution.
 }
 \examples{
 library(finitization)

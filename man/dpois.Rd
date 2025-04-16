@@ -4,25 +4,29 @@
 \alias{dpois}
 \title{The density for the finitized Poisson distribution.}
 \usage{
-dpois(n, theta, val = NULL)
+dpois(n, theta, val = NULL, log = FALSE)
 }
 \arguments{
 \item{n}{The finitization order. It should be an integer > 0.}
 
 \item{theta}{The parameter of the finitized Poisson distribution.}
 
-\item{val}{A vector with the values of the variable for which the probability density is computed. If NULL, a data frame containing
-all possible values, i.e. \code{{0 .. n}}, and the corresponding probabilities is returned.}
+\item{val}{A vector with the values of the variable for which the probability density is computed.
+If \code{NULL}, a data frame containing all possible values (0, 1, ..., n)
+and the corresponding probabilities is returned.}
+
+\item{log}{Logical; if TRUE, the (natural) logarithm of the computed probabilities is returned.}
 }
 \value{
-a \code{data.frame} object with two columns: \code{val} containing the values passed in parameter \code{val} and \code{prob}
-containing the corresponding densities.
+A \code{data.frame} object with two columns: \code{val} containing the values and
+\code{prob} containing the corresponding densities (or their logarithms if \code{log = TRUE}).
 }
 \description{
-\code{dpois(n, theta, val)} computes the finitized Poisson density for \code{val}.
+\code{dpois(n, theta, val, log)} computes the finitized Poisson density for each value in \code{val}.
 }
 \examples{
 library(finitization)
 dpois(4, 0.5, c(0,1,3))
+dpois(4, 0.5, c(0,1,3), log = TRUE)
 
 }

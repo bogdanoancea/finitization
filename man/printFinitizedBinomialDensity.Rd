@@ -7,26 +7,23 @@
 printFinitizedBinomialDensity(n, N, val = NULL, latex = FALSE)
 }
 \arguments{
-\item{n}{The finitization order. It should be an integer > 0.}
+\item{n}{The finitization order. An integer > 0.}
 
-\item{N}{The number of trials.\code{ n = 0, 1, 2, ...}}
+\item{N}{The number of trials.}
 
-\item{val}{The value of the variable for which the probability density function is printed. If NULL, this function computes the
-string representation of the pdf for all possible values, i.e. \code{{0 .. n}}.}
+\item{val}{The value(s) at which the density is printed. If \code{NULL}, prints for all values from 0 to n.}
 
-\item{latex}{If TRUE, a string representation of the pdf formatted in Latex format is printed, otherwise this function prints
-the string representation of the pdf as an R expression.}
+\item{latex}{Logical; if TRUE, the output is formatted in LaTeX.}
 }
 \value{
-This function silently returns a vector of type \code{\link[base]{character}} with the string representation of the pdf(s).
-The length of the vector is the same with the length of the parameter \code{val}, i.e. one element for each value in \code{val}.
+Silently returns a character vector with the string representation(s) of the pdf.
 }
 \description{
 \code{printFinitizedBinomialDensity(n, N, val, latex)} computes and prints the string
-representation of the probability density function for the finitized Binomial distribution with parameter \code{N}.
+representation of the probability density function for the finitized Binomial distribution.
 }
 \examples{
 library(finitization)
-printFinitizedBinomialDensity(4)
+printFinitizedBinomialDensity(4, 4)
 
 }

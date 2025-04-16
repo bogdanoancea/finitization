@@ -2,22 +2,20 @@
 % Please edit documentation in R/binom.R
 \name{getBinomialMFPS}
 \alias{getBinomialMFPS}
-\title{Maximum feasible parameter space  for the finitized Binomial distribution.}
+\title{Maximum feasible parameter space for the finitized Binomial distribution.}
 \usage{
 getBinomialMFPS(n, N)
 }
 \arguments{
-\item{n}{The finitization order. It should be an integer > 0.}
+\item{n}{The finitization order. An integer > 0.}
 
-\item{N}{The number of trials.\code{ n = 0, 1, 2, ...}}
+\item{N}{The number of trials.}
 }
 \value{
-A vector with two elements where the first element is the lower limit of the maximum feasible parameter space
-and the second is the upper limit.
+A vector of two elements, where the first element is the lower limit and the second element is the upper limit of the maximum feasible parameter space.
 }
 \description{
-\code{getBinomialMFPS(n, N)} computes and returns the maximum feasible parameter space for the finitized Binomial distribution with parameter
-\code{N}.
+\code{getBinomialMFPS(n, N)} computes and returns the maximum feasible parameter space for the finitized Binomial distribution.
 }
 \examples{
 library(finitization)

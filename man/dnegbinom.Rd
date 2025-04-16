@@ -4,27 +4,29 @@
 \alias{dnegbinom}
 \title{The density for the finitized Negative Binomial distribution.}
 \usage{
-dnegbinom(n, q, k, val = NULL)
+dnegbinom(n, q, k, val = NULL, log = FALSE)
 }
 \arguments{
 \item{n}{The finitization order. It should be an integer > 0.}
 
-\item{q}{The parameter of the finitized Negative Binomial distribution - the success probability for each trial.\eqn{q \in [0,1]}}
+\item{q}{The parameter of the finitized Negative Binomial distribution - the success probability for each trial (\eqn{q \in [0,1]}).}
 
-\item{k}{The number of failures until the experiment is stopped,\code{k > 0}.}
+\item{k}{The number of failures until the experiment is stopped, \code{k > 0}.}
 
-\item{val}{A vector with the values of the variable for which the probability density is computed. If NULL, a data frame containing
-all possible values, i.e. \code{{0 .. n}}, and the corresponding probabilities is returned.}
+\item{val}{A vector with the values of the variable for which the probability density is computed. If \code{NULL},
+a data frame containing all possible values, i.e. \code{0 ... n}, and the corresponding probabilities is returned.}
+
+\item{log}{Logical; if TRUE, the (natural) logarithm of the computed densities is returned.}
 }
 \value{
-a \code{data.frame} object with two columns: \code{val} containing the values passed in parameter \code{val} and \code{prob}
-containing the corresponding densities.
+A \code{data.frame} object with two columns: \code{val} containing the values and \code{prob} containing the corresponding densities (or their logarithms if \code{log = TRUE}).
 }
 \description{
-\code{dbinom(n, q, k, val)} computes the finitized Negative Binomial density for \code{val}.
+\code{dnegbinom(n, q, k, val, log)} computes the finitized Negative Binomial density for \code{val}.
 }
 \examples{
 library(finitization)
 dnegbinom(4, 0.12, 4)
+dnegbinom(4, 0.12, 4, log = TRUE)
 
 }
