@@ -1,6 +1,6 @@
 CXX_STD=CXX11
 PKG_CXXFLAGS = -I/usr/local/include
-PKG_LIBS = -L/usr/local/lib  -lginac -lcln -lgmp
+PKG_LIBS = -L/usr/local/lib  -L/opt/homebrew/lib -lginac -lcln -lgmp
 
 
 #PKG_LIBS += $(shell ${R_HOME}/bin/Rscript -e "RcppParallel::RcppParallelLibs()")
