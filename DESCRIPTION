@@ -8,7 +8,6 @@ Authors@R:
 Maintainer: Bogdan Oancea <bogdan.oancea@gmail.com>
 License: GPL (>= 2)
 Encoding: UTF-8
-LazyData: true
 Author: Bogdan Oancea [aut, cre] (<https://orcid.org/0000-0001-6987-51377>
 NeedsCompilation: yes
 SystemRequirements: CLN (>= 1.3.6, https://www.ginac.de/CLN/) and

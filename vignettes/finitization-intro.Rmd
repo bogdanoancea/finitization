@@ -4,9 +4,9 @@ author: "Bogdan Oancea"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Introduction to finitization}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+    %\VignetteIndexEntry{Introduction to finitization}
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include = FALSE}
@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-## What is a finitized distribution?
+# What is a finitized distribution?
 
 The `finitization` package introduces finitized versions of classical discrete probability distributions.
 These versions preserve a given number of moments (e.g., the first 3–5) while allowing for faster random variate generation.
@@ -31,15 +31,15 @@ Load the package:
 library(finitization)
 ```
 
-#Generate samples from a finitized binomial distribution:
+## Generate samples from a finitized binomial distribution:
 
 ```{r}
 set.seed(123)
-sample <- rbinom(n = 5, p = 0.4, order = 3, size = 1000)
-hist(sample, breaks = 20, main = "Finitized Binomial Sample", col = "lightblue")
+#sample <- rbinom(n = 5, p = 0.4, order = 3, size = 1000)
+#hist(sample, breaks = 20, main = "Finitized Binomial Sample", col = "lightblue")
 ```
 
-#Compare it with the standard binomial distribution:
+## Compare it with the standard binomial distribution:
 
 ```{r}
 standard <- stats::rbinom(1000, size = 5, prob = 0.4)
@@ -54,16 +54,16 @@ You can use similar functions for other distributions:
 ## Summary statistics
 
 ```{r}
-mean(sample)
-var(sample)
+#mean(sample)
+#var(sample)
 ```
 
 ## Visual comparison
 
 ```{r}
-plot(density(standard), col = "red", lwd = 2, main = "Density Comparison")
-lines(density(sample), col = "blue", lwd = 2)
-legend("topright", legend = c("Standard", "Finitized"), col = c("red", "blue"), lwd = 2)
+#plot(density(standard), col = "red", lwd = 2, main = "Density Comparison")
+#lines(density(sample), col = "blue", lwd = 2)
+#legend("topright", legend = c("Standard", "Finitized"), col = c("red", "blue"), lwd = 2)
 ```
 
 ## Conclusion
@@ -71,7 +71,7 @@ legend("topright", legend = c("Standard", "Finitized"), col = c("red", "blue"), 
 Finitized distributions provide a practical approach to generating random variates that approximate key distributional properties efficiently. They are particularly useful in simulation scenarios where performance matters and exact fidelity to all moments is not critical.
 
 
-# Finitization of Power Series Family of Probability Distributions
+## Finitization of Power Series Family of Probability Distributions
 
 ## The finitization concept
 
