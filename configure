@@ -1,2 +1,66 @@
 #!/bin/sh
-/usr/local/bin/R --vanilla -e 'library(roxygen2); roxygenize(load_code = load_source); Rcpp::compileAttributes()'
+
+# configure script for CRAN-safe dynamic linking of GMP, CLN, and GiNaC
+
+# Fail on error
+set -e
+
+# Check for pkg-config tool
+if ! command -v pkg-config >/dev/null 2>&1; then
+  echo "Error: pkg-config is not installed. Please install it to proceed."
+  exit 1
+fi
+
+# Save original compiler flags
+ORIG_CPPFLAGS="$CPPFLAGS"
+ORIG_LDFLAGS="$LDFLAGS"
+
+# Search for GMP
+echo "Checking for GMP..."
+if pkg-config --exists gmp; then
+  echo "Found GMP"
+  CPPFLAGS="$CPPFLAGS $(pkg-config --cflags gmp)"
+  LDFLAGS="$LDFLAGS $(pkg-config --libs gmp)"
+else
+  echo "GMP not found. Please install libgmp-dev."
+  exit 1
+fi
+
+# Search for CLN
+echo "Checking for CLN..."
+if pkg-config --exists cln; then
+  echo "Found CLN"
+  CPPFLAGS="$CPPFLAGS $(pkg-config --cflags cln)"
+  LDFLAGS="$LDFLAGS $(pkg-config --libs cln)"
+else
+  echo "CLN not found. Please install libcln-dev."
+  exit 1
+fi
+
+# Search for GiNaC
+echo "Checking for GiNaC..."
+if pkg-config --exists ginac; then
+  echo "Found GiNaC"
+  CPPFLAGS="$CPPFLAGS $(pkg-config --cflags ginac)"
+  LDFLAGS="$LDFLAGS $(pkg-config --libs ginac)"
+else
+  echo "GiNaC not found. Please install libginac-dev."
+  exit 1
+fi
+
+# Export flags for use in Makevars
+cat <<EOF > src/Makevars
+PKG_CPPFLAGS = $CPPFLAGS
+PKG_LIBS = $LDFLAGS
+EOF
+
+# Create a minimal Makevars.win to avoid static linking assumptions
+cat <<EOF > src/Makevars.win
+## Makevars.win placeholder
+## The user must ensure GMP, CLN, and GiNaC are installed and available to the Rtools toolchain.
+PKG_CPPFLAGS=
+PKG_LIBS=
+EOF
+
+# Done
+echo "Configuration successful."

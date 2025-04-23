@@ -1,2 +1,9 @@
-^finitization\.Rproj$
+^.*\.Rproj$
 ^\.Rproj\.user$
+^\.github$
+^README\.md$
+^\.DS_Store$
+^\.vscode$
+^\.env$
+^vignettes/.*\.Rmd$
+^\.gitignore$
