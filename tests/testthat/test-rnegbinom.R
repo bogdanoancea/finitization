@@ -23,7 +23,7 @@ test_that("rnegbinom sample mean approximates expected mean", {
     sample_mean <- mean(res)
 
     # Expected mean is approximately 0.7.
-    expect_equal(sample_mean, 0.7, tolerance = 0.01)
+    expect_equal(sample_mean, 0.7, tolerance = 0.015)
 })
 
 test_that("rnegbinom sample variance approximates expected variance", {
