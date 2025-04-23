@@ -31,18 +31,18 @@ Load the package:
 library(finitization)
 ```
 
-Generate samples from a finitized binomial distribution:
+#Generate samples from a finitized binomial distribution:
 
 ```{r}
 set.seed(123)
-sample <- rfinitized_binom(n = 5, p = 0.4, order = 3, size = 1000)
+sample <- rbinom(n = 5, p = 0.4, order = 3, size = 1000)
 hist(sample, breaks = 20, main = "Finitized Binomial Sample", col = "lightblue")
 ```
 
-Compare it with the standard binomial distribution:
+#Compare it with the standard binomial distribution:
 
 ```{r}
-standard <- rbinom(1000, size = 5, prob = 0.4)
+standard <- stats::rbinom(1000, size = 5, prob = 0.4)
 hist(standard, breaks = 20, main = "Standard Binomial Sample", col = "salmon")
 ```
 
