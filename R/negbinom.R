@@ -79,8 +79,8 @@ dnegbinom <- function(n, q, k, val = NULL, log = FALSE) {
 #'
 #' @examples
 #' library(finitization)
-#' qnegbinomial(n = 4, q = 0.12, k = 4, p = c(0.1, 0.5, 0.9))
-#' qnegbinomial(n = 4, q = 0.12, k = 4, p = c(0.1, 0.5, 0.9), lower.tail = FALSE)
+#' qnegbinom(n = 4, q = 0.12, k = 4, p = c(0.1, 0.5, 0.9))
+#' qnegbinom(n = 4, q = 0.12, k = 4, p = c(0.1, 0.5, 0.9), lower.tail = FALSE)
 #'
 #' @include utils.R
 #' @export

@@ -19,9 +19,6 @@ NULL
 #' Return internal identifier for the Negative Binomial distribution
 NULL
 
-#' Return internal identifier for the Binomial distribution
-NULL
-
 #' Return internal identifier for the Logarithmic distribution
 NULL
 
