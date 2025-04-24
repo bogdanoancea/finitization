@@ -206,6 +206,7 @@ rbinom <- function(n, p, N, no) {
 #' pbinom(4, 0.5, 4, lower.tail = FALSE)
 #' pbinom(4, 0.5, 4, log.p = TRUE)
 #'
+#' @include utils.R
 #' @export
 pbinom <- function(n, p, N, val = NULL, lower.tail = TRUE, log.p = FALSE) {
     if(missing(n)) {
@@ -278,6 +279,7 @@ pbinom <- function(n, p, N, val = NULL, lower.tail = TRUE, log.p = FALSE) {
 #' qbinom(4, 0.5, 4, prob = log(c(0.1, 0.5, 0.9)), lower.tail = TRUE, log.p = TRUE)
 #' qbinom(4, 0.5, 4, prob = c(0.1, 0.5, 0.9), lower.tail = FALSE)
 #'
+#' @include utils.R
 #' @export
 qbinom <- function(n, p, N, prob, lower.tail = TRUE, log.p = FALSE) {
     if(missing(n)) {

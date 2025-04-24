@@ -2,6 +2,7 @@
 % Please edit documentation in R/finitization.R
 \docType{package}
 \name{finitization}
+\alias{finitization-package}
 \alias{finitization}
 \title{A package that implements the finitization of probability distribution functions.}
 \description{
@@ -10,4 +11,16 @@ It implements four finitized distributions: Poisson, Logarithmic, Binomial and N
 }
 \details{
 finitization: A package that implements the finitization of probability distribution functions.
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/bogdanoancea/finitization}
+  \item Report bugs at \url{https://github.com/bogdanoancea/finitization/issues}
+}
+
+}
+\author{
+\strong{Maintainer}: Bogdan Oancea \email{bogdan.oancea@gmail.com} (\href{https://orcid.org/0000-0001-6987-5137}{ORCID})
+
 }

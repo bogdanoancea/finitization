@@ -181,6 +181,7 @@ rpois <- function(n, theta, no) {
 #' ppois(n = 4, theta = 0.5, log.p = TRUE)
 #' ppois(n = 4, theta = 0.5, val = c(0, 2, 4), lower.tail = FALSE)
 #'
+#' @include utils.R
 #' @export
 ppois <- function(n, theta, val = NULL, log.p = FALSE, lower.tail = TRUE) {
     if(missing(n)) {
@@ -242,6 +243,7 @@ ppois <- function(n, theta, val = NULL, log.p = FALSE, lower.tail = TRUE) {
 #' qpois(n = 4, theta = 0.5, p = c(0.1, 0.5, 0.9))
 #' qpois(n = 4, theta = 0.5, p = c(0.1, 0.5, 0.9), lower.tail = FALSE)
 #'
+#' @include utils.R
 #' @export
 qpois <- function(n, theta, p, lower.tail = TRUE, log.p = FALSE) {
     if(missing(n)) {

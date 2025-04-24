@@ -169,6 +169,7 @@ rlog <- function(n, theta, no) {
 #' plog(4, 0.1, log.p = TRUE)
 #' plog(4, 0.1, val = c(0, 2, 4), lower.tail = FALSE)
 #'
+#' @include utils.R
 #' @export
 plog <- function(n, theta, val = NULL, log.p = FALSE, lower.tail = TRUE) {
     if(missing(n)) {
@@ -228,6 +229,7 @@ plog <- function(n, theta, val = NULL, log.p = FALSE, lower.tail = TRUE) {
 #' qlog(4, 0.1, p = c(0.1, 0.1, 0.9))
 #' qlog(4, 0.1, p = c(0.1, 0.1, 0.9), lower.tail = FALSE)
 #'
+#' @include utils.R
 #' @export
 qlog <- function(n, theta, p, lower.tail = TRUE, log.p = FALSE) {
     if(missing(n)) {

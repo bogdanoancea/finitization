@@ -82,8 +82,9 @@ dnegbinom <- function(n, q, k, val = NULL, log = FALSE) {
 #' qnegbinomial(n = 4, q = 0.12, k = 4, p = c(0.1, 0.5, 0.9))
 #' qnegbinomial(n = 4, q = 0.12, k = 4, p = c(0.1, 0.5, 0.9), lower.tail = FALSE)
 #'
+#' @include utils.R
 #' @export
-qnegbinomial <- function(n, q, k, p, lower.tail = TRUE, log.p = FALSE) {
+qnegbinom <- function(n, q, k, p, lower.tail = TRUE, log.p = FALSE) {
     if(missing(n)) {
         message("Argument n is missing!\n")
         return(invisible(NULL))
@@ -294,6 +295,7 @@ rnegbinom <- function(n, q, k, no) {
 #' pnegbinom(4, 0.12, 4, log.p = TRUE)
 #' pnegbinom(4, 0.12, 4, val = c(0, 2, 4), lower.tail = FALSE)
 #'
+#' @include utils.R
 #' @export
 pnegbinom <- function(n, q, k, val = NULL, log.p = FALSE, lower.tail = TRUE) {
     if(missing(n)) {
