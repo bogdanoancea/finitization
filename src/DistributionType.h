@@ -12,16 +12,16 @@
 class DistributionType {
 
 public:
-    /// Identifier for the Poisson distribution
+    // Identifier for the Poisson distribution
     static const int POISSON = 0;
 
-    /// Identifier for the Binomial distribution
+    // Identifier for the Binomial distribution
     static const int BINOMIAL = 1;
 
-    /// Identifier for the Negative Binomial distribution
+    // Identifier for the Negative Binomial distribution
     static const int NEGATIVEBINOMIAL = 2;
 
-    /// Identifier for the Logarithmic distribution
+    // Identifier for the Logarithmic distribution
     static const int LOGARITHMIC = 3;
 };
 

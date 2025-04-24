@@ -11,7 +11,7 @@ using namespace std;
 using namespace Rcpp;
 using namespace GiNaC;
 
-//' Generate string representation of a finitized probability density function
+ //' Generate string representation of a finitized probability density function
  //'
  //' This function produces symbolic string representations of the probability
  //' density function (PMF) for a finitized distribution evaluated at specific values.
@@ -85,7 +85,7 @@ StringVector c_printDensity(int n, IntegerVector val, Rcpp::List const &params, 
 
 }
 
-//' Compute the probability mass function of a finitized distribution
+ //' Compute the probability mass function of a finitized distribution
  //'
  //' This function computes the finitized probability density (mass function)
  //' for a set of values, using the specified finitization order and distribution parameters.
@@ -158,7 +158,7 @@ NumericVector c_d(int n, IntegerVector val, Rcpp::List const &params, int dtype)
 }
 
 
-//' Generate random values from a finitized distribution
+ //' Generate random values from a finitized distribution
  //'
  //' This function generates random variates from a finitized probability distribution,
  //' using the specified finitization order and distribution parameters.
@@ -228,7 +228,7 @@ IntegerVector rvalues(int n, Rcpp::List const &params, int no, int dtype) {
     return result;
 }
 
-//' Compute the symbolic expression for \code{pdf(n - 1)} used in MFPS bounds
+ //' Compute the symbolic expression for \code{pdf(n - 1)} used in MFPS bounds
  //'
  //' This function generates the symbolic expression for the probability mass function (PMF)
  //' evaluated at \code{n - 1}, for a given finitization order and distribution type.
@@ -285,7 +285,7 @@ String MFPS_pdf(int n, Rcpp::List const &params, int dtype ) {
 
 }
 
-//' Return internal identifier for the Poisson distribution
+ //' Return internal identifier for the Poisson distribution
  //'
  //' This helper function returns the internal integer constant used to
  //' identify the Poisson distribution within the finitization framework.
@@ -304,7 +304,7 @@ String MFPS_pdf(int n, Rcpp::List const &params, int dtype ) {
      return DistributionType::POISSON;
  }
 
-//' Return internal identifier for the Negative Binomial distribution
+ //' Return internal identifier for the Negative Binomial distribution
  //'
  //' This helper function returns the internal integer constant used to
  //' identify the Negative Binomial distribution within the finitization framework.
@@ -324,7 +324,7 @@ String MFPS_pdf(int n, Rcpp::List const &params, int dtype ) {
  }
 
 
-//' Return internal identifier for the Binomial distribution
+ //' Return internal identifier for the Binomial distribution
  //'
  //' This helper function returns the internal integer constant used to
  //' identify the Binomial distribution within the finitization framework.
@@ -343,15 +343,14 @@ String MFPS_pdf(int n, Rcpp::List const &params, int dtype ) {
      return DistributionType::BINOMIAL;
  }
 
-
-//' Return internal identifier for the Logarithmic distribution
+ //' Return internal identifier for the Logarithmic distribution
  //'
  //' This helper function returns the internal integer constant used to
  //' identify the Logarithmic distribution within the finitization framework.
- //' It is primarily used for internal logic and dispatching behavior based
- //' on distribution type.
+ //' It is primarily used for internal logic and dispatching behavior
+ //' based on distribution type.
  //'
- //' @return An integer code representing the Logarithmic distribution.
+ //' @return An integer code representing the Binomial distribution.
  //' @keywords internal
  //'
  //' @examples
@@ -364,7 +363,8 @@ String MFPS_pdf(int n, Rcpp::List const &params, int dtype ) {
  }
 
 
-//' Check symbolic equivalence of two expressions using GiNaC
+
+ //' Check symbolic equivalence of two expressions using GiNaC
  //'
  //' This function uses the GiNaC symbolic algebra system to determine whether
  //' two input expressions are mathematically equivalent. It parses the inputs,
@@ -379,7 +379,6 @@ String MFPS_pdf(int n, Rcpp::List const &params, int dtype ) {
  //' check_symbolic_equivalence("q^2 + 2*q + 1", "(q + 1)^2")  # TRUE
  //' check_symbolic_equivalence("q^2", "q + 1")                # FALSE
  //'
- //' @export
  // [[Rcpp::export]]
 bool check_symbolic_equivalence(std::string expr1_str, std::string expr2_str) {
     // Define symbol(s) used in expressions

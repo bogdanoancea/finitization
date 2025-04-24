@@ -4,13 +4,10 @@
 \name{finitization}
 \alias{finitization-package}
 \alias{finitization}
-\title{A package that implements the finitization of probability distribution functions.}
+\title{finitization: A package that implements the finitization of probability distribution functions.}
 \description{
-This package contains functions that implement the concept of finitization of the probability distribution functions.
-It implements four finitized distributions: Poisson, Logarithmic, Binomial and Negative Binomial.
-}
-\details{
-finitization: A package that implements the finitization of probability distribution functions.
+This package contains functions that implement the concept of finitization of probability distribution functions.
+It includes finitized versions of the Poisson, Logarithmic, Binomial, and Negative Binomial distributions.
 }
 \seealso{
 Useful links:
@@ -24,3 +21,4 @@ Useful links:
 \strong{Maintainer}: Bogdan Oancea \email{bogdan.oancea@gmail.com} (\href{https://orcid.org/0000-0001-6987-5137}{ORCID})
 
 }
+\keyword{internal}

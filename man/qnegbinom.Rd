@@ -31,7 +31,7 @@ corresponding to the given probability(ies) for the finitized Negative Binomial 
 }
 \examples{
 library(finitization)
-qnegbinomial(n = 4, q = 0.12, k = 4, p = c(0.1, 0.5, 0.9))
-qnegbinomial(n = 4, q = 0.12, k = 4, p = c(0.1, 0.5, 0.9), lower.tail = FALSE)
+qnegbinom(n = 4, q = 0.12, k = 4, p = c(0.1, 0.5, 0.9))
+qnegbinom(n = 4, q = 0.12, k = 4, p = c(0.1, 0.5, 0.9), lower.tail = FALSE)
 
 }
