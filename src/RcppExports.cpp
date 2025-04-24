@@ -106,6 +106,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// check_symbolic_equivalence
+bool check_symbolic_equivalence(std::string expr1_str, std::string expr2_str);
+RcppExport SEXP _finitization_check_symbolic_equivalence(SEXP expr1_strSEXP, SEXP expr2_strSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::string >::type expr1_str(expr1_strSEXP);
+    Rcpp::traits::input_parameter< std::string >::type expr2_str(expr2_strSEXP);
+    rcpp_result_gen = Rcpp::wrap(check_symbolic_equivalence(expr1_str, expr2_str));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_finitization_c_printDensity", (DL_FUNC) &_finitization_c_printDensity, 5},
@@ -116,6 +128,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_finitization_getNegativeBinomialType", (DL_FUNC) &_finitization_getNegativeBinomialType, 0},
     {"_finitization_getBinomialType", (DL_FUNC) &_finitization_getBinomialType, 0},
     {"_finitization_getLogarithmicType", (DL_FUNC) &_finitization_getLogarithmicType, 0},
+    {"_finitization_check_symbolic_equivalence", (DL_FUNC) &_finitization_check_symbolic_equivalence, 2},
     {NULL, NULL, 0}
 };
 

@@ -5,22 +5,42 @@
 #include "FinitizedBinomialDistribution.h"
 #include "FinitizedNegativeBinomialDistribution.h"
 #include "DistributionType.h"
-
+#include <ginac/ginac.h>
 
 using namespace std;
+using namespace Rcpp;
+using namespace GiNaC;
 
-//' Generates a string representation of the probability density function.
-//'
-//' @param n The finitization order. It should be an integer > 0.
-//' @param val The value of the variable for which the probability density function is computed.
-//' @param params Other parameters of the distribution. They are provided in a list with named items, where the name
-//' of an item is the name of the parameter.
-//' @param dtype The type of the distribution: Poisson, Binomial, NegativeBinomial, Logaritmic.
-//' @param latex If true it returns a Latex formatted string representation of the pdf, otherwise it returns
-//' the string representation of the pdf as an R expression.
-//' @keywords internal
-//' @return a string representation of the pdf.
-// [[Rcpp::export]]
+//' Generate string representation of a finitized probability density function
+ //'
+ //' This function produces symbolic string representations of the probability
+ //' density function (PMF) for a finitized distribution evaluated at specific values.
+ //' The result can be either a plain-text R expression or a LaTeX-formatted string,
+ //' depending on the \code{latex} parameter. Supported distributions include Poisson,
+ //' Binomial, Negative Binomial, and Logarithmic.
+ //'
+ //' @param n An integer greater than 0 specifying the finitization order.
+ //' @param val An integer vector of values at which to print the finitized PMF.
+ //' @param params A named list of distribution-specific parameters:\cr
+ //'   - Binomial: \code{list(N = trials)}\cr
+ //'   - Negative Binomial: \code{list(k = dispersion)}
+ //' @param dtype An integer code representing the distribution type.
+ //'   Use helpers like \code{getPoissonType()}, \code{getBinomialType()}, etc.
+ //' @param latex Logical; if \code{TRUE}, the output strings are formatted in LaTeX.
+ //'   If \code{FALSE}, they are standard symbolic expressions.
+ //'
+ //' @return A \code{StringVector} containing the symbolic representation of the finitized PMF
+ //'         for each element in \code{val}.
+ //' @keywords internal
+ //'
+ //' @examples
+ //' # Print finitized binomial PMF as symbolic expressions
+ //' c_printDensity(n = 2, val = 0:2, params = list(N = 4), dtype = getBinomialType(), latex = FALSE)
+ //'
+ //' # Print LaTeX-formatted version
+ //' c_printDensity(n = 2, val = 0:2, params = list(N = 4), dtype = getBinomialType(), latex = TRUE)
+ //'
+ // [[Rcpp::export]]
 StringVector c_printDensity(int n, IntegerVector val, Rcpp::List const &params, int dtype, bool latex = false) {
 
     Finitization* f = nullptr;
@@ -65,16 +85,30 @@ StringVector c_printDensity(int n, IntegerVector val, Rcpp::List const &params, 
 
 }
 
-//' Computes the probability density of a finitized distribution.
-//'
-//' @param n The finitization order. It should be an integer > 0.
-//' @param val The value of the variable for which the probability density function is computed.
-//' @param params Other parameters of the distribution. They are provided in a list with named items, where the name
-//' of an item is the name of the parameter.
-//' @param dtype The type of the distribution: Poisson, Binomial, NegativeBinomial, Logaritmic.
-//' @keywords internal
-//' @return a\code{NumericVector} with the values of the density for each value provide in \code{val}.
-// [[Rcpp::export]]
+//' Compute the probability mass function of a finitized distribution
+ //'
+ //' This function computes the finitized probability density (mass function)
+ //' for a set of values, using the specified finitization order and distribution parameters.
+ //' It supports the Poisson, Binomial, Negative Binomial, and Logarithmic distributions.
+ //'
+ //' @param n An integer greater than 0 specifying the finitization order.
+ //' @param val An integer vector of values at which to evaluate the finitized probability density function.
+ //' @param params A named list of distribution-specific parameters:\cr
+ //'   - Poisson: \code{list(theta = value)}\cr
+ //'   - Logarithmic: \code{list(theta = value)}\cr
+ //'   - Binomial: \code{list(N = trials, p = probability)}\cr
+ //'   - Negative Binomial: \code{list(k = dispersion, q = success probability)}
+ //' @param dtype An integer code identifying the distribution type.
+ //'   Use helpers like \code{getPoissonType()}, \code{getBinomialType()}, etc.
+ //'
+ //' @return A \code{NumericVector} of the same length as \code{val}, containing the evaluated finitized density values.
+ //' @keywords internal
+ //'
+ //' @examples
+ //' # Compute finitized binomial PMF values for 0, 1, ..., 4
+ //' c_d(n = 3, val = 0:4, params = list(N = 4, p = 0.4), dtype = getBinomialType())
+ //'
+ // [[Rcpp::export]]
 NumericVector c_d(int n, IntegerVector val, Rcpp::List const &params, int dtype) {
     Finitization* f = nullptr;
     NumericVector result(val.size());
@@ -124,16 +158,30 @@ NumericVector c_d(int n, IntegerVector val, Rcpp::List const &params, int dtype)
 }
 
 
-//' Random values generation.
-//'
-//' @param n The finitization order. It should be an integer > 0.
-//' @param params Other parameters of the distribution. They are provided in a list with named items, where the name
-//' of an item is the name of the parameter.
-//' @param dtype The type of the distribution: Poisson, Binomial, NegativeBinomial, Logaritmic.
-//' @param no The number of random values to be generated.
-//' @keywords internal
-//' @return a\code{NumericVector} with the random values generated.
-// [[Rcpp::export]]
+//' Generate random values from a finitized distribution
+ //'
+ //' This function generates random variates from a finitized probability distribution,
+ //' using the specified finitization order and distribution parameters.
+ //' The supported distributions are: Poisson, Binomial, Negative Binomial, and Logarithmic.
+ //'
+ //' @param n An integer greater than 0 specifying the finitization order.
+ //' @param params A named list of distribution-specific parameters:\cr
+ //'   - Poisson: \code{list(theta = value)}\cr
+ //'   - Logarithmic: \code{list(theta = value)}\cr
+ //'   - Binomial: \code{list(N = trials, p = probability)}\cr
+ //'   - Negative Binomial: \code{list(k = dispersion, q = success probability)}
+ //' @param dtype An integer code specifying the distribution type.
+ //'   Use helper functions like \code{getPoissonType()}, \code{getBinomialType()}, etc.
+ //' @param no An integer specifying how many random values to generate.
+ //'
+ //' @return An \code{IntegerVector} of length \code{no} containing the generated random values.
+ //' @keywords internal
+ //'
+ //' @examples
+ //' # Generate 10 values from a finitized binomial distribution of order 3
+ //' rvalues(n = 3, params = list(N = 10, p = 0.4), no = 10, dtype = getBinomialType())
+ //'
+ // [[Rcpp::export]]
 IntegerVector rvalues(int n, Rcpp::List const &params, int no, int dtype) {
     Finitization* f = nullptr;
     IntegerVector result(no);
@@ -180,15 +228,24 @@ IntegerVector rvalues(int n, Rcpp::List const &params, int no, int dtype) {
     return result;
 }
 
-//' Computes the expression of the \code{pdf(n-1)} needed to compute the maximu feasible parameter space.
-//'
-//' @param n The finitization order. It should be an integer > 0.
-//' @param params Other parameters of the distribution. They are provided in a list with named items, where the name
-//' of an item is the name of the parameter.
-//' @param dtype The type of the distribution: Poisson, Binomial, NegativeBinomial, Logaritmic.
-//' @keywords internal
-//' @return the expression of the \code{pdf(n-1)}.
-// [[Rcpp::export]]
+//' Compute the symbolic expression for \code{pdf(n - 1)} used in MFPS bounds
+ //'
+ //' This function generates the symbolic expression for the probability mass function (PMF)
+ //' evaluated at \code{n - 1}, for a given finitization order and distribution type.
+ //' It is used internally to determine the maximum feasible parameter space (MFPS) for finitized distributions.
+ //'
+ //' @param n An integer greater than 0 specifying the finitization order.
+ //' @param params A named list of distribution-specific parameters. For example, use \code{list(N = 4)} for Binomial or \code{list(k = 3)} for Negative Binomial.
+ //' @param dtype An integer code representing the distribution type (e.g., Poisson, Binomial, Negative Binomial, Logarithmic).
+ //'
+ //' @return A character string representing the symbolic expression of \code{pdf(n - 1)}.
+ //' @keywords internal
+ //'
+ //' @examples
+ //' # Internally used for MFPS calculation
+ //' MFPS_pdf(n = 3, params = list(N = 5), dtype = getBinomialType())
+ //'
+ // [[Rcpp::export]]
 String MFPS_pdf(int n, Rcpp::List const &params, int dtype ) {
     Finitization* f = nullptr;
     String result;
@@ -228,44 +285,119 @@ String MFPS_pdf(int n, Rcpp::List const &params, int dtype ) {
 
 }
 
-//' The Poisson distribution type.
-//'
-//' @return the Poisson distribution type.
-//' @keywords internal
-// [[Rcpp::export]]
-int getPoissonType() {
-    return DistributionType::POISSON;
+//' Return internal identifier for the Poisson distribution
+ //'
+ //' This helper function returns the internal integer constant used to
+ //' identify the Poisson distribution within the finitization framework.
+ //' It is primarily used for internal logic and function dispatching
+ //' based on distribution type.
+ //'
+ //' @return An integer code representing the Poisson distribution.
+ //' @keywords internal
+ //'
+ //' @examples
+ //' # Used internally to specify distribution type
+ //' getPoissonType()
+ //'
+ // [[Rcpp::export]]
+ int getPoissonType() {
+     return DistributionType::POISSON;
+ }
+
+//' Return internal identifier for the Negative Binomial distribution
+ //'
+ //' This helper function returns the internal integer constant used to
+ //' identify the Negative Binomial distribution within the finitization framework.
+ //' It is primarily used for internal logic and function dispatching
+ //' based on distribution type.
+ //'
+ //' @return An integer code representing the Negative Binomial distribution.
+ //' @keywords internal
+ //'
+ //' @examples
+ //' # Used internally to specify distribution type
+ //' getNegativeBinomialType()
+ //'
+ // [[Rcpp::export]]
+ int getNegativeBinomialType() {
+     return DistributionType::NEGATIVEBINOMIAL;
+ }
+
+
+//' Return internal identifier for the Binomial distribution
+ //'
+ //' This helper function returns the internal integer constant used to
+ //' identify the Binomial distribution within the finitization framework.
+ //' It is primarily used for internal logic and dispatching behavior
+ //' based on distribution type.
+ //'
+ //' @return An integer code representing the Binomial distribution.
+ //' @keywords internal
+ //'
+ //' @examples
+ //' # Used internally to specify distribution type
+ //' getBinomialType()
+ //'
+ // [[Rcpp::export]]
+ int getBinomialType() {
+     return DistributionType::BINOMIAL;
+ }
+
+
+//' Return internal identifier for the Logarithmic distribution
+ //'
+ //' This helper function returns the internal integer constant used to
+ //' identify the Logarithmic distribution within the finitization framework.
+ //' It is primarily used for internal logic and dispatching behavior based
+ //' on distribution type.
+ //'
+ //' @return An integer code representing the Logarithmic distribution.
+ //' @keywords internal
+ //'
+ //' @examples
+ //' # Used internally to specify distribution type
+ //' getLogarithmicType()
+ //'
+ // [[Rcpp::export]]
+ int getLogarithmicType() {
+     return DistributionType::LOGARITHMIC;
+ }
+
+
+//' Check symbolic equivalence of two expressions using GiNaC
+ //'
+ //' This function uses the GiNaC symbolic algebra system to determine whether
+ //' two input expressions are mathematically equivalent. It parses the inputs,
+ //' expands the difference, and checks if the result is symbolically zero.
+ //'
+ //' @param expr1_str A character string representing the first symbolic expression.
+ //' @param expr2_str A character string representing the second symbolic expression.
+ //'
+ //' @return A logical value: `TRUE` if the expressions are symbolically equivalent,
+ //'         `FALSE` otherwise (including in case of parsing errors).
+ //' @examples
+ //' check_symbolic_equivalence("q^2 + 2*q + 1", "(q + 1)^2")  # TRUE
+ //' check_symbolic_equivalence("q^2", "q + 1")                # FALSE
+ //'
+ //' @export
+ // [[Rcpp::export]]
+bool check_symbolic_equivalence(std::string expr1_str, std::string expr2_str) {
+    // Define symbol(s) used in expressions
+    symbol q("q");
+
+    // Use GiNaC parser to convert strings into symbolic expressions
+    parser reader;
+    try {
+        ex expr1 = reader(expr1_str);
+        ex expr2 = reader(expr2_str);
+
+        // Compare expanded difference
+        return expand(expr1 - expr2).is_zero();
+
+    } catch (std::exception &e) {
+        Rcpp::Rcout << "Error parsing expressions: " << e.what() << std::endl;
+        return false;
+    }
 }
-
-//' The Negative Binomial distribution type.
-//'
-//' @return the Negative Binomial distribution type.
-//' @keywords internal
-// [[Rcpp::export]]
-int getNegativeBinomialType() {
-    return DistributionType::NEGATIVEBINOMIAL;
-}
-
-
-//' The Binomial distribution type.
-//'
-//' @return the Binomial distribution type.
-//' @keywords internal
-// [[Rcpp::export]]
-int getBinomialType() {
-    return DistributionType::BINOMIAL;
-}
-
-
-//' The Logarithmic distribution type.
-//'
-//' @return the Logarithmic distribution type.
-//' @keywords internal
-// [[Rcpp::export]]
-int getLogarithmicType() {
-    return DistributionType::LOGARITHMIC;
-}
-
-
 
 

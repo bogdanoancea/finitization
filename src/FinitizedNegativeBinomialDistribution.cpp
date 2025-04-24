@@ -27,14 +27,21 @@ using namespace std;
 
 
 FinitizedNegativeBinomialDistribution::FinitizedNegativeBinomialDistribution(int n, double p, int k): Finitization(n),  m_k(k) {
-    m_theta = p;
-    m_paramSymb = symbol("q");
-    m_x = symbol("x");
-    m_dprobs = new double[n+1];
-    for( int i = 0; i <= n; ++i) {
+    m_theta = p;                         // Store p; internally we work with q = 1 - p
+    m_paramSymb = symbol("q");          // Symbol for the transformed parameter q
+    m_x = symbol("x");                  // Symbol for the random variable
+
+    m_dprobs = new double[n + 1];       // Allocate memory for finitized probabilities
+
+    // Compute and cache PDF values for the finitized distribution
+    for (int i = 0; i <= n; ++i) {
         m_dprobs[i] = fin_pdf(i);
     }
+
+    // Initialize the alias sampling structure
     setProbs(m_dprobs);
+
+    // Mark the setup as finished
     m_finish = true;
 }
 

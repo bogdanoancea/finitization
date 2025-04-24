@@ -201,3 +201,10 @@ checkIntegerValue <- function(no) {
     }
     return(result)
 }
+
+normalize_expr <- function(expr) {
+    expr <- gsub(" ", "", expr)        # remove spaces
+    expr <- gsub("\\^1\\b", "", expr)    # drop power of 1
+    expr <- gsub("\\*1\\b", "", expr)    # drop *1
+    expr
+}

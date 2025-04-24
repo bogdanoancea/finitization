@@ -3,13 +3,14 @@ using namespace std;
 
 
 Finitization::Finitization(int n): m_finitizationOrder(n), m_dprobs{nullptr}, m_finish{false}, m_unif_double_distribution{0.0, 1.0}, m_unif_int_distribution(0,n) {
+    // Memory allocation for alias method
     m_alias = new int[m_finitizationOrder+1];
     m_prob = new double[m_finitizationOrder+1];
     m_values = new int[m_finitizationOrder+1];
     m_ntsfFirstTime = true;
     for(int i = 0; i <= n; i++)
         m_values[i] = i;
-    m_generator.seed(time(0));
+    m_generator.seed(time(0)); // Seed RNG
 
 }
 

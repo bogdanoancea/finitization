@@ -1,5 +1,3 @@
-
-
 test_that("dbinom computes correct density values for n = 2", {
     # Expected density values for finitization order n = 2, p = 0.15, N = 4.
     expected <- data.frame(
@@ -7,13 +5,24 @@ test_that("dbinom computes correct density values for n = 2", {
         prob = c(0.535, 0.330, 0.135)
     )
     result <- dbinom(n = 2, p = 0.15, N = 4)
-
-    # Check that the function returns a data frame with the correct column names.
+    # Check structure
     expect_s3_class(result, "data.frame")
-    expect_equal(names(result), c("val", "prob"))
+    expect_named(result, c("val", "prob"))
+    expect_type(result$val, "integer")
+    expect_type(result$prob, "double")
 
-    # Compare the computed values with the expected values using a tolerance.
-    expect_equal(result, expected, tolerance = 1e-3)
+    # Check values
+    expect_equal(result$val, expected$val)
+
+    expect_equal(
+        result$prob, expected$prob,
+        tolerance = 1e-8,
+        info = paste(
+            "Mismatch in probabilities:\nExpected: ", toString(expected$prob),
+            "\nGot: ", toString(result$prob),
+            "\nDiff: ", toString(result$prob - expected$prob)
+        )
+    )
 })
 
 test_that("dbinom computes correct density values for n = 4", {
@@ -24,17 +33,43 @@ test_that("dbinom computes correct density values for n = 4", {
     )
     result <- dbinom(n = 4, p = 0.15, N = 4)
 
+    # Structural checks
     expect_s3_class(result, "data.frame")
-    expect_equal(names(result), c("val", "prob"))
+    expect_named(result, c("val", "prob"))
+    expect_type(result$val, "integer")
+    expect_type(result$prob, "double")
 
-    # Use a stricter tolerance for these computed values.
-    expect_equal(result, expected, tolerance = 1e-8)
+    # Value checks
+    expect_equal(result$val, expected$val)
+
+    expect_equal(
+        result$prob, expected$prob,
+        tolerance = 1e-8,
+        info = paste(
+            "Mismatch in probabilities:\nExpected: ", toString(expected$prob),
+            "\nGot: ", toString(result$prob),
+            "\nDiff: ", toString(result$prob - expected$prob)
+        )
+    )
+
+    # Check if probabilities sum to 1 within tolerance
+    prob_sum <- sum(result$prob)
+    expect_equal(prob_sum, 1, tolerance = 1e-8,
+                 info = paste("Probabilities do not sum to 1. Total:", prob_sum))
 })
 
 test_that("dbinom returns NULL for invalid 'val' input", {
-    # For n = 4, valid outcomes are 0 to 4. Providing an invalid outcome (e.g. 5) should return NULL.
-    expect_null(dbinom(n = 4, p = 0.15, N = 4, val = 5))
+    invalid_vals <- list(5, -1, 10)
+
+    for (iv in invalid_vals) {
+        msg <- paste("Expected NULL for val =", deparse(iv))
+        expect_null(
+            dbinom(n = 4, p = 0.15, N = 4, val = iv),
+            info = msg
+        )
+    }
 })
+
 
 test_that("dbinom computes correct density for a single value", {
     # Expected output when a single outcome is provided.
@@ -45,10 +80,8 @@ test_that("dbinom computes correct density for a single value", {
     result <- dbinom(n = 3, p = 0.15, N = 4, val = 3)
 
     expect_s3_class(result, "data.frame")
-    expect_equal(names(result), c("val", "prob"))
-
-    # Compare using a tolerance.
-    expect_equal(result, expected, tolerance = 1e-4)
+    expect_equal(result$val, expected$val)
+    expect_equal(result$prob, expected$prob, tolerance = 1e-6)
 })
 
 test_that("dbinom returns log-densities when log = TRUE", {

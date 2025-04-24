@@ -1,6 +1,3 @@
-library(testthat)
-library(finitization)
-
 test_that("qlog returns a numeric vector of correct length and values within support", {
     n <- 4
     theta <- 0.1

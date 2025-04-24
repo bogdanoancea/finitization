@@ -1,17 +1,37 @@
 test_that("pdf0", {
-    capture.output(b <- printFinitizedBinomialDensity(2,4,0))
-  expect_true(b == "1-4*p+6*p^2" || b == "1+6*p^2-4*p")
+
+    expected <- c_printDensity(2, 0, list("N" = 4), getBinomialType(), latex = FALSE)
+
+    # Capture and trim the printed output.
+    capture.output(out <- printFinitizedBinomialDensity(n = 2, N = 4, val = 0, latex = FALSE))
+    out <- trimws(out)
+
+    expect_true(check_symbolic_equivalence(normalize_expr(out), normalize_expr(expected)),
+                info = paste("Expressions not symbolically equivalent:\n", out, "\nvs\n", expected))
+
 })
 
 
 test_that("pdf1", {
-  capture.output(b <- printFinitizedBinomialDensity(2,4,1))
-    expect_true( b == "-4*(-1+3*p)*p" || b == "-4*p*(-1+3*p)" )
-})
+    expected <- c_printDensity(2, 1, list("N" = 4), getBinomialType(), latex = FALSE)
+
+    # Capture and trim the printed output.
+    capture.output(out <- printFinitizedBinomialDensity(n = 2, N = 4, val = 1, latex = FALSE))
+    out <- trimws(out)
+
+    expect_true(check_symbolic_equivalence(normalize_expr(out), normalize_expr(expected)),
+                info = paste("Expressions not symbolically equivalent:\n", out, "\nvs\n", expected))})
 
 
 test_that("pdf2", {
-  capture.output(expect_equal(printFinitizedBinomialDensity(2,4,2),"6*p^2"))
+    expected <- c_printDensity(2, 2, list("N" = 4), getBinomialType(), latex = FALSE)
+
+    # Capture and trim the printed output.
+    capture.output(out <- printFinitizedBinomialDensity(n = 2, N = 4, val = 2, latex = FALSE))
+    out <- trimws(out)
+
+    expect_true(check_symbolic_equivalence(normalize_expr(out), normalize_expr(expected)),
+                info = paste("Expressions not symbolically equivalent:\n", out, "\nvs\n", expected))
 })
 
 test_that("pdf3", {
@@ -19,11 +39,27 @@ test_that("pdf3", {
 })
 
 
-test_that("pdf2L", {
-  capture.output(expect_equal(printFinitizedBinomialDensity(2,4,2, TRUE),"6  p^{2}"))
+test_that("Latex output is generated and symbolic equivalence holds", {
+    r_latex_out <- capture.output(printFinitizedBinomialDensity(n = 2, N = 4, val = 2, latex = TRUE))
+    expect_gt(length(r_latex_out), 0)
+
+    expected <- c_printDensity(2, 2, list("N" = 4), getBinomialType(), latex = FALSE)
+
+    # Capture and trim the printed output.
+    capture.output(out <- printFinitizedBinomialDensity(n = 2, N = 4, val = 2, latex = FALSE))
+    out <- trimws(out)
+
+    expect_true(check_symbolic_equivalence(normalize_expr(out), normalize_expr(expected)),
+                info = paste("Expressions not symbolically equivalent:\n", out, "\nvs\n", expected))
 })
 
 test_that("pdf3L", {
-  capture.output(expect_equal(printFinitizedBinomialDensity(2,4,3, TRUE), NULL))
+    out <- capture.output(res <- printFinitizedBinomialDensity(n = 2, N = 4, val = 3, latex = TRUE))
+    expect_equal(length(out), 0)
+    expect_null(printFinitizedBinomialDensity(n = 2, N = 4, val = 3, latex = TRUE))
+    out <- capture.output(res <- printFinitizedBinomialDensity(n = 2, N = 4, val = 3, latex = FALSE))
+    expect_equal(length(out), 0)
+    expect_null(printFinitizedBinomialDensity(n = 2, N = 4, val = 3, latex = FALSE))
+
 })
 

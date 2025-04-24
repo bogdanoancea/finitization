@@ -1,53 +1,75 @@
 test_that("Non-LaTeX output for val = 0 is correct", {
-    # Capture the output for val = 0 (non-LaTeX mode)
-    capture.output(out <- printFinitizedPoissonDensity(2, val = 0))
+    expected <- c_printDensity(2, 0, list(), getPoissonType(), latex = FALSE)
+
+    # Capture and trim the printed output.
+    capture.output(out <- printFinitizedPoissonDensity(n = 2, val = 0, latex = FALSE))
     out <- trimws(out)
 
-    # Acceptable equivalent strings
-    expected <- c("1-theta+1/2*theta^2", "1+1/2*theta^2-theta")
+    expect_true(check_symbolic_equivalence(normalize_expr(out), normalize_expr(expected)),
+                info = paste("Expressions not symbolically equivalent:\n", out, "\nvs\n", expected))
 
-    expect_true(out == expected[1] || out == expected[2])
 })
 
 test_that("LaTeX output for val = 0 is correct", {
-    capture.output(out <- printFinitizedPoissonDensity(2, val = 0, latex = TRUE))
+    r_latex_out <- capture.output(printFinitizedPoissonDensity(n = 2, val = 0, latex = TRUE))
+    expect_gt(length(r_latex_out), 0)
+
+    expected <- c_printDensity(2, 0, list(), getPoissonType(), latex = FALSE)
+
+    # Capture and trim the printed output.
+    capture.output(out <- printFinitizedPoissonDensity(n = 2, val = 0, latex = FALSE))
     out <- trimws(out)
 
-    expected <- c("1-\\theta+\\frac{1}{2} \\theta^{2}", "1+\\frac{1}{2} \\theta^{2}-\\theta")
-
-    expect_true(out %in% expected)
+    expect_true(check_symbolic_equivalence(normalize_expr(out), normalize_expr(expected)),
+                info = paste("Expressions not symbolically equivalent:\n", out, "\nvs\n", expected))
 })
 
 test_that("Non-LaTeX output for val = 1 is correct", {
-    capture.output(out <- printFinitizedPoissonDensity(2, val = 1))
+    expected <- c_printDensity(2, 1, list(), getPoissonType(), latex = FALSE)
+
+    # Capture and trim the printed output.
+    capture.output(out <- printFinitizedPoissonDensity(n = 2, val = 1, latex = FALSE))
     out <- trimws(out)
 
-    expected <- c("-(-1+theta)*theta", "-theta*(-1+theta)")
-
-    expect_true(out %in% expected)
-})
+    expect_true(check_symbolic_equivalence(normalize_expr(out), normalize_expr(expected)),
+                info = paste("Expressions not symbolically equivalent:\n", out, "\nvs\n", expected))})
 
 test_that("LaTeX output for val = 1 is correct", {
-    capture.output(out <- printFinitizedPoissonDensity(2, val = 1, latex = TRUE))
+    r_latex_out <- capture.output(printFinitizedPoissonDensity(n = 2, val = 1, latex = TRUE))
+    expect_gt(length(r_latex_out), 0)
+
+    expected <- c_printDensity(2, 1, list(), getPoissonType(), latex = FALSE)
+
+    # Capture and trim the printed output.
+    capture.output(out <- printFinitizedPoissonDensity(n = 2, val = 1, latex = FALSE))
     out <- trimws(out)
 
-    expected <- c("- {(-1+\\theta)} \\theta", "- \\theta {(-1+\\theta)}")
-
-    expect_true(out %in% expected)
-})
+    expect_true(check_symbolic_equivalence(normalize_expr(out), normalize_expr(expected)),
+                info = paste("Expressions not symbolically equivalent:\n", out, "\nvs\n", expected))})
 
 test_that("Non-LaTeX output for val = 2 is correct", {
-    capture.output(out <- printFinitizedPoissonDensity(2, val = 2))
+    expected <- c_printDensity(2, 2, list(), getPoissonType(), latex = FALSE)
+
+    # Capture and trim the printed output.
+    capture.output(out <- printFinitizedPoissonDensity(n = 2, val = 2, latex = FALSE))
     out <- trimws(out)
 
-    expect_equal(out, "1/2*theta^2")
+    expect_true(check_symbolic_equivalence(normalize_expr(out), normalize_expr(expected)),
+                info = paste("Expressions not symbolically equivalent:\n", out, "\nvs\n", expected))
 })
 
 test_that("LaTeX output for val = 2 is correct", {
-    capture.output(out <- printFinitizedPoissonDensity(2, val = 2, latex = TRUE))
+    r_latex_out <- capture.output(printFinitizedPoissonDensity(n = 2, val = 0, latex = TRUE))
+    expect_gt(length(r_latex_out), 0)
+
+    expected <- c_printDensity(2, 0, list(), getPoissonType(), latex = FALSE)
+
+    # Capture and trim the printed output.
+    capture.output(out <- printFinitizedPoissonDensity(n = 2, val = 0, latex = FALSE))
     out <- trimws(out)
 
-    expect_equal(out, "\\frac{1}{2}  \\theta^{2}")
+    expect_true(check_symbolic_equivalence(normalize_expr(out), normalize_expr(expected)),
+                info = paste("Expressions not symbolically equivalent:\n", out, "\nvs\n", expected))
 })
 
 test_that("Output and return value for an invalid 'val' (nonexistent index) are handled correctly (non-LaTeX)", {

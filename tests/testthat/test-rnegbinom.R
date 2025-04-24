@@ -16,22 +16,57 @@ test_that("rnegbinom returns a vector of correct length and valid outcomes", {
     expect_true(all(res %in% 0:2))
 })
 
+
 test_that("rnegbinom sample mean approximates expected mean", {
     set.seed(456)
     sample_size <- 1e6
-    res <- rnegbinom(n = 2, q = 0.15, k = 4, no = sample_size)
-    sample_mean <- mean(res)
 
-    # Expected mean is approximately 0.7.
-    expect_equal(sample_mean, 0.7, tolerance = 0.015)
+    # Generate sample
+    res <- rnegbinom(n = 2, q = 0.15, k = 4, no = sample_size)
+
+    # Calculate sample statistics
+    sample_mean <- mean(res)
+    sample_sd <- sd(res)
+    sem <- sample_sd / sqrt(sample_size)  # standard error of the mean
+
+    # Expected theoretical mean
+    expected_mean <- 0.70588
+
+    # 95% confidence interval
+    ci_low <- sample_mean - 1.96 * sem
+    ci_high <- sample_mean + 1.96 * sem
+
+    message <- paste0("Sample mean: ", round(sample_mean, 2),
+                      "; 95% CI: [", round(ci_low, 2), ", ", round(ci_high, 2), "]")
+
+    # Test that expected mean is within the CI of the sample mean
+    expect_true(expected_mean >= ci_low && expected_mean <= ci_high, info = message)
 })
+
+
 
 test_that("rnegbinom sample variance approximates expected variance", {
     set.seed(789)
     sample_size <- 1e6
     res <- rnegbinom(n = 2, q = 0.15, k = 4, no = sample_size)
+
+    # Sample variance
     sample_var <- var(res)
 
-    # Expected variance is approximately 0.83.
-    expect_equal(sample_var, 0.83, tolerance = 0.02)
+    # Theoretical variance
+    expected_var <- (4 * 0.15) / (0.85^2)  # ≈ 0.83034
+
+    # Estimate standard error of the variance using asymptotic formula
+    # se_var ≈ sqrt(2 * variance^2 / (n - 1))
+    se_var <- sqrt(2 * expected_var^2 / (sample_size - 1))
+
+    # Confidence interval (95%)
+    ci_low <- sample_var - 1.96 * se_var
+    ci_high <- sample_var + 1.96 * se_var
+
+    msg <- paste0("Sample var = ", round(sample_var, 2),
+                  "; Expected = ", round(expected_var, 2),
+                  "; CI = [", round(ci_low, 2), ", ", round(ci_high, 2), "]")
+
+    expect_true(expected_var >= ci_low && expected_var <= ci_high, info = msg)
 })

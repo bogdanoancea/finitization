@@ -1,5 +1,3 @@
-
-
 test_that("qbinom returns increasing quantiles and handles edge cases", {
     # Define a set of probabilities: including 0 and 1 for the edge cases.
     probs <- c(0, 0.1, 0.5, 0.9, 1)

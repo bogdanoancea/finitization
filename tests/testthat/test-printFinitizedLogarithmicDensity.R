@@ -1,87 +1,13 @@
 test_that("pdf2", {
-    capture.output(b <- printFinitizedLogarithmicDensity(2,2))
-    expect_true(b == "1/2*theta^2*(2*theta^(-2)*log(1-theta)-2*theta^(-1)*(-1+theta)^(-1)-(-1+theta)^(-2))*log(1-theta)^(-1)"
-                || b == "1/2*theta^2*(2*theta^(-2)-2*log(1-theta)^(-1)*theta^(-1)*(-1+theta)^(-1)-log(1-theta)^(-1)*(-1+theta)^(-2))"
-                || b == "-1/2*(log(1-theta)^(-1)*(-1+theta)^(-2)*theta^(-1)-2*theta^(-3)+2*log(1-theta)^(-1)*(-1+theta)^(-1)*theta^(-2))*theta^3"
-                || b == "1/2*(2*theta^(-2)-(-1+theta)^(-2)*log(1-theta)^(-1)-2*(-1+theta)^(-1)*log(1-theta)^(-1)*theta^(-1))*theta^2"
-                || b == "-1/2*theta^2*(log(1-theta)^(-1)*(-1+theta)^(-2)-2*theta^(-2)+2*theta^(-1)*log(1-theta)^(-1)*(-1+theta)^(-1))"
-                || b == "-1/2*((-1+theta)^(-2)*log(1-theta)^(-1)+2*(-1+theta)^(-1)*log(1-theta)^(-1)*theta^(-1)-2*theta^(-2))*theta^2"
-                || b == "-1/2*((-1+theta)^(-2)*log(1-theta)^(-1)-2*theta^(-2)+2*theta^(-1)*(-1+theta)^(-1)*log(1-theta)^(-1))*theta^2"
-                || b == "-1/2*(log(1-theta)^(-1)*(-1+theta)^(-2)*theta^(-1)+2*log(1-theta)^(-1)*(-1+theta)^(-1)*theta^(-2)-2*theta^(-3))*theta^3"
-                || b == "-1/2*theta^2*(2*log(1-theta)^(-1)*theta^(-1)*(-1+theta)^(-1)-2*theta^(-2)+log(1-theta)^(-1)*(-1+theta)^(-2))"
-                || b == "1/2*theta^2*(2*theta^(-2)-2*log(1-theta)^(-1)*(-1+theta)^(-1)*theta^(-1)-log(1-theta)^(-1)*(-1+theta)^(-2))"
-                || b == "1/2*(2*theta^(-2)-2*theta^(-1)*log(1-theta)^(-1)*(-1+theta)^(-1)-log(1-theta)^(-1)*(-1+theta)^(-2))*theta^2"
-                || b == "1/2*(2*theta^(-3)-2*log(1-theta)^(-1)*(-1+theta)^(-1)*theta^(-2)-log(1-theta)^(-1)*(-1+theta)^(-2)*theta^(-1))*theta^3"
-                || b == "-1/2*(log(1-theta)^(-1)*(-1+theta)^(-2)-2*theta^(-2)+2*log(1-theta)^(-1)*theta^(-1)*(-1+theta)^(-1))*theta^2"
-                || b == "1/2*theta^2*(2*theta^(-2)-log(1-theta)^(-1)*(-1+theta)^(-2)-2*log(1-theta)^(-1)*theta^(-1)*(-1+theta)^(-1))"
-                || b == "1/2*theta^2*(2*theta^(-2)*log(1-theta)-(-1+theta)^(-2)-2*theta^(-1)*(-1+theta)^(-1))*log(1-theta)^(-1)"
-                || b == "1/2*(2*theta^(-2)*log(1-theta)-2*(-1+theta)^(-1)*theta^(-1)-(-1+theta)^(-2))*theta^2*log(1-theta)^(-1)"
-                || b == "1/2*theta^2*log(1-theta)^(-1)*(2*theta^(-2)*log(1-theta)-2*theta^(-1)*(-1+theta)^(-1)-(-1+theta)^(-2))"
-                || b == "1/2*(2*theta^(-3)*log(1-theta)-(-1+theta)^(-2)*theta^(-1)-2*(-1+theta)^(-1)*theta^(-2))*theta^3*log(1-theta)^(-1)"
-                || b == "1/2*theta^2*log(1-theta)^(-1)*(2*theta^(-2)*log(1-theta)-2*(-1+theta)^(-1)*theta^(-1)-(-1+theta)^(-2))"
-                || b == "-1/2*theta^2*log(1-theta)^(-1)*((-1+theta)^(-2)-2*theta^(-2)*log(1-theta)+2*theta^(-1)*(-1+theta)^(-1))"
-                || b == "-1/2*(2*(-1+theta)^(-1)*theta^(-1)*log(1-theta)^(-1)+(-1+theta)^(-2)*log(1-theta)^(-1)-2*theta^(-2))*theta^2"
-                || b == "-1/2*theta^2*((-1+theta)^(-2)*log(1-theta)^(-1)+2*theta^(-1)*(-1+theta)^(-1)*log(1-theta)^(-1)-2*theta^(-2))"
-                || b == "-1/2*theta^2*(log(1-theta)^(-1)*(-1+theta)^(-2)-2*theta^(-2)+2*log(1-theta)^(-1)*theta^(-1)*(-1+theta)^(-1))"
-                || b == "1/2*(2*theta^(-3)-log(1-theta)^(-1)*(-1+theta)^(-2)*theta^(-1)-2*log(1-theta)^(-1)*(-1+theta)^(-1)*theta^(-2))*theta^3"
-                || b == "1/2*theta^2*(2*theta^(-2)-(-1+theta)^(-2)*log(1-theta)^(-1)-2*theta^(-1)*(-1+theta)^(-1)*log(1-theta)^(-1))"
-                || b == "-1/2*theta^2*(log(1-theta)^(-1)*(-1+theta)^(-2)-2*theta^(-2)+2*log(1-theta)^(-1)*(-1+theta)^(-1)*theta^(-1))"
-                || b == "1/2*theta^2*(2*theta^(-2)-2*theta^(-1)*log(1-theta)^(-1)*(-1+theta)^(-1)-log(1-theta)^(-1)*(-1+theta)^(-2))"
-                || b == "-1/2*(2*log(1-theta)^(-1)*(-1+theta)^(-1)*theta^(-2)-2*theta^(-3)+log(1-theta)^(-1)*(-1+theta)^(-2)*theta^(-1))*theta^3"
-                || b == "-1/2*theta^2*((-1+theta)^(-2)*log(1-theta)^(-1)-2*theta^(-2)+2*(-1+theta)^(-1)*log(1-theta)^(-1)*theta^(-1))"
-                || b == "-1/2*theta^2*((-1+theta)^(-2)*log(1-theta)^(-1)-2*theta^(-2)+2*theta^(-1)*(-1+theta)^(-1)*log(1-theta)^(-1))"
-                || b == "-1/2*theta^2*(2*(-1+theta)^(-1)*theta^(-1)-2*theta^(-2)*log(1-theta)+(-1+theta)^(-2))*log(1-theta)^(-1)"
-                || b == "1/2*(2*theta^(-2)*log(1-theta)-2*theta^(-1)*(-1+theta)^(-1)-(-1+theta)^(-2))*theta^2*log(1-theta)^(-1)"
-                || b == "-1/2*(2*log(1-theta)^(-1)*(-1+theta)^(-1)*theta^(-1)+log(1-theta)^(-1)*(-1+theta)^(-2)-2*theta^(-2))*theta^2"
-                || b == "1/2*theta^2*(2*theta^(-2)*log(1-theta)-2*(-1+theta)^(-1)*theta^(-1)-(-1+theta)^(-2))*log(1-theta)^(-1)"
-                || b == "1/2*theta^2*log(1-theta)^(-1)*(2*theta^(-2)*log(1-theta)-(-1+theta)^(-2)-2*(-1+theta)^(-1)*theta^(-1))"
-                || b == "-1/2*theta^2*(2*(-1+theta)^(-1)*log(1-theta)^(-1)*theta^(-1)-2*theta^(-2)+(-1+theta)^(-2)*log(1-theta)^(-1))"
-                || b == "1/2*theta^3*(2*theta^(-3)-log(1-theta)^(-1)*(-1+theta)^(-2)*theta^(-1)-2*log(1-theta)^(-1)*(-1+theta)^(-1)*theta^(-2))"
-                || b == "-1/2*(log(1-theta)^(-1)*(-1+theta)^(-2)-2*theta^(-2)+2*log(1-theta)^(-1)*(-1+theta)^(-1)*theta^(-1))*theta^2"
-                || b == "-1/2*((-1+theta)^(-2)*log(1-theta)^(-1)-2*theta^(-2)+2*(-1+theta)^(-1)*log(1-theta)^(-1)*theta^(-1))*theta^2"
-                || b == "-1/2*(2*(-1+theta)^(-1)*theta^(-1)-2*theta^(-2)*log(1-theta)+(-1+theta)^(-2))*theta^2*log(1-theta)^(-1)"
-                || b == "-1/2*(2*log(1-theta)^(-1)*(-1+theta)^(-1)*theta^(-2)+log(1-theta)^(-1)*(-1+theta)^(-2)*theta^(-1)-2*theta^(-3))*theta^3"
-                || b == "1/2*(2*theta^(-2)-2*(-1+theta)^(-1)*log(1-theta)^(-1)*theta^(-1)-(-1+theta)^(-2)*log(1-theta)^(-1))*theta^2"
-                || b == "-1/2*(2*(-1+theta)^(-1)*log(1-theta)^(-1)*theta^(-1)+(-1+theta)^(-2)*log(1-theta)^(-1)-2*theta^(-2))*theta^2"
-                || b == "1/2*(2*theta^(-2)-log(1-theta)^(-1)*(-1+theta)^(-2)-2*theta^(-1)*log(1-theta)^(-1)*(-1+theta)^(-1))*theta^2"
-                || b == "1/2*(2*theta^(-2)-log(1-theta)^(-1)*(-1+theta)^(-2)-2*log(1-theta)^(-1)*(-1+theta)^(-1)*theta^(-1))*theta^2"
-                || b == "1/2*(2*theta^(-2)-2*log(1-theta)^(-1)*theta^(-1)*(-1+theta)^(-1)-log(1-theta)^(-1)*(-1+theta)^(-2))*theta^2"
-                || b == "-1/2*(log(1-theta)^(-1)*(-1+theta)^(-2)-2*theta^(-2)+2*theta^(-1)*log(1-theta)^(-1)*(-1+theta)^(-1))*theta^2"
-                || b == "-1/2*(2*log(1-theta)^(-1)*(-1+theta)^(-1)*theta^(-1)-2*theta^(-2)+log(1-theta)^(-1)*(-1+theta)^(-2))*theta^2"
-                || b == "1/2*(2*theta^(-2)-(-1+theta)^(-2)*log(1-theta)^(-1)-2*theta^(-1)*(-1+theta)^(-1)*log(1-theta)^(-1))*theta^2"
-                || b == "1/2*(2*theta^(-3)-log(1-theta)^(-1)*theta^(-1)*(-1+theta)^(-2)-2*log(1-theta)^(-1)*theta^(-2)*(-1+theta)^(-1))*theta^3"
-                || b == "1/2*theta^3*(2*theta^(-3)*log(1-theta)-2*(-1+theta)^(-1)*theta^(-2)-(-1+theta)^(-2)*theta^(-1))*log(1-theta)^(-1)"
-                || b == "1/2*theta^3*(2*theta^(-3)*log(1-theta)-(-1+theta)^(-2)*theta^(-1)-2*(-1+theta)^(-1)*theta^(-2))*log(1-theta)^(-1)"
-                || b == "1/2*(2*theta^(-2)-2*log(1-theta)^(-1)*(-1+theta)^(-1)*theta^(-1)-log(1-theta)^(-1)*(-1+theta)^(-2))*theta^2"
-                || b == "-1/2*theta^2*(2*(-1+theta)^(-1)*theta^(-1)*log(1-theta)^(-1)+(-1+theta)^(-2)*log(1-theta)^(-1)-2*theta^(-2))"
-                || b == "1/2*theta^3*(2*theta^(-3)-2*log(1-theta)^(-1)*(-1+theta)^(-1)*theta^(-2)-log(1-theta)^(-1)*(-1+theta)^(-2)*theta^(-1))"
-                || b == "1/2*(2*theta^(-2)-2*theta^(-1)*(-1+theta)^(-1)*log(1-theta)^(-1)-(-1+theta)^(-2)*log(1-theta)^(-1))*theta^2"
-                || b == "1/2*(2*theta^(-3)*log(1-theta)-2*(-1+theta)^(-1)*theta^(-2)-(-1+theta)^(-2)*theta^(-1))*theta^3*log(1-theta)^(-1)"
-                || b == "-1/2*(2*(-1+theta)^(-1)*theta^(-1)*log(1-theta)^(-1)-2*theta^(-2)+(-1+theta)^(-2)*log(1-theta)^(-1))*theta^2"
-                || b == "-1/2*theta^2*(2*(-1+theta)^(-1)*theta^(-1)*log(1-theta)^(-1)-2*theta^(-2)+(-1+theta)^(-2)*log(1-theta)^(-1))"
-                || b == "-1/2*(2*log(1-theta)^(-1)*theta^(-1)*(-1+theta)^(-1)-2*theta^(-2)+log(1-theta)^(-1)*(-1+theta)^(-2))*theta^2"
-                || b == "1/2*theta^3*log(1-theta)^(-1)*(2*theta^(-3)*log(1-theta)-(-1+theta)^(-2)*theta^(-1)-2*(-1+theta)^(-1)*theta^(-2))"
-                || b == "-1/2*theta^2*(2*log(1-theta)^(-1)*(-1+theta)^(-1)*theta^(-1)+log(1-theta)^(-1)*(-1+theta)^(-2)-2*theta^(-2))"
-                || b == "-1/2*((-1+theta)^(-2)*log(1-theta)^(-1)+2*theta^(-1)*(-1+theta)^(-1)*log(1-theta)^(-1)-2*theta^(-2))*theta^2"
-                || b == "-1/2*theta^3*(2*log(1-theta)^(-1)*(-1+theta)^(-1)*theta^(-2)+log(1-theta)^(-1)*(-1+theta)^(-2)*theta^(-1)-2*theta^(-3))"
-                || b == "1/2*theta^2*(2*theta^(-2)-log(1-theta)^(-1)*(-1+theta)^(-2)-2*theta^(-1)*log(1-theta)^(-1)*(-1+theta)^(-1))"
-                || b == "1/2*(2*theta^(-3)-2*log(1-theta)^(-1)*theta^(-2)*(-1+theta)^(-1)-log(1-theta)^(-1)*theta^(-1)*(-1+theta)^(-2))*theta^3"
-                || b == "1/2*(2*theta^(-2)-log(1-theta)^(-1)*(-1+theta)^(-2)-2*log(1-theta)^(-1)*theta^(-1)*(-1+theta)^(-1))*theta^2"
-                || b == "-1/2*theta^2*(2*(-1+theta)^(-1)*log(1-theta)^(-1)*theta^(-1)+(-1+theta)^(-2)*log(1-theta)^(-1)-2*theta^(-2))"
-                || b == "1/2*theta^3*log(1-theta)^(-1)*(2*theta^(-3)*log(1-theta)-2*(-1+theta)^(-1)*theta^(-2)-(-1+theta)^(-2)*theta^(-1))"
-                || b == "-1/2*(2*(-1+theta)^(-1)*log(1-theta)^(-1)*theta^(-1)-2*theta^(-2)+(-1+theta)^(-2)*log(1-theta)^(-1))*theta^2"
-                || b == "-1/2*theta^3*(log(1-theta)^(-1)*(-1+theta)^(-2)*theta^(-1)-2*theta^(-3)+2*log(1-theta)^(-1)*(-1+theta)^(-1)*theta^(-2))"
-                || b == "-1/2*theta^2*(2*log(1-theta)^(-1)*(-1+theta)^(-1)*theta^(-1)-2*theta^(-2)+log(1-theta)^(-1)*(-1+theta)^(-2))"
-                || b == "-1/2*theta^3*(log(1-theta)^(-1)*(-1+theta)^(-2)*theta^(-1)+2*log(1-theta)^(-1)*(-1+theta)^(-1)*theta^(-2)-2*theta^(-3))"
-                || b == "-1/2*theta^2*log(1-theta)^(-1)*(2*(-1+theta)^(-1)*theta^(-1)-2*theta^(-2)*log(1-theta)+(-1+theta)^(-2))"
-                || b == "-1/2*theta^3*(2*(-1+theta)^(-1)*theta^(-2)-2*theta^(-3)*log(1-theta)+(-1+theta)^(-2)*theta^(-1))*log(1-theta)^(-1)"
-                || b == "-1/2*theta^3*(2*log(1-theta)^(-1)*(-1+theta)^(-1)*theta^(-2)-2*theta^(-3)+log(1-theta)^(-1)*(-1+theta)^(-2)*theta^(-1))"
-                || b == "1/2*theta^2*log(1-theta)^(-1)*(2*theta^(-2)*log(1-theta)-(-1+theta)^(-2)-2*theta^(-1)*(-1+theta)^(-1))"
-                || b == "1/2*theta^2*(2*theta^(-2)-(-1+theta)^(-2)*log(1-theta)^(-1)-2*(-1+theta)^(-1)*log(1-theta)^(-1)*theta^(-1))"
-                || b == "1/2*(2*log(1-theta)*theta^(-3)-(-1+theta)^(-2)*theta^(-1)-2*(-1+theta)^(-1)*theta^(-2))*log(1-theta)^(-1)*theta^3"
-                || b == "-1/2*(2*(-1+theta)^(-1)*theta^(-2)-2*theta^(-3)*log(1-theta)+(-1+theta)^(-2)*theta^(-1))*theta^3*log(1-theta)^(-1)"
-                || b == "-1/2*theta^2*((-1+theta)^(-2)-2*theta^(-2)*log(1-theta)+2*theta^(-1)*(-1+theta)^(-1))*log(1-theta)^(-1)"
-                || b == "-1/2*(log(1-theta)^(-1)*(-1+theta)^(-2)-2*theta^(-2)+2*log(1-theta)^(-1)*theta^(-1)*(-1+theta)^(-1))*theta^2")
+    expected <- c_printDensity(2, 0, list(), getLogarithmicType(), latex = FALSE)
+
+    # Capture and trim the printed output.
+    capture.output(out <- printFinitizedLogarithmicDensity(n = 2, val = 0, latex = FALSE))
+    out <- trimws(out)
+
+    expect_true(check_symbolic_equivalence(normalize_expr(out), normalize_expr(expected)),
+                info = paste("Expressions not symbolically equivalent:\n", out, "\nvs\n", expected))
+
 })
 
 
@@ -93,40 +19,55 @@ test_that("pdf3", {
 
 
 test_that("pdf1", {
-    capture.output(b <- printFinitizedLogarithmicDensity(1,1))
-    expect_true( b == "-theta*(theta^(-1)*log(1-theta)-(-1+theta)^(-1))*log(1-theta)^(-1)"
-                || b == "-(theta^(-1)-(-1+theta)^(-1)*log(1-theta)^(-1))*theta"
-                || b == "-(theta^(-2)*log(1-theta)-(-1+theta)^(-1)*theta^(-1))*theta^2*log(1-theta)^(-1)"
-                || b == "theta*(log(1-theta)^(-1)*(-1+theta)^(-1)-theta^(-1))"
-                || b == "-theta*(theta^(-1)-log(1-theta)^(-1)*(-1+theta)^(-1))"
-                || b == "-log(1-theta)^(-1)*theta^2*(log(1-theta)*theta^(-2)-(-1+theta)^(-1)*theta^(-1))"
-                || b == "((-1+theta)^(-1)*theta^(-1)-theta^(-2)*log(1-theta))*theta^2*log(1-theta)^(-1)"
-                || b == "theta^2*(log(1-theta)^(-1)*(-1+theta)^(-1)*theta^(-1)-theta^(-2))"
-                || b == "-(theta^(-1)-log(1-theta)^(-1)*(-1+theta)^(-1))*theta"
-                || b == "(log(1-theta)^(-1)*(-1+theta)^(-1)-theta^(-1))*theta"
-                || b == "-(theta^(-2)-(-1+theta)^(-1)*log(1-theta)^(-1)*theta^(-1))*theta^2"
-                || b == "theta*((-1+theta)^(-1)-theta^(-1)*log(1-theta))*log(1-theta)^(-1)"
-                || b == "theta*((-1+theta)^(-1)*log(1-theta)^(-1)-theta^(-1))"
-                || b == "((-1+theta)^(-1)*log(1-theta)^(-1)*theta^(-1)-theta^(-2))*theta^2"
-                || b == "-log(1-theta)^(-1)*(log(1-theta)*theta^(-2)-(-1+theta)^(-1)*theta^(-1))*theta^2"
-                || b == "-(theta^(-2)-log(1-theta)^(-1)*(-1+theta)^(-1)*theta^(-1))*theta^2"
-                || b == "-theta^2*log(1-theta)^(-1)*(theta^(-2)*log(1-theta)-theta^(-1)*(-1+theta)^(-1))"
-                || b == "(log(1-theta)^(-1)*(-1+theta)^(-1)*theta^(-1)-theta^(-2))*theta^2"
-                || b == "((-1+theta)^(-1)*log(1-theta)^(-1)-theta^(-1))*theta"
-                || b == "-theta*(theta^(-1)-(-1+theta)^(-1)*log(1-theta)^(-1))"
-                || b == "-(log(1-theta)*theta^(-2)-(-1+theta)^(-1)*theta^(-1))*log(1-theta)^(-1)*theta^2"
-                || b == "-theta*log(1-theta)^(-1)*(theta^(-1)*log(1-theta)-(-1+theta)^(-1))"
-                || b == "theta^2*((-1+theta)^(-1)*theta^(-1)-theta^(-2)*log(1-theta))*log(1-theta)^(-1)"
-                || b == "-theta^2*(theta^(-2)-log(1-theta)^(-1)*theta^(-1)*(-1+theta)^(-1))"
-                || b == "theta*log(1-theta)^(-1)*((-1+theta)^(-1)-theta^(-1)*log(1-theta))"
-                || b == "-theta^2*(theta^(-2)-log(1-theta)^(-1)*(-1+theta)^(-1)*theta^(-1))"
-                || b == "-theta^2*log(1-theta)^(-1)*(theta^(-2)*log(1-theta)-(-1+theta)^(-1)*theta^(-1))"
-                || b == "theta^2*log(1-theta)^(-1)*((-1+theta)^(-1)*theta^(-1)-theta^(-2)*log(1-theta))"
-                || b == "((-1+theta)^(-1)*theta^(-1)-log(1-theta)*theta^(-2))*log(1-theta)^(-1)*theta^2"
-                || b == "((-1+theta)^(-1)-theta^(-1)*log(1-theta))*theta*log(1-theta)^(-1)"
-                || b == "theta^2*((-1+theta)^(-1)*log(1-theta)^(-1)*theta^(-1)-theta^(-2))"
-                || b == "-theta^2*(theta^(-2)*log(1-theta)-(-1+theta)^(-1)*theta^(-1))*log(1-theta)^(-1)"
-                || b == "-theta^2*(theta^(-2)-(-1+theta)^(-1)*log(1-theta)^(-1)*theta^(-1))"
-                || b == "-(theta^(-1)*log(1-theta)-(-1+theta)^(-1))*theta*log(1-theta)^(-1)"
-                || b == "theta*((-1+theta)^(-1)*log(1-theta)^(-1)-theta^(-1))")
+    expected <- c_printDensity(2, 1, list(), getLogarithmicType(), latex = FALSE)
+
+    # Capture and trim the printed output.
+    capture.output(out <- printFinitizedLogarithmicDensity(n = 2, val = 1, latex = FALSE))
+    out <- trimws(out)
+
+    expect_true(check_symbolic_equivalence(normalize_expr(out), normalize_expr(expected)),
+                info = paste("Expressions not symbolically equivalent:\n", out, "\nvs\n", expected))
+
+
 })
+
+test_that("pdf0", {
+    expected <- c_printDensity(2, 0, list(), getLogarithmicType(), latex = FALSE)
+
+    # Capture and trim the printed output.
+    capture.output(out <- printFinitizedLogarithmicDensity(n = 2, val = 0, latex = FALSE))
+    out <- trimws(out)
+
+    expect_true(check_symbolic_equivalence(normalize_expr(out), normalize_expr(expected)),
+                info = paste("Expressions not symbolically equivalent:\n", out, "\nvs\n", expected))
+
+
+})
+
+
+test_that("Latex output is generated and symbolic equivalence holds", {
+    r_latex_out <- capture.output(printFinitizedLogarithmicDensity(n = 2, val = 2, latex = TRUE))
+    expect_gt(length(r_latex_out), 0)
+
+    expected <- c_printDensity(2, 2, list(), getLogarithmicType(), latex = FALSE)
+
+    # Capture and trim the printed output.
+    capture.output(out <- printFinitizedLogarithmicDensity(n = 2, val = 2, latex = FALSE))
+    out <- trimws(out)
+
+    expect_true(check_symbolic_equivalence(normalize_expr(out), normalize_expr(expected)),
+                info = paste("Expressions not symbolically equivalent:\n", out, "\nvs\n", expected))
+})
+
+
+test_that("pdf3L", {
+    out <- capture.output(res <- printFinitizedLogarithmicDensity(n = 2, val = 3, latex = TRUE))
+    expect_equal(length(out), 0)
+    expect_null(printFinitizedLogarithmicDensity(n = 2, val = 3, latex = TRUE))
+    out <- capture.output(res <- printFinitizedLogarithmicDensity(n = 2, val = 3, latex = FALSE))
+    expect_equal(length(out), 0)
+    expect_null(printFinitizedLogarithmicDensity(n = 2, val = 3, latex = FALSE))
+
+})
+
+

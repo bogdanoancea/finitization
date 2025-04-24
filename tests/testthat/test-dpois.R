@@ -6,19 +6,35 @@ test_that("dpois produces correct densities for all outcomes (val not provided)"
     )
     result <- dpois(n = 4, theta = 0.5)
 
-    # Verify the result is a data frame with correct column names.
     expect_s3_class(result, "data.frame")
-    expect_equal(names(result), c("val", "prob"))
+    expect_named(result, c("val", "prob"))
+    expect_type(result$val, "integer")
+    expect_type(result$prob, "double")
 
-    # Check that the outcomes and densities match (using a tolerance appropriate for 9 decimal places).
+    # Check values
     expect_equal(result$val, expected$val)
-    expect_equal(result$prob, expected$prob)
+
+    expect_equal(
+        result$prob, expected$prob,
+        tolerance = 1e-8,
+        info = paste(
+            "Mismatch in probabilities:\nExpected: ", toString(expected$prob),
+            "\nGot: ", toString(result$prob),
+            "\nDiff: ", toString(result$prob - expected$prob)
+        )
+    )
 })
 
 test_that("dpois returns NULL for an invalid 'val' input", {
-    # For n = 7, the valid outcomes are 0:7.
-    # Providing val = 9 should trigger an input validation error and result in NULL.
-    expect_null(dpois(n = 7, theta = 0.15, val = 9))
+    invalid_vals <- list(5, -1, 10)
+
+    for (iv in invalid_vals) {
+        msg <- paste("Expected NULL for val =", deparse(iv))
+        expect_null(
+            dpois(n = 4, theta = 0.15, val = iv),
+            info = msg
+        )
+    }
 })
 
 test_that("dpois produces correct density for a single value", {
