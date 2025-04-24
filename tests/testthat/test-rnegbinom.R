@@ -40,7 +40,7 @@ test_that("rnegbinom sample mean approximates expected mean", {
                       "; 95% CI: [", round(ci_low, 2), ", ", round(ci_high, 2), "]")
 
     # Test that expected mean is within the CI of the sample mean
-    expect_true(expected_mean >= ci_low && expected_mean <= ci_high, info = message)
+    expect_true(expected_mean >= round(ci_low, 2) && expected_mean <= round(ci_high, 2), info = message)
 })
 
 
@@ -68,5 +68,5 @@ test_that("rnegbinom sample variance approximates expected variance", {
                   "; Expected = ", round(expected_var, 2),
                   "; CI = [", round(ci_low, 2), ", ", round(ci_high, 2), "]")
 
-    expect_true(expected_var >= ci_low && expected_var <= ci_high, info = msg)
+    expect_true(expected_var >= round(ci_low, 2) && expected_var <= round(ci_high, 2, info = msg)
 })
