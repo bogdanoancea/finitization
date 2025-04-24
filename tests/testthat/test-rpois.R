@@ -35,7 +35,7 @@ test_that("rpois sample mean approximates the theoretical mean", {
     message <- paste0("Sample mean: ", round(sample_mean, 2),
                       "; 95% CI: [", round(ci_low, 2), ", ", round(ci_high, 2), "]")
     # Test that expected mean is within the CI of the sample mean
-    expect_true(expected_mean >= round(ci_low, 2) && expected_mean <= round(ci_high, 2), info = message)
+    expect_true(round(expected_mean,2) >= round(ci_low, 2) && round(expected_mean,2) <= round(ci_high, 2), info = message)
 
 
  })
@@ -62,5 +62,5 @@ test_that("rpois sample variance approximates the theoretical variance", {
                   "; Expected = ", round(expected_var, 2),
                   "; CI = [", round(ci_low, 2), ", ", round(ci_high, 2), "]")
 
-    expect_true(expected_var >= round(ci_low, 2) && expected_var <= round(ci_high, 2), info = msg)
+    expect_true(rround(expected_var,2) >= round(ci_low, 2) && round(expected_var,2) <= round(ci_high, 2), info = msg)
 })

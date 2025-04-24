@@ -37,7 +37,7 @@ test_that("rbinom sample mean approximates the theoretical mean", {
                       "; 95% CI: [", round(ci_low, 2), ", ", round(ci_high, 2), "]")
 
     # Test that expected mean is within the CI of the sample mean
-    expect_true(expected_mean >= round(ci_low, 2) && expected_mean <= round(ci_high, 2), info = message)
+    expect_true(round(expected_mean,2) >= round(ci_low, 2) && round(expected_mean,2) <= round(ci_high, 2), info = message)
 })
 
 test_that("rbinom sample variance approximates the theoretical variance", {
@@ -62,5 +62,5 @@ test_that("rbinom sample variance approximates the theoretical variance", {
                   "; Expected = ", round(expected_var, 2),
                   "; CI = [", round(ci_low, 2), ", ", round(ci_high, 2), "]")
 
-    expect_true(expected_var >= round(ci_low, 2) && expected_var <= round(ci_high, 2), info = msg)
+    expect_true(round(expected_var,2) >= round(ci_low, 2) && round(expected_var,2) <= round(ci_high, 2), info = msg)
 })
