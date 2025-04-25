@@ -1,6 +1,6 @@
 Package: finitization
-Title: Finitization of Probability Distributions
-Description: This package implements the finitization concept for some probability distributions. A finitized distribution of order n preserves the first n moments of the original distribution and allows one to generate random variates faster than the widely used method that uses the inverse CDF.
+Title: Finitization Methods for Discrete Probability Distributions
+Description: Implements the finitization of discrete probability distributions, a technique that approximates a distribution by preserving a finite number of moments. These finitized distributions enable faster random variate generation than inverse transform sampling and are useful in simulation and statistical modeling.
 Version: 0.1.0
 Authors@R: 
     person("Bogdan", "Oancea", email = "bogdan.oancea@gmail.com", role = c("aut", "cre"),
@@ -8,7 +8,6 @@ Authors@R:
 Maintainer: Bogdan Oancea <bogdan.oancea@gmail.com>
 License: GPL (>= 2)
 Encoding: UTF-8
-LazyData: true
 NeedsCompilation: yes
 SystemRequirements: 
     CLN (>= 1.3.6, https://www.ginac.de/CLN/),
