@@ -57,4 +57,4 @@ test_that("rlog sample variance approximates the expected value", {
                   "; Expected = ", round(expected_var, 2),
                   "; CI = [", round(ci_low, 2), ", ", round(ci_high, 2), "]")
 
-    expect_true(round(expected_var,2) >= round(ci_low, 2) && rorund(expected_var,2) <= round(ci_high, 2), info = msg)})
+    expect_true(round(expected_var,2) >= round(ci_low, 2) && round(expected_var,2) <= round(ci_high, 2), info = msg)})

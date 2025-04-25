@@ -62,5 +62,5 @@ test_that("rpois sample variance approximates the theoretical variance", {
                   "; Expected = ", round(expected_var, 2),
                   "; CI = [", round(ci_low, 2), ", ", round(ci_high, 2), "]")
 
-    expect_true(rround(expected_var,2) >= round(ci_low, 2) && round(expected_var,2) <= round(ci_high, 2), info = msg)
+    expect_true(round(expected_var,2) >= round(ci_low, 2) && round(expected_var,2) <= round(ci_high, 2), info = msg)
 })

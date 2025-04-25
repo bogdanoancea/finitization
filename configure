@@ -1,3 +1,4 @@
+#!/bin/sh
 # configure script for CRAN-safe dynamic linking of GMP, CLN, and GiNaC
 
 set -e
@@ -12,11 +13,17 @@ fi
 CPPFLAGS=""
 LDFLAGS=""
 
+filter_flags() {
+  echo "$1" | tr ' ' '\n' | grep -vE '^[-]W$' | tr '\n' ' '
+}
+
 echo "Checking for GMP..."
 if pkg-config --exists gmp; then
   echo "  Found GMP"
-  CPPFLAGS="$CPPFLAGS $(pkg-config --cflags gmp)"
-  LDFLAGS="$LDFLAGS $(pkg-config --libs gmp)"
+  gmp_cflags=$(filter_flags "$(pkg-config --cflags gmp)")
+  gmp_libs="$(pkg-config --libs gmp)"
+  CPPFLAGS="$CPPFLAGS $gmp_cflags"
+  LDFLAGS="$LDFLAGS $gmp_libs"
 else
   echo "  GMP not found. Please install libgmp-dev."
   exit 1
@@ -25,8 +32,10 @@ fi
 echo "Checking for CLN..."
 if pkg-config --exists cln; then
   echo "  Found CLN"
-  CPPFLAGS="$CPPFLAGS $(pkg-config --cflags cln)"
-  LDFLAGS="$LDFLAGS $(pkg-config --libs cln)"
+  cln_cflags=$(filter_flags "$(pkg-config --cflags cln)")
+  cln_libs="$(pkg-config --libs cln)"
+  CPPFLAGS="$CPPFLAGS $cln_cflags"
+  LDFLAGS="$LDFLAGS $cln_libs"
 else
   echo "  CLN not found. Please install libcln-dev."
   exit 1
@@ -35,8 +44,10 @@ fi
 echo "Checking for GiNaC..."
 if pkg-config --exists ginac; then
   echo "  Found GiNaC"
-  CPPFLAGS="$CPPFLAGS $(pkg-config --cflags ginac)"
-  LDFLAGS="$LDFLAGS $(pkg-config --libs ginac)"
+  ginac_cflags=$(filter_flags "$(pkg-config --cflags ginac)")
+  ginac_libs="$(pkg-config --libs ginac)"
+  CPPFLAGS="$CPPFLAGS $ginac_cflags"
+  LDFLAGS="$LDFLAGS $ginac_libs"
 else
   echo "  GiNaC not found. Please install libginac-dev."
   exit 1
@@ -58,4 +69,3 @@ PKG_LIBS =
 EOF
 
 echo "Configuration successful."
-
