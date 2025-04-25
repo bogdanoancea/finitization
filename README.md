@@ -1,11 +1,8 @@
 # finitization
 
-<pre>
 <!-- badges: start -->
 [![](https://github.com/bogdanoancea/finitization/actions/workflows/R-CMD-check.yml/badge.svg)](https://github.com/bogdanoancea/finitization/actions/workflows/R-CMD-check.yml)
 <!-- badges: end -->
-</pre>
-
 
 The goal of this package is to implement the concept of probability distribution finitization.
 
