@@ -1,0 +1,35 @@
+name: Build Windows Static Libraries for GiNaC
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-windows-static-libs:
+    runs-on: windows-latest
+
+    steps:
+      - name: Set up MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          install: >
+            git
+            base-devel
+            mingw-w64-x86_64-toolchain
+            mingw-w64-x86_64-gmp
+            mingw-w64-x86_64-cln
+            mingw-w64-x86_64-ginac
+
+      - name: Copy .a libraries to output folder
+        shell: msys2 {0}
+        run: |
+          mkdir -p output/x64
+          cp /mingw64/lib/libgmp.a output/x64/
+          cp /mingw64/lib/libcln.a output/x64/
+          cp /mingw64/lib/libginac.a output/x64/
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: static-libs-x64
+          path: output/x64
