@@ -1,25 +1,28 @@
 Package: finitization
-Title: Finitization of probability distributions
-Description: This package implements the finitization concept for some probability distributions. A finitized distribution of order n preserves the first n moments of the originial distribution and allows one to generate random variates faster than the widely used method that uses the inverse CDF.
+Title: Finitization of Probability Distributions
+Description: This package implements the finitization concept for some probability distributions. A finitized distribution of order n preserves the first n moments of the original distribution and allows one to generate random variates faster than the widely used method that uses the inverse CDF.
 Version: 0.1.0
 Authors@R: 
-    person("Bogdan", "Oancea", , "bogdan.oancea@gmail.com", role = c("aut", "cre"),
+    person("Bogdan", "Oancea", email = "bogdan.oancea@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "https://orcid.org/0000-0001-6987-5137"))
 Maintainer: Bogdan Oancea <bogdan.oancea@gmail.com>
 License: GPL (>= 2)
 Encoding: UTF-8
-Author: Bogdan Oancea [aut, cre] (<https://orcid.org/0000-0001-6987-51377>
+LazyData: true
 NeedsCompilation: yes
-SystemRequirements: CLN (>= 1.3.6, https://www.ginac.de/CLN/) and
-        GiNaC (>= 1.8.3 https://www.ginac.de/Download.html) and
-        Gmp (>= 6.2.0 https://gmplib.org/download/gmp/) and
-        GNU make
+SystemRequirements: 
+    CLN (>= 1.3.6, https://www.ginac.de/CLN/),
+    GiNaC (>= 1.8.3, https://www.ginac.de/Download.html),
+    GMP (>= 6.2.0, https://gmplib.org/download/gmp/),
+    GNU Make,
+    On Windows: precompiled static libraries and headers are provided under 'inst/libs/x64/' for 64-bit builds (see README for details).
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 URL: https://github.com/bogdanoancea/finitization
 BugReports: https://github.com/bogdanoancea/finitization/issues
-Imports: Rcpp,
-         rootSolve
+Imports: 
+    Rcpp,
+    rootSolve
 Suggests: 
     testthat (>= 3.0.0),
     knitr,
@@ -35,3 +38,4 @@ Collate:
     'log.R'
     'negbinom.R'
     'pois.R'
+    

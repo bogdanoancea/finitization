@@ -1,15 +1,15 @@
 #!/bin/sh
-# configure script for CRAN-safe dynamic linking of GMP, CLN, and GiNaC
+# configure script for CRAN-safe fallback static linking of GMP, CLN, and GiNaC
 
 set -e
 
-# Check for pkg-config
-if ! command -v pkg-config >/dev/null 2>&1; then
-  echo "Error: pkg-config is not installed. Please install it to proceed."
-  exit 1
+ARCH=${R_ARCH}
+if [ -z "$ARCH" ]; then
+  ARCH=$(uname -m)
 fi
 
-# Initialize flags
+echo "Detected architecture: $ARCH"
+
 CPPFLAGS=""
 LDFLAGS=""
 
@@ -17,55 +17,40 @@ filter_flags() {
   echo "$1" | tr ' ' '\n' | grep -vE '^[-]W$' | tr '\n' ' '
 }
 
-echo "Checking for GMP..."
-if pkg-config --exists gmp; then
-  echo "  Found GMP"
-  gmp_cflags=$(filter_flags "$(pkg-config --cflags gmp)")
-  gmp_libs="$(pkg-config --libs gmp)"
-  CPPFLAGS="$CPPFLAGS $gmp_cflags"
-  LDFLAGS="$LDFLAGS $gmp_libs"
+if command -v pkg-config >/dev/null 2>&1; then
+  echo "Using pkg-config to locate libraries..."
+
+  if pkg-config --exists gmp cln ginac; then
+    echo "  Found GMP, CLN, and GiNaC"
+    CPPFLAGS=$(filter_flags "$(pkg-config --cflags gmp cln ginac)")
+    LDFLAGS=$(pkg-config --libs gmp cln ginac)
+  else
+    echo "  pkg-config installed but required packages not found. Falling back to bundled libs."
+    USE_FALLBACK=1
+  fi
 else
-  echo "  GMP not found. Please install libgmp-dev."
-  exit 1
+  echo "pkg-config not available. Falling back to bundled libs."
+  USE_FALLBACK=1
 fi
 
-echo "Checking for CLN..."
-if pkg-config --exists cln; then
-  echo "  Found CLN"
-  cln_cflags=$(filter_flags "$(pkg-config --cflags cln)")
-  cln_libs="$(pkg-config --libs cln)"
-  CPPFLAGS="$CPPFLAGS $cln_cflags"
-  LDFLAGS="$LDFLAGS $cln_libs"
-else
-  echo "  CLN not found. Please install libcln-dev."
-  exit 1
+if [ "$USE_FALLBACK" = "1" ]; then
+  CPPFLAGS="-I../inst/include"
+  LDFLAGS="../inst/libs/$ARCH/libgmp.a ../inst/libs/$ARCH/libcln.a ../inst/libs/$ARCH/libginac.a"
 fi
 
-echo "Checking for GiNaC..."
-if pkg-config --exists ginac; then
-  echo "  Found GiNaC"
-  ginac_cflags=$(filter_flags "$(pkg-config --cflags ginac)")
-  ginac_libs="$(pkg-config --libs ginac)"
-  CPPFLAGS="$CPPFLAGS $ginac_cflags"
-  LDFLAGS="$LDFLAGS $ginac_libs"
-else
-  echo "  GiNaC not found. Please install libginac-dev."
-  exit 1
-fi
-
-# Optional: remove duplicate -l entries from LDFLAGS
+# Remove duplicate linker flags
 LDFLAGS=$(echo "$LDFLAGS" | tr ' ' '\n' | awk '!seen[$0]++' | tr '\n' ' ')
 
-# Export to Makevars
+# Write Makevars
 cat <<EOF > src/Makevars
 PKG_CPPFLAGS = $CPPFLAGS
 PKG_LIBS = $LDFLAGS
 EOF
 
-# Windows stub
+# Makevars.win (Windows users must ensure correct arch dir exists)
 cat <<EOF > src/Makevars.win
-PKG_CPPFLAGS =
-PKG_LIBS =
+PKG_CPPFLAGS = -I../inst/include
+PKG_LIBS = ../inst/libs/x64/libgmp.a ../inst/libs/x64/libcln.a ../inst/libs/x64/libginac.a
 EOF
 
-echo "Configuration successful."
+echo "Configuration complete."
