@@ -1,0 +1,2 @@
+PKG_CPPFLAGS = -I../inst/include
+PKG_LIBS = ../inst/libs/x64/libgmp.a ../inst/libs/x64/libcln.a ../inst/libs/x64/libginac.a
