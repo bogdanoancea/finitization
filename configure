@@ -19,17 +19,6 @@ filter_flags() {
   echo "$1" | tr ' ' '\n' | grep -vE '^[-]W$' | tr '\n' ' '
 }
 
-# If R supports querying C++14 flags, get them, else default to gnu++14
-R_BIN="$(R RHOME)/bin/R"
-
-# prefer R’s configured flag, fallback to -std=gnu++14
-# capture only the flag, drop everything else
-CXX14STD=$(
-  "$R_BIN" CMD config CXX14STD 2>&1 \
-  | grep -- '-std=' || echo "-std=gnu++14"
-)
-
-
 if command -v pkg-config >/dev/null 2>&1; then
   echo "Using pkg-config to locate libraries..."
 
