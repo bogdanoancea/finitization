@@ -24,9 +24,16 @@ if command -v pkg-config >/dev/null 2>&1; then
 
   if pkg-config --exists gmp cln ginac; then
     echo "  Found GMP, CLN, and GiNaC"
-    PKG_FLAGS=$(pkg-config --cflags --libs gmp cln ginac)
-    CPPFLAGS=$(filter_flags "$PKG_FLAGS")
-    LDFLAGS=$(pkg-config --libs gmp cln ginac)
+    PKG_OUTPUT=$(pkg-config --cflags --libs gmp cln ginac)
+
+    # For compiling
+    CPPFLAGS=$(echo "$PKG_OUTPUT" | tr ' ' '\n' | grep '^-I' | tr '\n' ' ')
+
+    # For linking
+    LDFLAGS=$(echo "$PKG_OUTPUT" | tr ' ' '\n' | grep -E '^-L|-l' | tr '\n' ' ')
+    #PKG_FLAGS=$(pkg-config --cflags --libs gmp cln ginac)
+    #CPPFLAGS=$(filter_flags "$PKG_FLAGS")
+    #LDFLAGS=$(pkg-config --libs gmp cln ginac)
   else
     echo "  pkg-config installed but required packages not found. Falling back to bundled libs."
     USE_FALLBACK=1
