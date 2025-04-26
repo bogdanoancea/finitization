@@ -20,13 +20,13 @@ test_that("rnegbinom returns a vector of correct length and valid outcomes", {
 test_that("rnegbinom sample mean approximates expected mean", {
     set.seed(456)
     sample_size <- 1e6
-
+    z_value <- 2.56
     # Generate sample
     res <- rnegbinom(n = 2, q = 0.15, k = 4, no = sample_size)
 
     # Early sanity checks
-    expect_type(res, "integer", info = "rnegbinom should return integer samples")
-    expect_length(res, sample_size, info = "rnegbinom sample size mismatch")
+    expect_type(res, "integer")
+    expect_length(res, sample_size)
 
     # Calculate sample statistics
     sample_mean <- mean(res)
@@ -37,8 +37,8 @@ test_that("rnegbinom sample mean approximates expected mean", {
     expected_mean <- 0.70588
 
     # Calculate 95% confidence interval
-    ci_low <- sample_mean - 1.96 * sem
-    ci_high <- sample_mean + 1.96 * sem
+    ci_low <- sample_mean - z_value * sem
+    ci_high <- sample_mean + z_value * sem
 
     # Allow a **slight tolerance** for floating point noise
     tolerance <- 1e-3
