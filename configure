@@ -20,7 +20,10 @@ filter_flags() {
 }
 
 # If R supports querying C++14 flags, get them, else default to gnu++14
-CXX14STD=$(R CMD config CXX14STD 2>/dev/null || echo "-std=gnu++14")
+R_BIN="$(R RHOME)/bin/R"
+
+# prefer R’s configured flag, fallback to -std=gnu++14
+CXX14STD=$("$R_BIN" CMD config CXX14STD 2>/dev/null || echo "-std=gnu++14")
 
 if command -v pkg-config >/dev/null 2>&1; then
   echo "Using pkg-config to locate libraries..."
