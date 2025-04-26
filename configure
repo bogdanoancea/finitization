@@ -31,9 +31,7 @@ if command -v pkg-config >/dev/null 2>&1; then
 
     # For linking
     LDFLAGS=$(echo "$PKG_OUTPUT" | tr ' ' '\n' | grep -E '^-L|-l' | tr '\n' ' ')
-    #PKG_FLAGS=$(pkg-config --cflags --libs gmp cln ginac)
-    #CPPFLAGS=$(filter_flags "$PKG_FLAGS")
-    #LDFLAGS=$(pkg-config --libs gmp cln ginac)
+    CPPFLAGS=$(filter_flags "CPPFLAGS")
   else
     echo "  pkg-config installed but required packages not found. Falling back to bundled libs."
     USE_FALLBACK=1
