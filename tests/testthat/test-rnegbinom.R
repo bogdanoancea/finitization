@@ -24,26 +24,37 @@ test_that("rnegbinom sample mean approximates expected mean", {
     # Generate sample
     res <- rnegbinom(n = 2, q = 0.15, k = 4, no = sample_size)
 
+    # Early sanity checks
+    expect_type(res, "integer", info = "rnegbinom should return integer samples")
+    expect_length(res, sample_size, info = "rnegbinom sample size mismatch")
+
     # Calculate sample statistics
     sample_mean <- mean(res)
     sample_sd <- sd(res)
-    sem <- sample_sd / sqrt(sample_size)  # standard error of the mean
+    sem <- sample_sd / sqrt(sample_size)  # Standard Error of the Mean
 
     # Expected theoretical mean
     expected_mean <- 0.70588
 
-    # 95% confidence interval
+    # Calculate 95% confidence interval
     ci_low <- sample_mean - 1.96 * sem
     ci_high <- sample_mean + 1.96 * sem
 
-    message <- paste0("Sample mean: ", round(sample_mean, 2),
-                      "; 95% CI: [", round(ci_low, 2), ", ", round(ci_high, 2), "]")
+    # Allow a **slight tolerance** for floating point noise
+    tolerance <- 1e-3
 
-    # Test that expected mean is within the CI of the sample mean
-    expect_true(round(expected_mean,2) >= round(ci_low, 2) && round(expected_mean,2) <= round(ci_high, 2), info = message)
+    message <- paste0(
+        "Sample mean: ", round(sample_mean, 5),
+        "; Expected mean: ", expected_mean,
+        "; 95% CI: [", round(ci_low, 5), ", ", round(ci_high, 5), "]"
+    )
+
+    # Test that expected mean falls inside the 95% confidence interval (+ small numerical tolerance)
+    expect_true(
+        expected_mean >= ci_low - tolerance && expected_mean <= ci_high + tolerance,
+        info = message
+    )
 })
-
-
 
 test_that("rnegbinom sample variance approximates expected variance", {
     set.seed(789)
