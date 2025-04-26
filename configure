@@ -1,5 +1,6 @@
 #!/bin/sh
 # configure script for CRAN-safe fallback static linking of GMP, CLN, and GiNaC
+# with explicit C++14 standard
 
 set -e
 
@@ -13,16 +14,21 @@ echo "Detected architecture: $ARCH"
 CPPFLAGS=""
 LDFLAGS=""
 
+# Utility to filter out unwanted flags
 filter_flags() {
   echo "$1" | tr ' ' '\n' | grep -vE '^[-]W$' | tr '\n' ' '
 }
+
+# If R supports querying C++14 flags, get them, else default to gnu++14
+CXX14STD=$(R CMD config CXX14STD 2>/dev/null || echo "-std=gnu++14")
 
 if command -v pkg-config >/dev/null 2>&1; then
   echo "Using pkg-config to locate libraries..."
 
   if pkg-config --exists gmp cln ginac; then
     echo "  Found GMP, CLN, and GiNaC"
-    CPPFLAGS=$(filter_flags "$(pkg-config --cflags gmp cln ginac)")
+    PKG_FLAGS=$(pkg-config --cflags --libs gmp cln ginac)
+    CPPFLAGS=$(filter_flags "$PKG_FLAGS")
     LDFLAGS=$(pkg-config --libs gmp cln ginac)
   else
     echo "  pkg-config installed but required packages not found. Falling back to bundled libs."
@@ -38,19 +44,24 @@ if [ "$USE_FALLBACK" = "1" ]; then
   LDFLAGS="../inst/libs/$ARCH/libgmp.a ../inst/libs/$ARCH/libcln.a ../inst/libs/$ARCH/libginac.a"
 fi
 
+# Append C++14 standard to flags
+CPPFLAGS="$CPPFLAGS $CXX14STD"
+
 # Remove duplicate linker flags
 LDFLAGS=$(echo "$LDFLAGS" | tr ' ' '\n' | awk '!seen[$0]++' | tr '\n' ' ')
 
-# Write Makevars
+# Write Makevars for Unix/macOS
 cat <<EOF > src/Makevars
+CXX_STD = CXX14
 PKG_CPPFLAGS = $CPPFLAGS
 PKG_LIBS = $LDFLAGS
 EOF
 
-# Makevars.win (Windows users must ensure correct arch dir exists)
+# Write Makevars.win for Windows
 cat <<EOF > src/Makevars.win
-PKG_CPPFLAGS = -I../inst/include
-PKG_LIBS = ../inst/libs/x64/libgmp.a ../inst/libs/x64/libcln.a ../inst/libs/x64/libginac.a
+CXX_STD = CXX14
+PKG_CPPFLAGS = $CPPFLAGS
+PKG_LIBS = $LDFLAGS
 EOF
 
-echo "Configuration complete."
+echo "Configuration complete. Flags: $CPPFLAGS $LDFLAGS"
