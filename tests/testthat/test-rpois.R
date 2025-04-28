@@ -18,31 +18,34 @@ test_that("rpois returns a vector of correct length and valid outcomes", {
 test_that("rpois sample mean approximates the theoretical mean", {
     set.seed(12345)
     sample_size <- 1e6
+
+    # Generate sample
     x <- rpois(n = 4, theta = 0.5, no = sample_size)
 
     # Calculate sample statistics
     sample_mean <- mean(x)
     sample_sd <- sd(x)
-    sem <- sample_sd / sqrt(sample_size)  # standard error of the mean
+    sem <- sample_sd / sqrt(sample_size)  # Standard Error of the Mean
 
     # Expected theoretical mean
     expected_mean <- 0.5
 
-    # 95% confidence interval
-    ci_low <- sample_mean - 1.96 * sem
-    ci_high <- sample_mean + 1.96 * sem
-
-    message <- paste0("Sample mean: ", round(sample_mean, 2),
-                      "; 95% CI: [", round(ci_low, 2), ", ", round(ci_high, 2), "]")
-    # Test that expected mean is within the CI of the sample mean
-    expect_true(round(expected_mean,2) >= round(ci_low, 2) && round(expected_mean,2) <= round(ci_high, 2), info = message)
-
-
- })
+    # Use helper function to check
+    expect_within_ci(
+        observed = sample_mean,
+        expected = expected_mean,
+        se = sem,
+        center = "expected",
+        level = 0.99,
+        tolerance = 1e-3
+    )
+})
 
 test_that("rpois sample variance approximates the theoretical variance", {
     set.seed(54321)
     sample_size <- 1e6
+
+    # Generate sample
     x <- rpois(n = 4, theta = 0.5, no = sample_size)
 
     # Sample variance
@@ -54,13 +57,14 @@ test_that("rpois sample variance approximates the theoretical variance", {
     # Estimate standard error of the variance using asymptotic formula
     se_var <- sqrt(2 * expected_var^2 / (sample_size - 1))
 
-    # Confidence interval (95%)
-    ci_low <- sample_var - 1.96 * se_var
-    ci_high <- sample_var + 1.96 * se_var
-
-    msg <- paste0("Sample var = ", round(sample_var, 2),
-                  "; Expected = ", round(expected_var, 2),
-                  "; CI = [", round(ci_low, 2), ", ", round(ci_high, 2), "]")
-
-    expect_true(round(expected_var,2) >= round(ci_low, 2) && round(expected_var,2) <= round(ci_high, 2), info = msg)
+    # Use helper function to check
+    expect_within_ci(
+        observed = sample_var,
+        expected = expected_var,
+        se = se_var,
+        center = "expected",
+        level = 0.99,
+        tolerance = 1e-3
+    )
 })
+
