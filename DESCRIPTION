@@ -10,11 +10,14 @@ License: GPL (>= 2)
 Encoding: UTF-8
 NeedsCompilation: yes
 SystemRequirements: 
+    C++14 compiler,
     CLN (>= 1.3.6, https://www.ginac.de/CLN/),
     GiNaC (>= 1.8.3, https://www.ginac.de/Download.html),
     GMP (>= 6.2.0, https://gmplib.org/download/gmp/),
     GNU Make,
-    On Windows: precompiled static libraries and headers are provided under 'inst/libs/x64/' for 64-bit builds (see README for details).
+    On Windows: precompiled static libraries are provided under
+      'inst/extlibs/x64/' for 64-bit builds (see README for details),
+      and include files are also provided under 'inst/include/'.
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 URL: https://github.com/bogdanoancea/finitization
@@ -37,4 +40,3 @@ Collate:
     'log.R'
     'negbinom.R'
     'pois.R'
-    

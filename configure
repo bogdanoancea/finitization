@@ -4,12 +4,25 @@
 
 set -e
 
-ARCH=${R_ARCH}
-if [ -z "$ARCH" ]; then
-  ARCH=$(uname -m)
+# 1. What OS?
+UNAME_S=$(uname -s)
+case "$UNAME_S" in
+  Darwin) OS=macos ;;
+  MINGW*|MSYS*|CYGWIN*) OS=windows ;;
+  Linux) OS=linux ;;
+  *) OS=unknown ;;
+esac
+
+# 2. What arch?
+if [ "$OS" = "windows" ] ; then
+  ARCHDIR=${R_ARCH:-x64}
+elif [ "$OS" = "macos" ] ; then
+  ARCHDIR=$(uname -m)       # arm64 or x86_64
+else
+  ARCHDIR=$(uname -m)
 fi
 
-echo "Detected architecture: $ARCH"
+echo "Configuring for $OS / $ARCHDIR"
 
 CPPFLAGS=""
 LDFLAGS=""
@@ -75,7 +88,7 @@ fi
 
 if [ "$USE_FALLBACK" = "1" ]; then
   CPPFLAGS="-I../inst/include"
-  LDFLAGS="../inst/extlibs/$ARCH/libgmp.a ../extinst/libs/$ARCH/libcln.a ../inst/extlibs/$ARCH/libginac.a"
+  LDFLAGS="../inst/extlibs/$ARCHDIR/libginac.a ../inst/extlibs/$ARCHDIR/libcln.a ../inst/extlibs/$ARCHDIR/libgmp.a"
 fi
 
 # Append C++14 standard to flags

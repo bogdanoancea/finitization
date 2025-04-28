@@ -1,28 +1,3 @@
-CXX_STD=CXX11
-PKG_CXXFLAGS = -I/usr/local/include
-## src/Makevars
-
-ARCH := $(R_ARCH)
-ifeq ($(ARCH),)
-  ARCH := $(shell uname -m)
-endif
-# grab the uname string (will be "Linux", "Darwin", "MINGW64_NT-10.0", etc.)
-UNAME_S := $(shell uname -s)
-
-# On Windows under Rtools, the OS env var is Windows_NT
-ifeq ($(OS),Windows_NT)
-  ## Windows
-	PKG_LIBS = ../inst/libs/$(ARCH)/libcln.lib ../inst/libs/$(ARCH)/libginac.lib ../inst/libs/$(ARCH)/libgmp.lib
-else ifeq ($(UNAME_S),Darwin)
-  ## macOS
-	PKG_LIBS = ../inst/libs/$(ARCH)/libcln.a ../inst/libs/$(ARCH)/libginac.a ../inst/libs/$(ARCH)/libgmp.a
-else ifeq ($(UNAME_S),Linux)
-  ## Linux
-  	PKG_LIBS = ../inst/libs/$(ARCH)/libcln.a ../inst/libs/$(ARCH)/libginac.a ../inst/libs/$(ARCH)/libgmp.a
-endif
-
-#PKG_LIBS = ../inst/libs/$(R_ARCH)/libcln.a ../inst/libs/$(R_ARCH)/libginac.a ../inst/libs/$(R_ARCH)/libgmp.a
-#PKG_LIBS = -L/usr/local/lib  -L/opt/homebrew/lib -lginac -lcln -lgmp
-
-
-#PKG_LIBS += $(shell ${R_HOME}/bin/Rscript -e "RcppParallel::RcppParallelLibs()")
+CXX_STD = CXX14
+PKG_CPPFLAGS = -I../inst/include 
+PKG_LIBS = ../inst/extlibs/x64/libginac.a ../inst/extlibs/x64/libcln.a ../inst/extlibs/x64/libgmp.a 
