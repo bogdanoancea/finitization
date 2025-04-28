@@ -9,9 +9,3 @@
 #' @importFrom Rcpp evalCpp
 "_PACKAGE"
 
-# Called automatically when the package is loaded
-.onLoad <- function(libname, pkgname) {
-    try({
-        initialize_finitization()
-    }, silent = TRUE)
-}
