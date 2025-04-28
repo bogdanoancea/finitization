@@ -13,6 +13,7 @@ echo "Detected architecture: $ARCH"
 
 CPPFLAGS=""
 LDFLAGS=""
+USE_FALLBACK=0
 
 # Utility to filter out unwanted flags
 filter_flags() {
@@ -31,19 +32,50 @@ if command -v pkg-config >/dev/null 2>&1; then
 
     # For linking
     LDFLAGS=$(echo "$PKG_OUTPUT" | tr ' ' '\n' | grep -E '^-L|-l' | tr '\n' ' ')
-    #CPPFLAGS=$(filter_flags "CPPFLAGS")
   else
-    echo "  pkg-config installed but required packages not found. Falling back to bundled libs."
-    USE_FALLBACK=1
+    echo "  pkg-config installed but required packages not found."
+
+    # Special handling for macOS
+    if [ "$(uname)" = "Darwin" ]; then
+      echo "Detected macOS. Attempting to install missing libraries via Homebrew..."
+
+      if ! command -v brew >/dev/null 2>&1; then
+        echo "Error: Homebrew is not installed. Please install Homebrew from https://brew.sh/"
+        echo "Then run: brew install gmp cln ginac"
+        exit 1
+      fi
+
+      brew install gmp cln ginac || {
+        echo "Error: Failed to install GMP, CLN, or GiNaC using Homebrew."
+        echo "Please install them manually:"
+        echo "  brew install gmp cln ginac"
+        exit 1
+      }
+
+      echo "Retrying pkg-config check after Homebrew install..."
+      if pkg-config --exists gmp cln ginac; then
+        echo "  Found GMP, CLN, and GiNaC after Homebrew install."
+        PKG_OUTPUT=$(pkg-config --cflags --libs gmp cln ginac)
+
+        CPPFLAGS=$(echo "$PKG_OUTPUT" | tr ' ' '\n' | grep '^-I' | tr '\n' ' ')
+        LDFLAGS=$(echo "$PKG_OUTPUT" | tr ' ' '\n' | grep -E '^-L|-l' | tr '\n' ' ')
+      else
+        echo "Error: Even after Homebrew install, GMP, CLN, or GiNaC not found."
+        exit 1
+      fi
+    else
+      echo "  Falling back to bundled static libraries."
+      USE_FALLBACK=1
+    fi
   fi
 else
-  echo "pkg-config not available. Falling back to bundled libs."
+  echo "pkg-config not available. Falling back to bundled static libraries."
   USE_FALLBACK=1
 fi
 
 if [ "$USE_FALLBACK" = "1" ]; then
   CPPFLAGS="-I../inst/include"
-  LDFLAGS="../inst/libs/$ARCH/libgmp.a ../inst/libs/$ARCH/libcln.a ../inst/libs/$ARCH/libginac.a"
+  LDFLAGS="../inst/extlibs/$ARCH/libgmp.a ../extinst/libs/$ARCH/libcln.a ../inst/extlibs/$ARCH/libginac.a"
 fi
 
 # Append C++14 standard to flags
