@@ -2,9 +2,12 @@ test_that("pbinom returns a numeric vector when 'val' is provided", {
     vals <- c(0, 2, 4)
     result <- pbinom(n = 4, p = 0.5, N = 4, val = vals, lower.tail = TRUE, log.p = FALSE)
 
-    expect_type(result, "double")
-    expect_equal(length(result), length(vals), info = "Length of result should match number of vals provided")
-    expect_true(all(result >= 0 & result <= 1),
+    expect_s3_class(result, "data.frame")
+    expect_equal(nrow(result), 3, info = "Expected 3 rows for outcomes 0, 2, 4 (n = 4)")
+    expect_equal(length(result$cdf), length(vals), info = "Length of result should match number of vals provided")
+    expect_true(all(c("val", "cdf") %in% names(result)), info = "Data frame should contain 'val' and 'cdf' columns")
+
+    expect_true(all(result$cdf >= 0 & result$cdf <= 1),
                 info = paste("Some probabilities are outside [0, 1]:", toString(result)))
 })
 
