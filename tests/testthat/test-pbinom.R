@@ -25,11 +25,11 @@ test_that("pbinom handles lower.tail correctly", {
     lower <- pbinom(n = 4, p = 0.5, N = 4, val = vals, lower.tail = TRUE, log.p = FALSE)
     upper <- pbinom(n = 4, p = 0.5, N = 4, val = vals, lower.tail = FALSE, log.p = FALSE)
 
-    expect_equal(lower + upper, rep(1, length(lower)),
+    expect_equal(lower$cdf + upper$cdf, rep(1, nrow(lower)),
                  info = paste("Lower + Upper tail probabilities do not sum to 1:",
-                              "\nLower:", toString(lower),
-                              "\nUpper:", toString(upper),
-                              "\nSum:  ", toString(lower + upper)))
+                              "\nLower:", toString(lower$cdf),
+                              "\nUpper:", toString(upper$cdf),
+                              "\nSum:  ", toString(lower$cdf + upper$cdf)))
 })
 
 test_that("pbinom returns log-scale probabilities when log.p is TRUE", {
@@ -37,6 +37,6 @@ test_that("pbinom returns log-scale probabilities when log.p is TRUE", {
     normal_probs <- pbinom(n = 4, p = 0.5, N = 4, val = vals, lower.tail = TRUE, log.p = FALSE)
     log_probs <- pbinom(n = 4, p = 0.5, N = 4, val = vals, lower.tail = TRUE, log.p = TRUE)
 
-    expect_equal(log(normal_probs), log_probs,
+    expect_equal(log(normal_probs$cdf), log_probs$cdf,
                  info = "Log of regular probabilities should match log.p = TRUE output")
 })

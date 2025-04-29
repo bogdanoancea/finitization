@@ -19,10 +19,12 @@ test_that("ppois returns correct lower-tail probabilities for specified val", {
     val <- c(0, 2, 4)
 
     result <- ppois(n = 4, theta = 0.5, val = val, log.p = FALSE, lower.tail = TRUE)
-
-    expect_equal(result, expected, tolerance = 1e-8,
+    expect_s3_class(result, "data.frame")
+    expect_true(all(c("val", "cdf") %in% names(result)),
+                info = "Data frame should contain 'val' and 'cdf' columns")
+    expect_equal(result$cdf, expected, tolerance = 1e-8,
                  info = paste("Lower-tail CDF mismatch:\nExpected:", toString(expected),
-                              "\nGot:", toString(result)))
+                              "\nGot:", toString(result$cdf)))
 })
 
 test_that("ppois returns correct upper-tail probabilities when lower.tail is FALSE", {
@@ -30,10 +32,12 @@ test_that("ppois returns correct upper-tail probabilities when lower.tail is FAL
     val <- c(0, 2, 4)
 
     result <- ppois(n = 4, theta = 0.5, val = val, log.p = FALSE, lower.tail = FALSE)
-
-    expect_equal(result, expected, tolerance = 1e-8,
+    expect_s3_class(result, "data.frame")
+    expect_true(all(c("val", "cdf") %in% names(result)),
+                info = "Data frame should contain 'val' and 'cdf' columns")
+    expect_equal(result$cdf, expected, tolerance = 1e-8,
                  info = paste("Upper-tail probabilities mismatch:\nExpected:", toString(expected),
-                              "\nGot:", toString(result)))
+                              "\nGot:", toString(result$cdf)))
 })
 
 test_that("ppois returns logarithmic cumulative probabilities when log.p is TRUE", {
@@ -41,8 +45,13 @@ test_that("ppois returns logarithmic cumulative probabilities when log.p is TRUE
 
     result_normal <- ppois(n = 4, theta = 0.5, val = val, log.p = FALSE, lower.tail = TRUE)
     result_log    <- ppois(n = 4, theta = 0.5, val = val, log.p = TRUE, lower.tail = TRUE)
-
-    expect_equal(result_log, log(result_normal), tolerance = 1e-8,
+    expect_s3_class(result_normal, "data.frame")
+    expect_s3_class(result_log, "data.frame")
+    expect_true(all(c("val", "cdf") %in% names(result_normal)),
+                info = "Data frame should contain 'val' and 'cdf' columns")
+    expect_true(all(c("val", "cdf") %in% names(result_log)),
+                info = "Data frame should contain 'val' and 'cdf' columns")
+    expect_equal(result_log$cdf, log(result_normal$cdf), tolerance = 1e-8,
                  info = "Logarithmic CDF values should equal log of normal probabilities")
 })
 
