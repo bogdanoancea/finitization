@@ -246,7 +246,8 @@ pbinom <- function(n, p, N, val = NULL, lower.tail = TRUE, log.p = FALSE) {
         cdf_vals <- cum_probs[val + 1]
         if (log.p)
             cdf_vals <- log(cdf_vals)
-        return(cdf_vals)
+        df <- data.frame(val = val, cdf = cdf_vals)
+        return(df)
     } else {
         df <- data.frame(val = seq(0, n), cdf = cum_probs)
         if (log.p)
