@@ -1,10 +1,10 @@
 #!/bin/sh
 # configure script for CRAN-safe fallback static linking of GMP, CLN, and GiNaC
-# with explicit C++14 standard
+# with explicit C++11 for macOS Intel and C++14 otherwise
 
 set -e
 
-# 1. What OS?
+# 1. Detect OS
 UNAME_S=$(uname -s)
 case "$UNAME_S" in
   Darwin) OS=macos ;;
@@ -13,13 +13,11 @@ case "$UNAME_S" in
   *) OS=unknown ;;
 esac
 
-# 2. What arch?
-if [ "$OS" = "windows" ] ; then
+# 2. Detect architecture
+if [ "$OS" = "windows" ]; then
   ARCHDIR=${R_ARCH:-x64}
-elif [ "$OS" = "macos" ] ; then
-  ARCHDIR=$(uname -m)       # arm64 or x86_64
 else
-  ARCHDIR=$(uname -m)
+  ARCHDIR=$(uname -m)   # arm64 or x86_64
 fi
 
 echo "Configuring for $OS / $ARCHDIR"
@@ -28,11 +26,12 @@ CPPFLAGS=""
 LDFLAGS=""
 USE_FALLBACK=0
 
-# Utility to filter out unwanted flags
+# Utility function
 filter_flags() {
   echo "$1" | tr ' ' '\n' | grep -vE '^[-]W$' | tr '\n' ' '
 }
 
+# 3. Try pkg-config
 if command -v pkg-config >/dev/null 2>&1; then
   echo "Using pkg-config to locate libraries..."
 
@@ -48,20 +47,17 @@ if command -v pkg-config >/dev/null 2>&1; then
   else
     echo "  pkg-config installed but required packages not found."
 
-    # Special handling for macOS
-    if [ "$(uname)" = "Darwin" ]; then
+    # Special macOS handling
+    if [ "$OS" = "macos" ]; then
       echo "Detected macOS. Attempting to install missing libraries via Homebrew..."
 
       if ! command -v brew >/dev/null 2>&1; then
-        echo "Error: Homebrew is not installed. Please install Homebrew from https://brew.sh/"
-        echo "Then run: brew install gmp cln ginac"
+        echo "Error: Homebrew is not installed. Install it from https://brew.sh/"
         exit 1
       fi
 
       brew install gmp cln ginac || {
-        echo "Error: Failed to install GMP, CLN, or GiNaC using Homebrew."
-        echo "Please install them manually:"
-        echo "  brew install gmp cln ginac"
+        echo "Error: Failed to install GMP, CLN, or GiNaC with Homebrew."
         exit 1
       }
 
@@ -86,25 +82,35 @@ else
   USE_FALLBACK=1
 fi
 
+# 4. Fallback static linking
 if [ "$USE_FALLBACK" = "1" ]; then
   CPPFLAGS="-I../inst/include"
   LDFLAGS="../inst/extlibs/$ARCHDIR/libginac.a ../inst/extlibs/$ARCHDIR/libcln.a ../inst/extlibs/$ARCHDIR/libgmp.a"
 fi
 
-# Append C++14 standard to flags
+# 5. Decide C++ standard
+if [ "$OS" = "macos" ] && [ "$ARCHDIR" = "x86_64" ]; then
+  CXXSTD="CXX11"
+  echo "Using C++11 standard for macOS Intel."
+else
+  CXXSTD="CXX14"
+  echo "Using C++14 standard."
+fi
+
+# Append detected C++ standard to flags
 CPPFLAGS="$CPPFLAGS $CXX14STD"
 
 # Remove duplicate linker flags
 LDFLAGS=$(echo "$LDFLAGS" | tr ' ' '\n' | awk '!seen[$0]++' | tr '\n' ' ')
 
-# Write Makevars for Unix/macOS
+# 6. Write src/Makevars
 cat <<EOF > src/Makevars
-CXX_STD = CXX14
+CXX_STD = $CXXSTD
 PKG_CPPFLAGS = $CPPFLAGS
 PKG_LIBS = $LDFLAGS
 EOF
 
-# Write Makevars.win for Windows
+# 7. Write src/Makevars.win
 cat <<EOF > src/Makevars.win
 CXX_STD = CXX14
 PKG_CPPFLAGS = $CPPFLAGS
