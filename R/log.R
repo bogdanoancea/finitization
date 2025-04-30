@@ -64,7 +64,7 @@ dlog <- function(n, theta, val = NULL, log = FALSE) {
 #'
 #' @examples
 #' library(finitization)
-#' getLogarithmicMFPS(4)
+#' getLogarithmicMFPS(1)
 #'
 #' @include utils.R
 #' @export

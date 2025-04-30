@@ -56,7 +56,7 @@ test_that("ppois returns logarithmic cumulative probabilities when log.p is TRUE
 })
 
 test_that("ppois returns NULL for invalid val input", {
-    res <- ppois(n = 4, theta = 0.5, val = 5, log.p = FALSE, lower.tail = TRUE)
+    res <- suppressMessages(ppois(n = 4, theta = 0.5, val = 5, log.p = FALSE, lower.tail = TRUE))
 
     expect_null(res, info = "Expected NULL for val = 5, which is outside support for n = 4")
 })

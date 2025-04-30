@@ -64,7 +64,7 @@ test_that("dbinom returns NULL for invalid 'val' input", {
     for (iv in invalid_vals) {
         msg <- paste("Expected NULL for val =", deparse(iv))
         expect_null(
-            dbinom(n = 4, p = 0.15, N = 4, val = iv),
+            suppressMessages(dbinom(n = 4, p = 0.15, N = 4, val = iv)),
             info = msg
         )
     }

@@ -46,6 +46,6 @@ test_that("getPoissonMFPS returns NULL when a non-integer n is provided", {
 
 test_that("getPoissonMFPS returns NULL when n is missing", {
     # When n is missing the function should warn and return NULL.
-    expect_null(getPoissonMFPS())
+    expect_null(suppressMessages(getPoissonMFPS()))
 })
 

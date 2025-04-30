@@ -59,7 +59,7 @@ test_that("pnegbinom returns logarithmic cumulative probabilities when log.p is 
 })
 
 test_that("pnegbinom returns NULL for invalid val input", {
-    res <- pnegbinom(n = 4, q = 0.12, k = 4, val = 5, log.p = FALSE, lower.tail = TRUE)
+    res <- suppressMessages(pnegbinom(n = 4, q = 0.12, k = 4, val = 5, log.p = FALSE, lower.tail = TRUE))
 
     expect_null(res, info = "Expected NULL for val = 5, which is outside support for n = 4")
 })

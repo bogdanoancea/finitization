@@ -67,7 +67,7 @@ test_that("dnegbinom returns NULL for invalid 'val' input", {
     for (iv in invalid_vals) {
         msg <- paste("Expected NULL for val =", deparse(iv))
         expect_null(
-            dnegbinom(n = 4, q = 0.11, k = 4, val = iv),
+            suppressMessages(dnegbinom(n = 4, q = 0.11, k = 4, val = iv)),
             info = msg
         )
     }

@@ -31,7 +31,7 @@ test_that("dpois returns NULL for an invalid 'val' input", {
     for (iv in invalid_vals) {
         msg <- paste("Expected NULL for val =", deparse(iv))
         expect_null(
-            dpois(n = 4, theta = 0.15, val = iv),
+            suppressMessages(dpois(n = 4, theta = 0.15, val = iv)),
             info = msg
         )
     }

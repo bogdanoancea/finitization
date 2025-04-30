@@ -64,7 +64,7 @@ test_that("plog returns log probabilities when log.p = TRUE", {
 test_that("plog returns NULL for invalid val input", {
     n <- 4
     theta <- 0.1
-    res <- plog(n = n, theta = theta, val = 5, log.p = FALSE, lower.tail = TRUE)
+    res <- suppressMessages(plog(n = n, theta = theta, val = 5, log.p = FALSE, lower.tail = TRUE))
 
     expect_null(res, info = "Expected NULL for val = 5, which is outside support for n = 4")
 })

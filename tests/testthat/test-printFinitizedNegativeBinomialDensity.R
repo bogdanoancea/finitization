@@ -36,10 +36,10 @@ test_that("Latex output is generated and symbolic equivalence holds", {
 })
 
 test_that("printFinitizedNegativeBinomialDensity returns no output and NULL for invalid 'val'", {
-    out <- capture.output(res <- printFinitizedNegativeBinomialDensity(n = 2, k = 4, val = 3, latex = TRUE))
+    out <- capture.output(res <- suppressMessages(printFinitizedNegativeBinomialDensity(n = 2, k = 4, val = 3, latex = TRUE)))
     expect_equal(length(out), 0)
-    expect_null(printFinitizedNegativeBinomialDensity(n = 2, k = 4, val = 3, latex = TRUE))
-    out <- capture.output(res <- printFinitizedNegativeBinomialDensity(n = 2, k = 4, val = 3, latex = FALSE))
+    expect_null(suppressMessages(printFinitizedNegativeBinomialDensity(n = 2, k = 4, val = 3, latex = TRUE)))
+    out <- capture.output(res <- suppressMessages(printFinitizedNegativeBinomialDensity(n = 2, k = 4, val = 3, latex = FALSE)))
     expect_equal(length(out), 0)
-    expect_null(printFinitizedNegativeBinomialDensity(n = 2, k = 4, val = 3, latex = FALSE))
+    expect_null(suppressMessages(printFinitizedNegativeBinomialDensity(n = 2, k = 4, val = 3, latex = FALSE)))
 })

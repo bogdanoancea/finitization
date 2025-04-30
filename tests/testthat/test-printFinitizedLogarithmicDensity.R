@@ -13,7 +13,7 @@ test_that("pdf2", {
 
 
 test_that("pdf3", {
-     capture.output(b <- printFinitizedLogarithmicDensity(2,3))
+     capture.output(b <- suppressMessages(printFinitizedLogarithmicDensity(2,3)))
      expect_true(is.null(b))
 })
 
@@ -61,12 +61,12 @@ test_that("Latex output is generated and symbolic equivalence holds", {
 
 
 test_that("pdf3L", {
-    out <- capture.output(res <- printFinitizedLogarithmicDensity(n = 2, val = 3, latex = TRUE))
+    out <- capture.output(res <- suppressMessages(printFinitizedLogarithmicDensity(n = 2, val = 3, latex = TRUE)))
     expect_equal(length(out), 0)
-    expect_null(printFinitizedLogarithmicDensity(n = 2, val = 3, latex = TRUE))
-    out <- capture.output(res <- printFinitizedLogarithmicDensity(n = 2, val = 3, latex = FALSE))
+    expect_null(suppressMessages(printFinitizedLogarithmicDensity(n = 2, val = 3, latex = TRUE)))
+    out <- capture.output(res <- suppressMessages(printFinitizedLogarithmicDensity(n = 2, val = 3, latex = FALSE)))
     expect_equal(length(out), 0)
-    expect_null(printFinitizedLogarithmicDensity(n = 2, val = 3, latex = FALSE))
+    expect_null(suppressMessages(printFinitizedLogarithmicDensity(n = 2, val = 3, latex = FALSE)))
 
 })
 

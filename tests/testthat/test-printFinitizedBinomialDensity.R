@@ -35,7 +35,7 @@ test_that("pdf2", {
 })
 
 test_that("pdf3", {
-  capture.output(expect_equal(printFinitizedBinomialDensity(2,4,3), NULL))
+  capture.output(expect_equal(suppressMessages(printFinitizedBinomialDensity(2,4,3)), NULL))
 })
 
 
@@ -54,12 +54,12 @@ test_that("Latex output is generated and symbolic equivalence holds", {
 })
 
 test_that("pdf3L", {
-    out <- capture.output(res <- printFinitizedBinomialDensity(n = 2, N = 4, val = 3, latex = TRUE))
+    out <- capture.output(res <- suppressMessages(printFinitizedBinomialDensity(n = 2, N = 4, val = 3, latex = TRUE)))
     expect_equal(length(out), 0)
-    expect_null(printFinitizedBinomialDensity(n = 2, N = 4, val = 3, latex = TRUE))
-    out <- capture.output(res <- printFinitizedBinomialDensity(n = 2, N = 4, val = 3, latex = FALSE))
+    expect_null(suppressMessages(printFinitizedBinomialDensity(n = 2, N = 4, val = 3, latex = TRUE)))
+    out <- capture.output(res <- suppressMessages(printFinitizedBinomialDensity(n = 2, N = 4, val = 3, latex = FALSE)))
     expect_equal(length(out), 0)
-    expect_null(printFinitizedBinomialDensity(n = 2, N = 4, val = 3, latex = FALSE))
+    expect_null(suppressMessages(printFinitizedBinomialDensity(n = 2, N = 4, val = 3, latex = FALSE)))
 
 })
 

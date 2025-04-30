@@ -1,12 +1,4 @@
 
-
-test_that("log values 3", {
-    expect_true(is.null(dlog(4,0.2, 5)))
-})
-
-
-
-
 test_that("dlog returns correct densities for n = 2 and theta = 0.4", {
     expected <- data.frame(
         val  = c(0, 1, 2),
@@ -87,7 +79,7 @@ test_that("dlog returns NULL for an invalid 'val' input", {
     for (iv in invalid_vals) {
         msg <- paste("Expected NULL for val =", deparse(iv))
         expect_null(
-            dlog(n = 4, theta = 0.2, val = iv),
+            suppressMessages(dlog(n = 4, theta = 0.2, val = iv)),
             info = msg
         )
     }

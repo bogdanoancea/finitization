@@ -28,7 +28,7 @@ test_that("getBinomialMFPS returns NULL when non-integer values are provided", {
 })
 
 test_that("getBinomialMFPS returns NULL when a required argument is missing", {
-    expect_null(getBinomialMFPS(N = 4), info = "Expected NULL when 'n' is missing")
-    expect_null(getBinomialMFPS(2), info = "Expected NULL when 'N' is missing")
+    expect_null(suppressMessages(getBinomialMFPS(N = 4)), info = "Expected NULL when 'n' is missing")
+    expect_null(suppressMessages(getBinomialMFPS(2)), info = "Expected NULL when 'N' is missing")
 })
 

@@ -47,7 +47,7 @@ test_that("getLogarithmicMFPS returns NULL for non-integer n", {
 
 test_that("getLogarithmicMFPS returns NULL when n is missing", {
     # When n is not provided, the function should return invisible(NULL).
-    expect_null(getLogarithmicMFPS(), info = "Expected NULL when 'n' is missing")
+    expect_null(suppressMessages(getLogarithmicMFPS()), info = "Expected NULL when 'n' is missing")
 })
 
 

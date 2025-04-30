@@ -72,5 +72,5 @@ test_that("qnegbinomial errors when probabilities are outside [0,1]", {
 
 test_that("qnegbinomial returns invisible NULL when a required argument is missing", {
     # For example, omitting q should result in invisible NULL.
-    expect_null(qnegbinom(n = 4, k = 4, p = c(0.5), lower.tail = TRUE, log.p = FALSE))
+    expect_null(suppressMessages(qnegbinom(n = 4, k = 4, p = c(0.5), lower.tail = TRUE, log.p = FALSE)))
 })
