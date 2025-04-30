@@ -168,33 +168,6 @@ rlog <- function(n, theta, no) {
 #'   \item{\code{cdf}}{The corresponding cumulative probabilities (or log-probabilities if \code{log.p = TRUE}).}
 #' }
 #'
-#' @examples
-#' library(finitization)
-#' # Evaluate CDF at specific points
-#' plog(4, 0.1, val = c(0, 2, 4))
-#'
-#' # Full CDF from 0 to 4
-#' plog(4, 0.1)
-#'
-#' # Upper-tail probabilities
-#' #' The cumulative distribution function (CDF) for the finitized Logarithmic distribution.
-#'
-#' \code{plog(n, theta, val, log.p, lower.tail)} computes the CDF for the finitized Logarithmic distribution at specified value(s).
-#'
-#' @param n The finitization order. A positive integer (> 0).
-#' @param theta The parameter of the finitized Logarithmic distribution.
-#' @param val A numeric vector of values at which to compute the CDF.
-#'            If \code{NULL} (default), the function returns the full CDF over all values from \code{0} to \code{n}.
-#' @param log.p Logical; if \code{TRUE}, returns cumulative probabilities on the log scale.
-#' @param lower.tail Logical; if \code{TRUE} (default), probabilities are computed as \eqn{P(X \le x)};
-#'                   if \code{FALSE}, as \eqn{P(X > x)}.
-#'
-#' @return
-#' A \code{data.frame} with the following columns:
-#' \describe{
-#'   \item{\code{val}}{The input values (either the user-supplied \code{val} or \code{0:n}).}
-#'   \item{\code{cdf}}{The corresponding cumulative probabilities (or log-probabilities if \code{log.p = TRUE}).}
-#' }
 #'
 #' @examples
 #' library(finitization)
