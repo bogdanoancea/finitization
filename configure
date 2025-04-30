@@ -1,5 +1,5 @@
 #!/bin/sh
-# configure script for CRAN-safe fallback static linking of GMP, CLN, and GiNaC
+# configure script for CRAN‐safe fallback static linking of GMP, CLN, and GiNaC
 # with explicit C++11 for macOS Intel and C++14 otherwise
 
 set -e
@@ -7,17 +7,24 @@ set -e
 # 1. Detect OS
 UNAME_S=$(uname -s)
 case "$UNAME_S" in
-  Darwin) OS=macos ;;
-  MINGW*|MSYS*|CYGWIN*) OS=windows ;;
-  Linux) OS=linux ;;
-  *) OS=unknown ;;
+  Darwin)   OS=macos ;;
+  MINGW*| MSYS*| CYGWIN*)  OS=windows ;;
+  Linux)    OS=linux ;;
+  *)        OS=unknown ;;
 esac
+
+if [ "$OS" = "macos" ]; then
+  # ensure we target at least 11.0 to match our .a’s LC_VERSION_MIN
+  CPPFLAGS="-mmacosx-version-min=11.0 $CPPFLAGS"
+  LDFLAGS="-mmacosx-version-min=11.0 $LDFLAGS"
+  export CPPFLAGS LDFLAGS
+fi
 
 # 2. Detect architecture
 if [ "$OS" = "windows" ]; then
   ARCHDIR=${R_ARCH:-x64}
 else
-  ARCHDIR=$(uname -m)   # arm64 or x86_64
+  ARCHDIR=$(uname -m)  # arm64 or x86_64
 fi
 
 echo "Configuring for $OS / $ARCHDIR"
@@ -26,95 +33,84 @@ CPPFLAGS=""
 LDFLAGS=""
 USE_FALLBACK=0
 
-# Utility function
-filter_flags() {
-  echo "$1" | tr ' ' '\n' | grep -vE '^[-]W$' | tr '\n' ' '
-}
-
 # 3. Try pkg-config
 if command -v pkg-config >/dev/null 2>&1; then
-  echo "Using pkg-config to locate libraries..."
-
+  echo "Using pkg-config to locate GMP, CLN, and GiNaC..."
   if pkg-config --exists gmp cln ginac; then
-    echo "  Found GMP, CLN, and GiNaC"
-    PKG_OUTPUT=$(pkg-config --cflags --libs gmp cln ginac)
-
-    # For compiling
-    CPPFLAGS=$(echo "$PKG_OUTPUT" | tr ' ' '\n' | grep '^-I' | tr '\n' ' ')
-
-    # For linking
-    LDFLAGS=$(echo "$PKG_OUTPUT" | tr ' ' '\n' | grep -E '^-L|-l' | tr '\n' ' ')
+    PKG_FLAGS=$(pkg-config --cflags --libs gmp cln ginac)
+    CPPFLAGS=$(echo "$PKG_FLAGS" | awk '{ for(i=1;i<=NF;i++) if ($i ~ /^-I/) printf "%s ", $i }')
+    LDFLAGS=$(echo "$PKG_FLAGS" | awk '{ for(i=1;i<=NF;i++) if ($i ~ /^-L|^-l/) printf "%s ", $i }')
   else
-    echo "  pkg-config installed but required packages not found."
-
-    # Special macOS handling
+    echo "Required pkg-config packages not found."
     if [ "$OS" = "macos" ]; then
-      echo "Detected macOS. Attempting to install missing libraries via Homebrew..."
-
-      if ! command -v brew >/dev/null 2>&1; then
-        echo "Error: Homebrew is not installed. Install it from https://brew.sh/"
-        exit 1
-      fi
-
-      brew install gmp cln ginac || {
-        echo "Error: Failed to install GMP, CLN, or GiNaC with Homebrew."
-        exit 1
-      }
-
-      echo "Retrying pkg-config check after Homebrew install..."
-      if pkg-config --exists gmp cln ginac; then
-        echo "  Found GMP, CLN, and GiNaC after Homebrew install."
-        PKG_OUTPUT=$(pkg-config --cflags --libs gmp cln ginac)
-
-        CPPFLAGS=$(echo "$PKG_OUTPUT" | tr ' ' '\n' | grep '^-I' | tr '\n' ' ')
-        LDFLAGS=$(echo "$PKG_OUTPUT" | tr ' ' '\n' | grep -E '^-L|-l' | tr '\n' ' ')
+      echo "macOS detected: attempting Homebrew install..."
+      if command -v brew >/dev/null 2>&1; then
+        if brew install gmp cln ginac; then
+          echo "Homebrew install succeeded; retrying pkg-config..."
+          if pkg-config --exists gmp cln ginac; then
+            PKG_FLAGS=$(pkg-config --cflags --libs gmp cln ginac)
+            CPPFLAGS=$(echo "$PKG_FLAGS" | awk '{ for(i=1;i<=NF;i++) if ($i ~ /^-I/) printf "%s ", $i }')
+            LDFLAGS=$(echo "$PKG_FLAGS" | awk '{ for(i=1;i<=NF;i++) if ($i ~ /^-L|^-l/) printf "%s ", $i }')
+          else
+            echo "pkg-config still cannot find libraries after brew."
+            USE_FALLBACK=1
+          fi
+        else
+          echo "brew install failed; falling back to static libraries."
+          USE_FALLBACK=1
+        fi
       else
-        echo "Error: Even after Homebrew install, GMP, CLN, or GiNaC not found."
-        exit 1
+        echo "Homebrew not installed; falling back to static libraries."
+        USE_FALLBACK=1
       fi
     else
-      echo "  Falling back to bundled static libraries."
+      echo "Non‐macOS or no package manager: falling back to static libraries."
       USE_FALLBACK=1
     fi
   fi
 else
-  echo "pkg-config not available. Falling back to bundled static libraries."
+  echo "pkg-config not available; falling back to static libraries."
   USE_FALLBACK=1
 fi
 
 # 4. Fallback static linking
-if [ "$USE_FALLBACK" = "1" ]; then
+if [ "$USE_FALLBACK" -eq 1 ]; then
+  echo "Using bundled static libraries."
   CPPFLAGS="-I../inst/include"
-  LDFLAGS="../inst/extlibs/$ARCHDIR/libginac.a ../inst/extlibs/$ARCHDIR/libcln.a ../inst/extlibs/$ARCHDIR/libgmp.a"
+  LDFLAGS="../inst/extlibs/$ARCHDIR/libginac.a \
+           ../inst/extlibs/$ARCHDIR/libcln.a  \
+           ../inst/extlibs/$ARCHDIR/libgmp.a"
 fi
 
-# 5. Decide C++ standard
+# 5. Decide which C++ standard to ask R to use
 if [ "$OS" = "macos" ] && [ "$ARCHDIR" = "x86_64" ]; then
   CXXSTD="CXX11"
-  echo "Using C++11 standard for macOS Intel."
+  echo "  Will request C++11 on macOS Intel"
 else
   CXXSTD="CXX14"
-  echo "Using C++14 standard."
+  echo "  Will request C++14 elsewhere"
 fi
 
-# Append detected C++ standard to flags
-CPPFLAGS="$CPPFLAGS $CXX14STD"
+# Append C++ standard flag
+CPPFLAGS="$CPPFLAGS $STD_FLAG"
 
-# Remove duplicate linker flags
-LDFLAGS=$(echo "$LDFLAGS" | tr ' ' '\n' | awk '!seen[$0]++' | tr '\n' ' ')
+# Dedupe linker flags
+LDFLAGS=$(printf "%s\n" $LDFLAGS | awk '!seen[$0]++' | tr '\n' ' ')
 
 # 6. Write src/Makevars
-cat <<EOF > src/Makevars
+cat > src/Makevars <<EOF
 CXX_STD = $CXXSTD
 PKG_CPPFLAGS = $CPPFLAGS
 PKG_LIBS = $LDFLAGS
 EOF
 
 # 7. Write src/Makevars.win
-cat <<EOF > src/Makevars.win
-CXX_STD = CXX14
+cat > src/Makevars.win <<EOF
+CXX_STD = $CXXSTD
 PKG_CPPFLAGS = $CPPFLAGS
 PKG_LIBS = $LDFLAGS
 EOF
 
-echo "Configuration complete. Flags: $CPPFLAGS $LDFLAGS"
+echo "Configuration complete."
+echo "  CPPFLAGS: $CPPFLAGS"
+echo "  LDFLAGS:  $LDFLAGS"
