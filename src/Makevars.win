@@ -1,3 +1,3 @@
 CXX_STD = CXX14
-PKG_CPPFLAGS = -I../inst/include 
-PKG_LIBS = ../inst/extlibs/x64/libginac.a ../inst/extlibs/x64/libcln.a ../inst/extlibs/x64/libgmp.a 
+PKG_CPPFLAGS =  -I/mingw64/include -U_GLIBCXX_HAVE_QUICK_EXIT -U_GLIBCXX_HAVE_AT_QUICK_EXIT -D__MINGW32__
+PKG_LIBS     = -L/mingw64/lib -lginac -lcln -lgmp

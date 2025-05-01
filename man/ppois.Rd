@@ -7,28 +7,39 @@
 ppois(n, theta, val = NULL, log.p = FALSE, lower.tail = TRUE)
 }
 \arguments{
-\item{n}{The finitization order. An integer > 0.}
+\item{n}{The finitization order. A positive integer (> 0).}
 
-\item{theta}{The parameter of the finitized Poisson distribution.}
+\item{theta}{The mean parameter of the finitized Poisson distribution.}
 
-\item{val}{A vector of values at which the CDF is computed. If \code{NULL},
-a data frame containing all possible values (0, 1, ..., n) and their cumulative probabilities is returned.}
+\item{val}{A numeric vector of values at which to compute the CDF.
+If \code{NULL} (default), the function returns the full CDF over the entire support (0, 1, ..., n).}
 
-\item{log.p}{Logical; if TRUE, the cumulative probabilities are returned on the logarithmic scale.}
+\item{log.p}{Logical; if \code{TRUE}, returns cumulative probabilities on the log scale.}
 
-\item{lower.tail}{Logical; if TRUE (default) probabilities are calculated as \eqn{P(X \le x)}; if FALSE, as \eqn{P(X > x)}.}
+\item{lower.tail}{Logical; if \code{TRUE} (default), probabilities are calculated as \eqn{P(X \le x)}.
+If \code{FALSE}, returns upper-tail probabilities \eqn{P(X > x)}.}
 }
 \value{
-If \code{val} is provided, a numeric vector of cumulative probabilities (or their logarithms if \code{log.p = TRUE})
-is returned. Otherwise, a \code{data.frame} with columns \code{val} and \code{cdf} is returned.
+A \code{data.frame} with columns:
+\describe{
+\item{\code{val}}{The evaluated values (input \code{val} or the full range \code{0:n}).}
+\item{\code{cdf}}{The corresponding cumulative probabilities (or log-probabilities if \code{log.p = TRUE}).}
+}
 }
 \description{
-\code{ppois(n, theta, val, log.p, lower.tail)} computes the CDF for the finitized Poisson distribution at the given value(s).
+\code{ppois(n, theta, val, log.p, lower.tail)} computes the CDF for the finitized Poisson distribution at specified value(s).
 }
 \examples{
-# For a finitized Poisson distribution with n = 4 and theta = 0.5:
+# Compute CDF at specific values
 ppois(n = 4, theta = 0.5, val = c(0, 2, 4))
-ppois(n = 4, theta = 0.5, log.p = TRUE)
+
+# Compute full CDF over range 0 to 4
+ppois(n = 4, theta = 0.5)
+
+# Upper-tail probabilities
 ppois(n = 4, theta = 0.5, val = c(0, 2, 4), lower.tail = FALSE)
+
+# Log-scale cumulative probabilities
+ppois(n = 4, theta = 0.5, log.p = TRUE)
 
 }

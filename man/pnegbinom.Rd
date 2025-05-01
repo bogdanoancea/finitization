@@ -7,30 +7,42 @@
 pnegbinom(n, q, k, val = NULL, log.p = FALSE, lower.tail = TRUE)
 }
 \arguments{
-\item{n}{The finitization order. An integer > 0.}
+\item{n}{The finitization order. A positive integer (> 0).}
 
-\item{q}{The success probability for each trial (\eqn{q \in [0,1]}).}
+\item{q}{The success probability for each trial (\eqn{0 \le q \le 1}).}
 
-\item{k}{The number of failures until the experiment is stopped, \code{k > 0}.}
+\item{k}{The target number of failures before stopping; a positive integer.}
 
-\item{val}{A vector with the values at which the CDF is computed. If \code{NULL},
-a data frame containing all possible values (0, 1, ..., n) and their cumulative probabilities is returned.}
+\item{val}{A numeric vector of values at which to compute the CDF.
+If \code{NULL} (default), the function returns the full CDF over all possible outcomes (0, 1, ..., n).}
 
-\item{log.p}{Logical; if TRUE, the cumulative probabilities are returned on the logarithmic scale.}
+\item{log.p}{Logical; if \code{TRUE}, returns cumulative probabilities on the log scale.}
 
-\item{lower.tail}{Logical; if TRUE (default) probabilities are calculated as \eqn{P(X \le x)}; if FALSE, as \eqn{P(X > x)}.}
+\item{lower.tail}{Logical; if \code{TRUE} (default), probabilities are computed as \eqn{P(X \le x)};
+if \code{FALSE}, as \eqn{P(X > x)}.}
 }
 \value{
-If \code{val} is provided, a numeric vector of cumulative probabilities (or their logarithms if \code{log.p = TRUE}) is returned.
-Otherwise, a \code{data.frame} with columns \code{val} and \code{cdf} is returned.
+A \code{data.frame} with two columns:
+\describe{
+\item{\code{val}}{The input values (either specified \code{val} or the full sequence from \code{0} to \code{n}).}
+\item{\code{cdf}}{The corresponding cumulative probabilities (or log-probabilities if \code{log.p = TRUE}).}
+}
 }
 \description{
-\code{pnegbinom(n, q, k, val, log.p, lower.tail)} computes the CDF for the finitized Negative Binomial distribution at the given value(s).
+\code{pnegbinom(n, q, k, val, log.p, lower.tail)} computes the CDF for the finitized Negative Binomial distribution at specified value(s).
 }
 \examples{
 library(finitization)
+# Compute CDF at specific values
 pnegbinom(4, 0.12, 4, val = c(0, 2, 4))
-pnegbinom(4, 0.12, 4, log.p = TRUE)
+
+# Compute full CDF over range 0 to 4
+pnegbinom(4, 0.12, 4)
+
+# Upper-tail probabilities
 pnegbinom(4, 0.12, 4, val = c(0, 2, 4), lower.tail = FALSE)
+
+# Log-scale cumulative probabilities
+pnegbinom(4, 0.12, 4, log.p = TRUE)
 
 }

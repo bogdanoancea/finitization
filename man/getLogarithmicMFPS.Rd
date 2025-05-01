@@ -17,6 +17,6 @@ A vector with two elements where the first element is the lower limit and the se
 }
 \examples{
 library(finitization)
-getLogarithmicMFPS(4)
+getLogarithmicMFPS(1)
 
 }

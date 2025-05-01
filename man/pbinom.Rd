@@ -7,30 +7,43 @@
 pbinom(n, p, N, val = NULL, lower.tail = TRUE, log.p = FALSE)
 }
 \arguments{
-\item{n}{The finitization order. An integer > 0.}
+\item{n}{The finitization order. A positive integer (> 0).}
 
 \item{p}{The success probability for each trial (0 <= p <= 1).}
 
 \item{N}{The number of trials.}
 
-\item{val}{A vector of values at which the CDF is computed. If \code{NULL},
-a data frame containing all possible values (from 0 to n) and the corresponding cumulative probabilities is returned.}
+\item{val}{A numeric vector of values at which the CDF is computed.
+If \code{NULL} (default), the function returns the full CDF over all possible outcomes (0, 1, ..., n).}
 
-\item{lower.tail}{Logical; if TRUE (default) probabilities are computed as \eqn{P(X \le x)}; if FALSE, as \eqn{P(X > x)}.}
+\item{lower.tail}{Logical; if \code{TRUE} (default), probabilities are \eqn{P(X \le x)};
+if \code{FALSE}, probabilities are \eqn{P(X > x)}.}
 
-\item{log.p}{Logical; if TRUE, the cumulative probabilities are returned on the logarithmic scale.}
+\item{log.p}{Logical; if \code{TRUE}, returns cumulative probabilities on the log scale.}
 }
 \value{
-If \code{val} is provided, a numeric vector of cumulative probabilities (or their logarithms if \code{log.p = TRUE}) is returned.
-Otherwise, a \code{data.frame} with columns \code{val} and \code{cdf} is returned.
+If \code{val} is provided, a \code{data.frame} with two columns:
+\describe{
+\item{\code{val}}{The input values.}
+\item{\code{cdf}}{The corresponding cumulative probabilities (or log-probabilities if \code{log.p = TRUE}).}
+}
+If \code{val} is \code{NULL}, a \code{data.frame} with all possible values (0, ..., n) and their cumulative probabilities is returned.
 }
 \description{
-\code{pbinom(n, p, N, val, lower.tail, log.p)} computes the CDF for the finitized Binomial distribution at the given value(s).
+\code{pbinom(n, p, N, val, lower.tail, log.p)} computes the CDF for the finitized Binomial distribution at specified value(s).
 }
 \examples{
 library(finitization)
+# CDF evaluated at specific points
 pbinom(4, 0.5, 4, val = c(0, 2, 4))
+
+# Full CDF over all values (0 to 4)
+pbinom(4, 0.5, 4)
+
+# CDF upper tail (P(X > x))
 pbinom(4, 0.5, 4, lower.tail = FALSE)
+
+# CDF on log scale
 pbinom(4, 0.5, 4, log.p = TRUE)
 
 }
