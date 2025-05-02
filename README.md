@@ -27,14 +27,73 @@ brew install gmp cln ginac pkg-config
 
 > Ensure that Homebrew’s `bin` and `lib` paths are visible to the compiler (especially when using RStudio).
 
-### 🔹 Windows
-There is currently no automated installation for Windows. You need to:
+### 🔹 Windows  (RTools44 + MSYS2)
+1. **Install RTools44**  
+   Download and run the installer from  
+   https://cran.r-project.org/bin/windows/Rtools/
 
-1. Install **Rtools**: [https://cran.r-project.org/bin/windows/Rtools/](https://cran.r-project.org/bin/windows/Rtools/)
-2. Manually install and build static versions of GMP, CLN, and GiNaC (e.g. via MSYS2 or build from source).
-3. Ensure headers and libraries are discoverable via environment variables or placed where Rtools will find them.
+2. **Open the “MSYS2 MinGW 64‑bit” shell**  
+   From the Start menu → MSYS2 → MSYS2 MinGW 64‑bit
 
-> If you are unfamiliar with building C/C++ libraries on Windows, we recommend using WSL (Windows Subsystem for Linux) or building the package on Linux/macOS.
+3. **Update the package database and install the toolchain + pkgconf**  
+   ```bash
+   pacman -Sy
+   pacman -S --needed \
+     mingw-w64-x86_64-toolchain \
+     pkgconf
+   ```
+
+4. **Install GMP**  
+   ```bash
+   pacman -S --needed \
+     mingw-w64-x86_64-gmp
+   ```
+
+5. **Download, compile and install CLN and GiNaC**  
+   CLN and GiNaC are not available via pacman; follow the instructions on their websites:  
+   - **CLN (Class Library for Numbers):** https://www.ginac.de/cln  
+   - **GiNaC (GiNaC is Not a CAS):** https://www.ginac.de  
+
+   Example (adjust versions as needed):  
+   ```bash
+   # CLN
+   curl -LO https://www.ginac.de/cln-1.3.8.tar.gz
+   tar xf cln-1.3.8.tar.gz
+   cd cln-1.3.8
+   ./configure --prefix=/mingw64
+   make
+   make install
+
+   # GiNaC
+   curl -LO https://www.ginac.de/ginac-1.9.2.tar.gz
+   tar xf ginac-1.9.2.tar.gz
+   cd ginac-1.9.2
+   ./configure --prefix=/mingw64
+   make
+   make install
+   ```
+
+6. **Make sure R sees the compilers**  
+   In your R session (or add to your `~/.Renviron`):
+   ```r
+   Sys.setenv(PATH = paste(
+     "C:/rtools44/mingw64/bin",
+     Sys.getenv("PATH"),
+     sep = ";"
+   ))
+   ```
+
+7. **Build & install the package**  
+   From your package root (in a cmd prompt or MSYS2 shell):
+   ```bash
+   R CMD build .
+   R CMD INSTALL finitization_*.tar.gz
+   ```
+
+> Once the toolchain, `pkgconf`, GMP headers & libraries, and CLN/GiNaC are installed, you can install **finitization** exactly as on Linux or macOS.  
+> If you encounter missing header or symbol errors, confirm that `/mingw64/include` and `/mingw64/lib` are on your compiler’s search path.  
+> You may also use `devtools::install()` from within R for convenience.
+> **Alternatively**, you can skip building CLN and GiNaC yourself: the package ships with precompiled static libraries and headers.  Use the `inst/include` directory for headers and `inst/extlibs/<arch>` for the `.a` files when compiling on Windows.
 
 ---
 
