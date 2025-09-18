@@ -32,7 +32,8 @@ Imports:
 Suggests: 
     testthat (>= 3.0.0),
     knitr,
-    rmarkdown
+    rmarkdown,
+    tibble
 VignetteBuilder: knitr
 LinkingTo: Rcpp
 Config/testthat/edition: 3

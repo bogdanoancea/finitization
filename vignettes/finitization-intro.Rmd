@@ -227,7 +227,6 @@ In contrast, the NTSF (Negative Taylor Series Finitization) method which we will
 Table 1 presents 4 distributions and their 2nd order finitized distributions using the partial sum finitization method.
 ```{r, echo=FALSE, results="asis"}
 library(knitr)
-library(tibble)
 
 tab1 <- tibble::tibble(
   Distribution = c(
