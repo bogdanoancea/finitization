@@ -41,6 +41,7 @@ Collate:
     'utils.R'
     'binom.R'
     'finitization.R'
+    'get_n.R'
     'log.R'
     'negbinom.R'
     'pois.R'

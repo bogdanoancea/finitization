@@ -2,7 +2,18 @@
 title: "Introduction to finitization"
 author: "Bogdan Oancea"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    theme: cosmo   # <-- only here, nowhere else
+  pdf_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+bibliography: finitization.bib     # <-- point to your .bib
+link-citations: true               # <-- optional (auto-links cites)
 vignette: >
   %\VignetteIndexEntry{Introduction to finitization}
   %\VignetteEngine{knitr::rmarkdown}
@@ -72,14 +83,392 @@ Finitized distributions provide a practical approach to generating random variat
 
 
 ## Finitization of Power Series Family of Probability Distributions
+## What is finitization?
 
-## The finitization concept
+This vignette offers a concise theoretical overview of finitization, highlighting its central
+ideas and main applications. Readers interested in the full mathematical development,
+comprehensive proofs, and extended examples are encouraged to consult the core references in
+the literature [@golnabi2009finitizing; @levy2012moment; @levy2019application;
+@cochran2013matching; @kirtland2018application].
 
-## Properties of finitized probability distributions
+Finitization is a probabilistic method that transforms a discrete distribution—most often a member of the power series family such as Poisson, negative binomial, binomial, or logarithmic—into a new distribution with finite support of a specified size. Unlike simple truncation, which conditions the original distribution on a restricted domain, finitization constructs an alternative distribution whose first *n* moments coincide with those of the parent distribution (a property known as *moment preservation*) [@levy2012moment; @golnabi2009finitizing]. This makes finitization particularly attractive when one wishes to model real-world situations where the assumption of infinite support is unrealistic but maintaining the original distribution’s moment structure is essential. By doing so, finitization not only provides a mathematically principled way to approximate infinite-support models but also enables more efficient random variate generation in simulation studies [@levy2019application].
+
 
 ## Usage of finitized probability distributions
+Finitized distributions are especially useful in contexts where the phenomenon being modeled has a natural upper bound. Examples include[@levy2012moment]:
 
-## Finitized Poisson distribution
+- **Airplane seating:**  
+  Suppose an airplane has \(n\) seats, all prepurchased. The number of passengers arriving at
+  the gate cannot exceed \(n\). A standard Poisson distribution allows for arbitrarily large
+  counts, which is unrealistic. An order-\(n\) finitized Poisson correctly restricts the support
+  to \(\{0,1,\dots,n\}\).
+  
+- **Book publisher:**  
+  Consider a publisher producing textbooks with roughly \(n\) words per page. Traditionally,
+  the number of misprints per page is modeled as Poisson with a small mean. However, the
+  number of errors cannot exceed the number of words per page. A finitized Poisson of order \(n\)
+  better reflects this bounded nature.
+  
+In each case, the standard Poisson or other infinite-support distributions would assign positive probability to impossible outcomes, while a finitized counterpart avoids this problem without distorting key moment properties.
+
+
+Another area where finitization can be used is in **random variate generation**. Simulation methods such as *aliasing* (efficient for discrete distributions with finite support) become applicable once the
+distribution is finitized. This can substantially accelerate random variate generation while
+preserving a close fit to the parent distribution.
+ 
+
+The critical distinction from truncation is that truncation conditions on the event \( X \leq n \), which alters all the moments in unpredictable ways and can misrepresent the underlying process [@golnabi2009finitizing]. Finitization, by contrast, produces a new distribution defined on \(\{0,1,\ldots,n\}\) that preserves the first *n* moments of the original model. This moment-preserving property makes finitization superior when both realistic bounded support and fidelity to the original statistical structure are required [@levy2019application].
+
+It is important to distinguish finitization from truncation:
+
+```{r, echo=FALSE, message=FALSE}
+library(knitr)
+
+comparison <- data.frame(
+  Feature = c("Definition", "Support", "Moment preservation",
+              "Statistical behavior", "Simulation efficiency", "Interpretation"),
+  Truncation = c("Condition on X ≤ n",
+                 "{0,1,…,n}",
+                 "No – all moments are altered",
+                 "Distorted relative to parent distribution",
+                 "No special advantage",
+                 "Reweighted version of parent distribution"),
+  Finitization = c("Construct new distribution on {0,…,n}",
+                   "{0,1,…,n}",
+                   "Yes – first n moments preserved",
+                   "Consistent with parent distribution",
+                   "Enables fast aliasing method",
+                   "Faithful bounded analog of parent distribution")
+)
+
+kable(comparison, format = "markdown", align = "l")
+```
+
+## Two Finitization Methods: PSF and NTSF
+
+### Power Series Distributions (PSDs)
+
+A random variable \(X\) has a *power series distribution* (PSD) if its pmf can be written
+\[
+f(x\mid\theta)=\Pr(X=x\mid\theta)=\frac{a_x\,\theta^x}{\eta(\theta)},\quad x=0,1,\ldots,\ \theta>0,
+\tag{1}
+\]
+with \(a_x\ge 0\) and normalizing function \(\eta(\theta)=\sum_{x=0}^{\infty} a_x\,\theta^x\). Equivalently,
+\[
+f(x\mid\theta)=a_x\,\theta^x\,\tau(\theta),\qquad \tau(\theta)=\eta(\theta)^{-1}.
+\tag{2}
+\]
+Canonical examples include the Poisson, binomial, negative binomial, and logarithmic distributions [@golnabi2009finitizing].
+
+The unit sum for \(f_n\) is stated by the following theorem:
+
+*Theorem 1 (unit-sum)*
+
+Let \(\theta\) be such that \(f_n(x\mid \theta)>0\) for all \(x=0,\ldots,n\). Then \(\sum_{x=0}^n f_n(x\mid \theta)=1\).
+
+*Sketch.* Write \(\tau(\theta)=\sum_{j=0}^{\infty} b_j \theta^j\). Since \(\eta(\theta)\tau(\theta)\equiv 1\), equating coefficients yields
+\(c_0=1\) and \(c_k=0\) for \(k\ge 1\), where \(c_k=\sum_{j=0}^{k} a_j b_{k-j}\). Hence
+\[
+\sum_{x=0}^{n} f_n(x\mid \theta)
+=\sum_{x=0}^{n} a_x \theta^x \sum_{j=0}^{n-x} b_j \theta^j
+=\sum_{k=0}^{n} c_k \theta^k
+= c_0 = 1.
+\]
+
+For details and the full proof see Golnabi, Levy, and Cochran (2009) [@golnabi2009finitizing].
+
+This means that with some restrictions on the parameter \(\theta\) we can ensure that \(f_n(x\mid \theta)>0\) for all \(x=0,\ldots,n\) and it sums to 1 which makes \(f_n\) a pdf.
+
+If the parent PSD has infinite support, finitization creates a new distribution supported only on  
+\(\{0,1,\dots,n\}\). The **partial sum finitization (PSF)** of order \(n\) is defined as
+
+\[
+f_n(x \mid \theta) \;=\; a_x \theta^x \, \tau_n(\theta, x), 
+\quad x = 0, 1, \dots, n,
+\]
+
+where  
+
+\[
+\tau_n(\theta, x) = \sum_{j=0}^{n-x} b_j \theta^j
+\]
+
+is the **partial sum** of the power series expansion of \(\tau(\theta)\) up to the \((n-x)\)-th term.  
+
+By construction,
+
+\[
+\sum_{x=0}^n f_n(x \mid \theta) = 1,
+\]
+
+so \(f_n(x \mid \theta)\) is a valid probability mass function under mild parameter restrictions
+(which ensure nonnegativity of the finitized probabilities).  
+
+
+For a PSD random variable \(X\) with pmf in (1)–(2), the **moment generating function** (mgf)  is
+\[
+M_X(t)=\frac{\eta(\theta e^t)}{\eta(\theta)}=\eta(\theta e^t)\,\tau(\theta)=\frac{\tau(\theta)}{\tau(\theta e^t)},
+\] [@golnabi2009finitizing].
+
+Expanding \(\eta(\theta e^t)\tau(\theta)\) gives
+\[
+m_X(t)=\sum_{k=0}^{\infty} \theta^k \sum_{x=0}^{k} a_x\, b_{k-x}\, e^{t x}.
+\]
+For the order-\(n\) finitized variable \(X^{*}\) (with pmf \(f_n\) above), the mgf can be written the partial sum
+\[
+m_{X^{*}}(t)=\sum_{k=0}^{n} \theta^k \sum_{x=0}^{k} a_x\, b_{k-x}\, e^{t x},
+\]
+i.e., the first \(n\!+\!1\) terms of \(m_X(t)\) from which we can compute the first \(n\) moments of \(X^{*}\). [@golnabi2009finitizing]. 
+With the exception of the Poisson case—where the finitization coincides with the parent
+distribution up to the first \(n\) moments—the finitization obtained by the PSD (partial sum)
+method generally does **not** preserve the first \(n\) moments of other distributions.
+In contrast, the NTSF (Negative Taylor Series Finitization) method which we will introduce in the next sections, guarantees that the first \(n\) moments of the finitized distribution match those of the parent distribution for all members of the power series family.
+
+Table 1 presents 4 distributions and their 2nd order finitized distributions using the partial sum finitization method.
+```{r, echo=FALSE, results="asis"}
+library(knitr)
+library(tibble)
+
+tab1 <- tibble::tibble(
+  Distribution = c(
+    "Poisson (θ)",
+    "Negative binomial (k=2, θ)",
+    "Binomial (N=4, p), θ = p/(1-p)",
+    "Logarithmic (θ)"
+  ),
+  `Pdf` = c(
+    "$f(x)=\\frac{\\theta^x e^{-\\theta}}{x!}$",
+    "$f(x)=(x+1)\\theta^x(1-\\theta)^2$",
+    "$f(x)=\\binom{4}{x}\\frac{\\theta^x}{(1+\\theta)^4}$",
+    "$f(x)=\\frac{\\theta^x}{x+1}\\cdot\\frac{\\theta}{-\\ln(1-\\theta)}$"
+  ),
+  `Series for τ(θ)` = c(
+    "$e^{-\\theta}=1-\\theta+\\theta^2/2-\\theta^3/6+\\cdots$",
+    "$1-2\\theta+\\theta^2$",
+    "$1-4\\theta+10\\theta^2-20\\theta^3+35\\theta^4+\\cdots$",
+    "$1-\\theta/2-\\theta^2/12-\\theta^3/24-19\\theta^4/720+\\cdots$"
+  ),
+  `Finitized pdf (order 2)` = c(
+    "$f_2(0)=1-\\theta+\\theta^2/2$, $f_2(1)=\\theta(1-\\theta)$, $f_2(2)=\\theta^2/2$",
+    "$f_2(0)=1-2\\theta+\\theta^2$, $f_2(1)=2\\theta(1-2\\theta)$, $f_2(2)=3\\theta^2$",
+    "$f_2(0)=1-4\\theta+10\\theta^2$, $f_2(1)=4\\theta(1-4\\theta)$, $f_2(2)=6\\theta^2$",
+    "$f_2(0)=1-\\theta/2-\\theta^2/12$, $f_2(1)=\\tfrac{\\theta}{2}(1-\\theta/2)$, $f_2(2)=\\theta^2/3$"
+  ),
+  `Parameter restriction` = c(
+    "$0<\\theta=\\lambda\\le 1$",
+    "$0<2\\theta=\\lambda\\le 1$",
+    "$0<4\\theta=\\lambda\\le 1$",
+    "$0<\\theta/2=\\lambda\\le 1/2$"
+  )
+)
+
+kable(tab1, escape = FALSE,
+      caption = "Table 1. Common PSDs and their finitized pdfs of order 2 (after Golnabi, Levy & Cochran, 2009).")
+```
+
+
+ **Note:** The logarithmic distribution shown in Table 1 (see also [@golnabi2009finitizing]) is a slightly modified version of the standard logarithmic distribution: its support is shifted back to start at \(x=0\), whereas the standard log-series distribution has support \(x=1,2,\ldots\). 
+
+
+### Finitization via the Negative Taylor Series Method (NTSF)
+
+The **Negative Taylor Series Method** (NTSF) provides an alternative to the partial sum
+finitization (PSF). Both aim to transform a distribution from the **power series family** (PSD)
+into a finitized version with finite support \(\{0,1,\dots,n\}\).  
+The difference is that the NTSF starts from a **Negative Taylor Series Distribution (NTSD)**
+representation, which has advantageous moment-preserving properties.
+
+---
+
+#### From Taylor expansion to a discrete distribution
+
+Let \(\delta(x)\) be a smooth function (continuous at 0 and infinitely differentiable on
+\((-c, c)\) for some \(c > 0\)). For constants \(a\) and \(b\) such that \(a+b \in (-c,c)\), we have
+the Taylor expansion
+
+\[
+\delta(a+b) = \delta(a) + \frac{\delta'(a)}{1!}b
++ \frac{\delta^{(2)}(a)}{2!}b^2
++ \cdots + \frac{\delta^{(k)}(a)}{k!}b^k + \cdots.
+\]
+
+Now set \(a = -\lambda\) and \(b = \lambda\), with \(\lambda > 0\).
+If \(\delta^{(k)}(-\lambda) \geq 0\) for all \(k\), t
+
+\[
+\delta(0) = \delta(-\lambda) 
++ \delta'(-\lambda)\lambda 
++ \frac{\delta^{(2)}(-\lambda)}{2!}\lambda^2 
++ \cdots
+\]
+
+which gives a distribution with support over the nonnegative integers and a pdf / pmf
+
+\[
+g(k) = \frac{\delta^{(k)}(-\lambda)}{k!}\,\lambda^k, \quad k = 0,1,2,\dots
+\]
+
+which satisfies \(\sum_{k=0}^\infty g(k) = \delta(0) = 1\).  
+The random variable \(X\) with pmf \(g(k)\) is called a **Negative Taylor Series Distribution (NTSD)**.
+
+Its **moment generating function (mgf)** is
+
+\[
+m_X(t) = \sum_{k=0}^\infty \frac{\delta^{(k)}(-\lambda)}{k!}\,(\lambda e^t)^k
+= \delta\!\left(\lambda(e^t - 1)\right).
+\]
+
+---
+
+#### Finitizing the NTSD
+
+To finitize, truncate the Maclaurin expansion of the NTSD base function:
+
+\[
+\delta(x) = \sum_{k=0}^\infty d_k x^k, \quad d_k = \frac{\delta^{(k)}(0)}{k!}, \; d_k \geq 0.
+\]
+
+The **order \(n\) finitized base function** is
+
+\[
+\delta_n(x) = \sum_{k=0}^n d_k x^k.
+\]
+
+Using this finitized base function, we define the **NTSF(n) distribution**:
+
+\[
+g_n(k) = \frac{\delta_n^{(k)}(-\lambda)}{k!}\,\lambda^k, 
+\quad k = 0,1,\dots,n.
+\]
+
+Here, \(\delta_n^{(k)}(-\lambda)\) denotes the \(k\)-th derivative of \(\delta_n(x)\) evaluated at \(-\lambda\).
+By construction, \(\sum_{k=0}^n g_n(k) = 1\), so \(g_n\) is a valid pmf under suitable parameter
+restrictions.
+
+---
+
+#### Moment preservation property
+
+The mgf of the NTSD is
+
+\[
+m_X(t) = \delta\!\left(\lambda(e^t - 1)\right)
+= d_0 + d_1\lambda(e^t-1) + d_2[\lambda(e^t-1)]^2 + \cdots.
+\]
+
+The mgf of the finitized version is obtained by truncating after the \(n\)-th term:
+
+\[
+m_{X^{(n)}}(t) = d_0 + d_1\lambda(e^t-1) + d_2[\lambda(e^t-1)]^2 + \cdots + d_n[\lambda(e^t-1)]^n.
+\]
+
+Thus, \(m_{X^{(n)}}(t)\) matches the first \(n\) terms of \(m_X(t)\).  
+By differentiation, it follows that **the first \(n\) moments of the finitized distribution equal
+those of the parent distribution**:
+
+\[
+E\!\left[(X^{(n)})^r\right] = E\!\left[X^r\right], \quad r=1,2,\dots,n.
+\]
+
+---
+
+#### Comparison with PSF
+
+- In **PSF**, finitization preserves moments only in special cases (notably the Poisson).  
+- In **NTSF**, the moment preservation result is **general**: for any PSD, the first \(n\) moments
+of the NTSF(n) match those of the parent distribution.  
+- For the Poisson distribution, PSF and NTSF give the same finitized distribution.  
+- For other PSDs (e.g., negative binomial, logarithmic), the two methods differ.
+
+
+This makes NTSF a powerful and general finitization approach with strong theoretical guarantees.
+
+Table 2 show the finitization of the same distributions as those presented in Table 1 but this time using the NTFS method. One can easily note that only the finitization of the Poisson distribution is the same.
+
+```{r, echo=FALSE, results="asis"}
+library(knitr)
+library(tibble)
+
+
+tab2 <- tibble::tibble(
+  Distribution = c(
+    "Poisson($\\lambda$)",
+    "Negative binomial (k=2, q)",
+    "Binomial (N=4, p)",
+    "Logarithmic($\\theta$)"
+  ),
+  `mgf  ` = c(
+    "$e^{\\lambda(e^t - 1)}$",
+    "$\\left( \\tfrac{p}{1 - q e^t} \\right)^2$",
+    "$\\left( \\tfrac{q + p e^t}{q} \\right)^4$",
+    "$\\tfrac{\\ln(1 - \\theta e^t)}{\\ln(1 - \\theta)}$"
+  ),
+  `NTSD base function δ(x)` = c(
+    "$e^x$",
+    "$(1 - x/p)^{-2}$",
+    "$(1 + x)^4$",
+    "$\\tfrac{\\ln(1 - \\theta - x)}{\\ln(1 - \\theta)}$"
+  ),
+  `NTSF(2) base function δ₂(x)` = c(
+    "$1 + x + \\tfrac{x^2}{2}$",
+    "$1 + \\tfrac{2x}{p} + \\tfrac{3x^2}{p^2}$",
+    "$1 + 4x + 6x^2$",
+    "$1 + x\\left(\\tfrac{1}{\\theta} - \\tfrac{1}{\\ln(1-\\theta)}\\right) + x^2\\left( \\tfrac{1}{(1-\\theta)^2} - \\tfrac{1}{2\\theta} + \\tfrac{1}{2(\\ln(1-\\theta))^2} \\right)$"
+  ),
+  `Finitized pdf f₂(x)` = c(
+    "$f_2(0)=1-\\lambda+\\tfrac{\\lambda^2}{2}$<br>$f_2(1)=\\lambda(1-\\lambda)$<br>$f_2(2)=\\tfrac{\\lambda^2}{2}$",
+    "$f_2(0)=\\tfrac{1-4q+6q^2}{(1-q)^2}$<br>$f_2(1)=\\tfrac{2q(4q-1)}{(1-q)^2}$<br>$f_2(2)=\\tfrac{3q^2}{(1-q)^2}$",
+    "$f_2(0)=1-4p+6p^2$<br>$f_2(1)=4p(1-3p)$<br>$f_2(2)=6p^2$",
+    "$f_2(0)=\\tfrac{4-5\\theta+6\\theta^2}{2\\theta \\ln(1-\\theta)}$<br>$f_2(1)=\\tfrac{4\\theta-3\\theta^2}{2\\theta \\ln(1-\\theta)}$<br>$f_2(2)=\\tfrac{2-3\\theta+2\\theta^2}{2\\theta \\ln(1-\\theta)}$"
+  ),
+  `Parameter restriction` = c(
+    "$0 < \\lambda \\leq 1$",
+    "$0 < q \\leq 1/4$",
+    "$0 < p \\leq 1/3$",
+    "$0 < \\theta \\leq 0.440423$"
+  )
+)
+
+kable(tab2, format = "markdown", align = "l", caption = "Table 2. Common PSDs and their finitized pdfs of order 2 using the NTFS method")
+```
+
+## Maximum Feasible Parameter Space (MFPS)
+
+When constructing finitized distributions, not every parameter value from the parent distribution leads to a valid probability distribution. For a finitization of order \(n\), the probabilities must remain nonnegative and sum to one. This naturally restricts the parameter space of the parent power series distribution (PSD). The largest subset of the parameter space that yields a valid finitized distribution is called the *Maximum Feasible Parameter Space* (MFPS) [@golnabi2009finitizing; @levy2012moment; @levy2019application].
+
+### Why MFPS is Necessary
+
+Without enforcing MFPS constraints, the finitized pmf may assign negative probabilities, violating the axioms of probability. For example, while the classical Poisson distribution admits any \(\lambda > 0\), its finitized counterpart only produces a valid pmf when \(0 < \lambda \leq 1\), regardless of the finitization order [@golnabi2009finitizing]. For other PSDs, the admissible range is more complex and depends explicitly on the finitization order \(n\).
+
+### How to Compute MFPS
+
+Formally, the MFPS of a finitized distribution of order \(n\) is the largest interval \((\theta_{\min}, \theta_{\max}]\) such that all finitized probabilities are nonnegative and sum to one [@levy2019application].
+
+- The **upper bound** \(\theta_{\max}\) is obtained by solving  
+  \[
+  g_n(n-1 \mid \theta) = 0,
+  \]  
+  where \(g_n\) is the finitized pmf. The largest positive root gives the admissible upper bound.  
+
+- The **lower bound** \(\theta_{\min}\) is determined by examining when finitized probabilities near the lower edge of the support first reach zero. In many PSDs (Poisson, Binomial, Negative Binomial) this bound is simply 0, since probabilities remain valid for arbitrarily small positive parameters. For the logarithmic distribution, however, the lower bound can be strictly positive and depends on the finitization order (see [@levy2019application] for proofs and demonstrations).
+
+### Properties of MFPS
+
+- **Feasibility guarantee:** MFPS ensures that the finitized distribution is a proper pdf (all probabilities nonnegative, summing to 1).
+- **Order dependence:** For distributions such as the negative binomial or logarithmic, the MFPS upper bound decreases as the finitization order \(n\) increases.
+- **Monotonicity:** For most PSDs, the MFPS shrinks as \(n\) increases. The exception is the Poisson distribution, whose MFPS remains constant across all orders.
+- **Stability for Poisson:** The Poisson case is simple and stable, since the MFPS remains fixed at \([0,1]\).
+- **Impact on modeling:** When selecting finitization order \(n\), one must ensure that the parameter values of interest lie within the MFPS.
+
+### Example: Poisson and Logarithmic Distributions
+
+- **Poisson:** For all orders \(n\), the MFPS is \(\lambda \in (0,1]\). This restriction is often natural in applications: if the mean count exceeds 1, one can rescale to a smaller time unit (e.g., accidents per day instead of accidents per week) to satisfy the condition [@golnabi2009finitizing].  
+- **Logarithmic:** The MFPS depends on the finitization order. For instance, with order \(n=4\), the admissible range for \(\theta\) is approximately \((0.00012,\,0.2397)\), with the upper bound decreasing as \(n\) increases [@levy2019application].
+
+---
+
+In summary, MFPS is a central concept in finitization: it specifies the parameter values for which finitized distributions are mathematically valid. For rigorous proofs, derivations, and additional examples across the PSD family, the reader is referred to [@golnabi2009finitizing], [@levy2012moment], and [@levy2019application].
+
 
 ## Finitized Negative Binomial distribution
 
