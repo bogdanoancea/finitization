@@ -28,61 +28,16 @@ knitr::opts_chunk$set(
   fig.height = 4
 )
 ```
-
-# What is a finitized distribution?
-
-The `finitization` package introduces finitized versions of classical discrete probability distributions.
-These versions preserve a given number of moments (e.g., the first 3–5) while allowing for faster random variate generation.
-
-## Basic usage
-
-Load the package:
-
-```{r}
-library(finitization)
-```
-
-## Generate samples from a finitized binomial distribution:
-
-```{r}
-set.seed(123)
-#sample <- rbinom(n = 5, p = 0.4, order = 3, size = 1000)
-#hist(sample, breaks = 20, main = "Finitized Binomial Sample", col = "lightblue")
-```
-
-## Compare it with the standard binomial distribution:
-
-```{r}
-standard <- stats::rbinom(1000, size = 5, prob = 0.4)
-hist(standard, breaks = 20, main = "Standard Binomial Sample", col = "salmon")
-```
-
-You can use similar functions for other distributions:
-- `rfinitized_pois()`
-- `rfinitized_negbinom()`
-- `rfinitized_log()`
-
-## Summary statistics
-
-```{r}
-#mean(sample)
-#var(sample)
-```
-
-## Visual comparison
-
-```{r}
-#plot(density(standard), col = "red", lwd = 2, main = "Density Comparison")
-#lines(density(sample), col = "blue", lwd = 2)
-#legend("topright", legend = c("Standard", "Finitized"), col = c("red", "blue"), lwd = 2)
-```
-
-## Conclusion
-
-Finitized distributions provide a practical approach to generating random variates that approximate key distributional properties efficiently. They are particularly useful in simulation scenarios where performance matters and exact fidelity to all moments is not critical.
+# Introduction
 
 
-## Finitization of Power Series Family of Probability Distributions
+The **finitization** package provides tools for computing finitized versions of several well-known members of the *power series family* (PSDs), including the Poisson, binomial, negative binomial, and logarithmic distributions. Finitization is a probabilistic method that transforms a discrete distribution—often one with infinite support—into a new distribution with finite support of specified order *n*. Unlike truncation, which conditions the original distribution, finitization constructs a new distribution that (under parameter restrictions) preserves the first *n* moments of the parent distribution [@golnabi2009finitizing; @levy2012moment].  
+
+This vignette is organized into two main parts. First, we provide a **theoretical review** of the finitization concept, describing the underlying families of distributions, the main methods of finitization (PSF and NTSF), and key results such as the maximum feasible parameter space (MFPS). Second, we present a **tutorial** on using the package, including installation, functions for computing finitized probability mass functions and random variates, and practical guidance for choosing the finitization order *n*. This structure allows the reader to both understand the mathematical background and apply the package effectively in practice.
+
+
+# Finitization of Power Series Family of Probability Distributions
+
 ## What is finitization?
 
 This vignette offers a concise theoretical overview of finitization, highlighting its central
@@ -468,6 +423,100 @@ Formally, the MFPS of a finitized distribution of order \(n\) is the largest int
 
 In summary, MFPS is a central concept in finitization: it specifies the parameter values for which finitized distributions are mathematically valid. For rigorous proofs, derivations, and additional examples across the PSD family, the reader is referred to [@golnabi2009finitizing], [@levy2012moment], and [@levy2019application].
 
+
+# Installing the `finitization` Package
+Ah, I see the confusion 🙂 — you want everything (both the explanatory text and the code) written directly in R Markdown style, not just code fences sprinkled into plain text. Here is the whole section again, properly structured as Rmd (you can drop this straight into your vignette .Rmd file):
+
+## Installing the `finitization` Package
+
+
+
+
+
+The `finitization` package is available on CRAN and can be installed with a single command:
+
+```{r}
+install.packages("finitization")
+
+After installation, load the package as usual:
+
+library(finitization)
+
+
+⸻
+
+External Dependencies
+
+The package relies on three external C++ libraries:
+	•	CLN (Class Library for Numbers): https://www.ginac.de/CLN/
+	•	GiNaC (GiNaC is Not a CAS): https://www.ginac.de/
+	•	GMP (GNU Multiple Precision Arithmetic Library): https://gmplib.org/
+
+These libraries are required because finitization involves symbolic series expansions and
+moment-preserving transformations that need arbitrary-precision arithmetic (CLN, GMP) and
+symbolic computation (GiNaC). Without them, the numerical accuracy and algebraic
+manipulations required by finitization would not be feasible.
+
+⸻
+
+Platform Notes
+
+Linux (Debian/Ubuntu)
+
+Install the required libraries from the system package manager:
+
+sudo apt-get update
+sudo apt-get install -y libgmp-dev libcln-dev libginac-dev pkg-config
+
+macOS (Homebrew)
+
+brew install gmp cln ginac pkg-config
+
+Windows
+
+On Windows, the package ships with precompiled static libraries for GMP, CLN, and GiNaC
+(under inst/extlibs/). This allows installation without manual compilation.
+
+If you want to build from source with RTools + MSYS2, CLN and GiNaC can be compiled manually
+from their official websites. Precompiled .a libraries and headers are provided for convenience.
+
+⸻
+
+Building from Source
+
+To build from the GitHub development version:
+
+git clone https://github.com/bogdanoancea/finitization.git
+cd finitization
+R CMD build .
+R CMD INSTALL finitization_0.1.0.tar.gz
+
+Or directly from R with devtools:
+
+# install.packages("devtools")
+devtools::install_github("bogdanoancea/finitization")
+
+
+⸻
+
+Hints for Successful Installation
+	•	Ensure that pkg-config is installed and visible to the compiler.
+	•	Confirm that CLN and GiNaC headers (e.g., /usr/include or /mingw64/include) and libraries
+(e.g., /usr/lib or /mingw64/lib) are on the compiler’s search path.
+	•	On Windows, if you encounter “missing header” or “unresolved symbol” errors, check that the
+package is correctly picking up the static libraries shipped with it (inst/extlibs).
+	•	Most users will not need to worry about these details, since the CRAN version uses static
+linking on Windows and macOS, and system package managers handle dependencies on Linux.
+
+⸻
+
+In summary, CRAN installation should work out of the box on all platforms. Manual configuration
+is required only when compiling from source on Linux or when building custom versions of CLN and
+GiNaC on Windows.
+
+This is now fully in **Rmd** style: narrative text is plain Markdown, and commands are in fenced chunks with language tags (`{r}`, `{bash}`).  
+
+👉 Do you also want me to prepend a **vignette header** (YAML with `title`, `author`, `output: rmarkdown::html_vignette`) so it compiles as a self-contained vignette section?
 
 ## Finitized Negative Binomial distribution
 
