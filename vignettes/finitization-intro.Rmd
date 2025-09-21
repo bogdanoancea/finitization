@@ -425,98 +425,98 @@ In summary, MFPS is a central concept in finitization: it specifies the paramete
 
 
 # Installing the `finitization` Package
-Ah, I see the confusion 🙂 — you want everything (both the explanatory text and the code) written directly in R Markdown style, not just code fences sprinkled into plain text. Here is the whole section again, properly structured as Rmd (you can drop this straight into your vignette .Rmd file):
-
-## Installing the `finitization` Package
-
-
-
-
 
 The `finitization` package is available on CRAN and can be installed with a single command:
 
-```{r}
+```{r, eval=FALSE}
 install.packages("finitization")
+```
 
 After installation, load the package as usual:
 
+```{r, message=FALSE}
 library(finitization)
+```
 
+---
 
-⸻
-
-External Dependencies
+## External Dependencies
 
 The package relies on three external C++ libraries:
-	•	CLN (Class Library for Numbers): https://www.ginac.de/CLN/
-	•	GiNaC (GiNaC is Not a CAS): https://www.ginac.de/
-	•	GMP (GNU Multiple Precision Arithmetic Library): https://gmplib.org/
+
+- **CLN (Class Library for Numbers):** <https://www.ginac.de/CLN/>  
+- **GiNaC (GiNaC is Not a CAS):** <https://www.ginac.de/>  
+- **GMP (GNU Multiple Precision Arithmetic Library):** <https://gmplib.org/>  
 
 These libraries are required because finitization involves symbolic series expansions and
-moment-preserving transformations that need arbitrary-precision arithmetic (CLN, GMP) and
-symbolic computation (GiNaC). Without them, the numerical accuracy and algebraic
+moment-preserving transformations that need **arbitrary-precision arithmetic** (CLN, GMP) and
+**symbolic computation** (GiNaC). Without them, the numerical accuracy and algebraic
 manipulations required by finitization would not be feasible.
 
-⸻
+---
 
-Platform Notes
+## Platform Notes
 
-Linux (Debian/Ubuntu)
+### Linux (Debian/Ubuntu)
 
 Install the required libraries from the system package manager:
 
+```{bash, eval=FALSE}
 sudo apt-get update
 sudo apt-get install -y libgmp-dev libcln-dev libginac-dev pkg-config
+```
 
-macOS (Homebrew)
+### macOS (Homebrew)
 
+```{bash, eval=FALSE}
 brew install gmp cln ginac pkg-config
+```
 
-Windows
+### Windows
 
-On Windows, the package ships with precompiled static libraries for GMP, CLN, and GiNaC
-(under inst/extlibs/). This allows installation without manual compilation.
+On Windows, the package ships with **precompiled static libraries** for GMP, CLN, and GiNaC
+(under `inst/extlibs/`). This allows installation without manual compilation.
 
-If you want to build from source with RTools + MSYS2, CLN and GiNaC can be compiled manually
-from their official websites. Precompiled .a libraries and headers are provided for convenience.
+If you want to build from source with **RTools + MSYS2**, CLN and GiNaC can be compiled manually
+from their official websites. Precompiled `.a` libraries and headers are provided for convenience.
 
-⸻
+---
 
-Building from Source
+## Building from Source
 
 To build from the GitHub development version:
 
+```{bash, eval=FALSE}
 git clone https://github.com/bogdanoancea/finitization.git
 cd finitization
 R CMD build .
 R CMD INSTALL finitization_0.1.0.tar.gz
+```
 
-Or directly from R with devtools:
+Or install directly from R using **devtools**:
 
+```{r, eval=FALSE}
 # install.packages("devtools")
 devtools::install_github("bogdanoancea/finitization")
+```
 
+---
 
-⸻
+## Hints for Successful Installation
 
-Hints for Successful Installation
-	•	Ensure that pkg-config is installed and visible to the compiler.
-	•	Confirm that CLN and GiNaC headers (e.g., /usr/include or /mingw64/include) and libraries
-(e.g., /usr/lib or /mingw64/lib) are on the compiler’s search path.
-	•	On Windows, if you encounter “missing header” or “unresolved symbol” errors, check that the
-package is correctly picking up the static libraries shipped with it (inst/extlibs).
-	•	Most users will not need to worry about these details, since the CRAN version uses static
-linking on Windows and macOS, and system package managers handle dependencies on Linux.
+- Ensure that **pkg-config** is installed and visible to the compiler.  
+- Confirm that CLN and GiNaC headers (e.g., `/usr/include` or `/mingw64/include`) and libraries
+  (e.g., `/usr/lib` or `/mingw64/lib`) are on the compiler’s search path.  
+- On Windows, if you encounter “missing header” or “unresolved symbol” errors, check that the
+  package is correctly picking up the static libraries shipped with it (`inst/extlibs`).  
+- Most users will not need to worry about these details, since the CRAN version uses static
+  linking on Windows and macOS, and system package managers handle dependencies on Linux.  
 
-⸻
+---
 
 In summary, CRAN installation should work out of the box on all platforms. Manual configuration
 is required only when compiling from source on Linux or when building custom versions of CLN and
 GiNaC on Windows.
-
-This is now fully in **Rmd** style: narrative text is plain Markdown, and commands are in fenced chunks with language tags (`{r}`, `{bash}`).  
-
-👉 Do you also want me to prepend a **vignette header** (YAML with `title`, `author`, `output: rmarkdown::html_vignette`) so it compiles as a self-contained vignette section?
 
 ## Finitized Negative Binomial distribution
 
