@@ -432,7 +432,7 @@ The `finitization` package is available on CRAN and can be installed with a sing
 install.packages("finitization")
 ```
 
-After installation, load the package as usual:
+After installation, the package can be loaded as usual:
 
 ```{r, message=FALSE}
 library(finitization)
@@ -476,9 +476,7 @@ brew install gmp cln ginac pkg-config
 
 On Windows, the package ships with **precompiled static libraries** for GMP, CLN, and GiNaC
 (under `inst/extlibs/`). This allows installation without manual compilation.
-
-If you want to build from source with **RTools + MSYS2**, CLN and GiNaC can be compiled manually
-from their official websites. Precompiled `.a` libraries and headers are provided for convenience.
+When building from source with **RTools** and **MSYS2**, CLN and GiNaC may be compiled manually from their official websites. Precompiled `.a` libraries and headers are also available for convenience.
 
 ---
 
@@ -504,13 +502,10 @@ devtools::install_github("bogdanoancea/finitization")
 
 ## Hints for Successful Installation
 
-- Ensure that **pkg-config** is installed and visible to the compiler.  
-- Confirm that CLN and GiNaC headers (e.g., `/usr/include` or `/mingw64/include`) and libraries
-  (e.g., `/usr/lib` or `/mingw64/lib`) are on the compiler’s search path.  
-- On Windows, if you encounter “missing header” or “unresolved symbol” errors, check that the
-  package is correctly picking up the static libraries shipped with it (`inst/extlibs`).  
-- Most users will not need to worry about these details, since the CRAN version uses static
-  linking on Windows and macOS, and system package managers handle dependencies on Linux.  
+- The **pkg-config** utility must be present and available to the compiler.
+- Header files and libraries for CLN and GiNaC (e.g., under `/usr/include`, `/usr/lib`, or `/mingw64/include`, `/mingw64/lib`) must be accessible on the compiler’s search path.
+- On Windows, potential errors such as “missing header” or “unresolved symbol” typically indicate that the build process is not detecting the static libraries distributed with the package (`inst/extlibs`).
+- In general, manual configuration is not required, since the CRAN version links statically on Windows, and macOS and Linux distributions handle dependencies through system package managers.
 
 ---
 
@@ -518,7 +513,338 @@ In summary, CRAN installation should work out of the box on all platforms. Manua
 is required only when compiling from source on Linux or when building custom versions of CLN and
 GiNaC on Windows.
 
-## Finitized Negative Binomial distribution
+# Finitized Negative Binomial distribution
+
+This section shows how to work with the finitized Negative Binomial distribution provided by
+`finitization`. The finitization order is `n` (support `0:n`), the success probability per trial is `q`,
+and `k > 0` is the number of failures until stopping.
+
+The classical negative binomial distribution models the number of failures before
+a fixed number of successes, with support on all nonnegative integers. In practice, many systems
+impose a natural upper bound (e.g., a finite number of trials). The finitized version restricts
+the support to `{0,1, ... ,n}` while preserving the first `n` moments of the parent distribution.
+
+The finitized negative binomial is particularly useful in scenarios such as:
+
+- modeling the number of infection events in epidemiology when only a finite number of trials
+  can occur
+- bounded population studies where counts cannot exceed a fixed capacity
+- or simulation studies where efficient random variate generation is required.
+
+In what follows we present a series of examples that demonstrate how to use the finitized
+negative binomial distribution functions implemented in the `finitization` package. We cover
+the probability mass function (PMF), cumulative distribution function (CDF), quantiles,
+random variate generation, as well as utilities for extracting finitization coefficients
+and displaying the density in closed form.
+
+```{r}
+library(finitization)
+
+# Parameters for the examples
+n <- 5     # finitization order -> support {0, 1, ..., 5}
+q <- 0.10   # success probability per trial. Be careful when choosing q to be inside MFPS
+k <- 2      # number of failures until the experiment stops
+x <- 0:n
+```
+
+## 1) PMF — `dnegbinom()`
+
+## 1) PMF — `dnegbinom()`
+
+The function `dnegbinom()` returns the probability mass function (PMF) of the finitized
+negative binomial distribution. When the argument `val` is set to `NULL`, the function
+produces the complete PMF over the finite support \(\{0,1,\dots,n\}\). Alternatively,
+specific probability values can be obtained by supplying a vector of evaluation points
+through `val`. For numerical stability and applications requiring likelihood calculations,
+logarithmic probabilities can be returned by specifying `log = TRUE`.
+
+```{r}
+# Full PMF table over 0:n
+pmf_tbl <- dnegbinom(n, q, k)       # val = NULL -> full table
+head(pmf_tbl)
+
+# PMF at selected points
+d_points <- dnegbinom(n, q, k, val = c(0, 3, 5))
+d_points
+
+# Log-PMF for numerical work
+d_log <- dnegbinom(n, q, k, val = 0:3, log = TRUE)
+d_log
+```
+
+## 2) CDF — `pnegbinom()`
+
+The function `pnegbinom()` evaluates the cumulative distribution function (CDF) of the
+finitized negative binomial distribution. By default, it returns lower-tail probabilities
+\(\Pr(X \leq x)\) for values in \(\{0,1,\dots,n\}\). Setting `lower.tail = FALSE`
+instead yields upper-tail probabilities \(\Pr(X > x)\), while the option `log.p = TRUE`
+returns logarithmic probabilities, which may be advantageous in cases of very small tail
+probabilities.
+
+```{r}
+# Full CDF table over 0:n
+cdf_tbl <- pnegbinom(n, q, k)
+head(cdf_tbl)
+
+# Lower-tail CDF at a few points
+p_lo <- pnegbinom(n, q, k, val = c(2, 3, 5))
+p_lo
+
+# Upper-tail probabilities (P[X > x])
+p_hi <- pnegbinom(n, q, k, val = c(2, 3, 5), lower.tail = FALSE)
+p_hi
+```
+
+## 3) Quantiles — `qnegbinom()`
+
+The function `qnegbinom()` provides the quantile function (inverse CDF) of the finitized
+negative binomial distribution. Given a probability level \(p\), it returns the smallest
+integer \(x \in \{0,\dots,n\}\) such that \(\Pr(X \leq x) \geq p\). The arguments
+`lower.tail` and `log.p` control whether probabilities are interpreted in the lower- or
+upper-tail sense and whether they are supplied on the log scale, respectively. This
+function is particularly useful for simulation studies, where random draws may be generated
+via inversion.
+
+```{r}
+# Median and 90th percentile
+q_med_90 <- qnegbinom(n, q, k, p = c(0.5, 0.9))
+q_med_90
+
+# Upper-tail quantile example
+q_upper10 <- qnegbinom(n, q, k, p = 0.1, lower.tail = FALSE)
+q_upper10
+```
+
+## 4) Random generation — `rnegbinom()`
+
+The function `rnegbinom()` generates random variates from the finitized negative binomial
+distribution on the finite support \(\{0,1,\dots,n\}\). The argument `no` specifies the
+number of independent draws to produce. This functionality is essential for Monte Carlo
+experiments and simulation studies, where one may wish to examine the finite-sample
+properties of estimators or to benchmark statistical procedures under finitized models.
+
+
+```{r}
+set.seed(42)
+no  <- 5e4
+r   <- rnegbinom(n, q, k, no)
+
+# Compare empirical frequencies with the theoretical PMF
+freq <- table(factor(r, levels = x)) / no
+cbind(x = x, pmf = pmf_tbl$prob, emp = as.numeric(freq))[0:5, ]
+```
+
+```{r}
+# Quick visual check
+plot(x, pmf_tbl$prob, type = "h", lwd = 2, xlab = "x", ylab = "Probability",
+     main = "Finitized NB: PMF vs empirical frequencies")
+points(x, as.numeric(freq), pch = 16)
+legend("topright", bty = "n", legend = c("PMF", "Empirical"), pch = c(NA, 16), lty = c(1, NA))
+```
+
+## 5) Maximum Feasible Parameter Space — `getNegativeBinomialMFPS()`
+
+The function `getNegativeBinomialMFPS()` determines the boundaries of the maximum feasible
+parameter space (MFPS) for the finitized negative binomial distribution. The MFPS specifies
+the admissible range of parameter values (in particular for \(k\)) that guarantee the
+resulting probability mass function remains nonnegative and normalized to one. Ensuring that
+the chosen parameters lie within the MFPS is therefore essential for obtaining a valid
+probability distribution under finitization.
+
+```{r}
+mfps <- getNegativeBinomialMFPS(n, k)
+length(mfps); head(mfps)
+```
+
+## 6) Closed-form display — `printFinitizedNegativeBinomialDensity()`
+
+The function `printFinitizedNegativeBinomialDensity()` prints the finitized negative
+binomial density in a symbolic, human-readable form. Optionally, evaluation points may be
+supplied through the argument `val`, and setting `latex = TRUE` produces an expression
+suitable for inclusion in LaTeX documents. This functionality facilitates the communication
+of finitization results in teaching materials, presentations, and publications.
+
+```{r}
+printFinitizedNegativeBinomialDensity(n, k)
+printFinitizedNegativeBinomialDensity(n, k, val = c(0, 1, 2))
+printFinitizedNegativeBinomialDensity(n, k, latex = TRUE)
+```
+
+---
+
+## 7) Validation and Diagnostics
+
+To ensure the correctness of the finitized negative binomial implementation, it is useful
+to carry out a series of diagnostic checks. These include verification of the normalization
+of the probability mass function (PMF), consistency between the cumulative distribution
+function (CDF) and the cumulative sum of the PMF, monotonicity of the CDF, the accuracy of
+the quantile function through inversion tests, and finally, agreement between theoretical
+moments derived from the PMF and empirical moments obtained from simulated random draws.
+The following code illustrates these diagnostic procedures in practice.
+
+```{r}
+# PMF/CDF from the finitized NB
+pmf <- dnegbinom(n, q, k)                 
+cdf <- pnegbinom(n, q, k)
+
+# 1) Normalization of PMF
+norm_err <- abs(sum(pmf$density) - 1)
+norm_err
+
+# 2) CDF consistency
+cdf_from_pmf <- cumsum(pmf$density)
+cdf_diff_max <- max(abs(cdf_from_pmf - cdf$cdf))
+cdf_diff_max
+
+# 3) Monotonicity of the CDF
+is_monotone <- all(diff(cdf$cdf) >= -1e-12)
+is_monotone
+
+# 4) Quantile inversion check
+p_vec <- c(0.01, 0.10, 0.25, 0.5, 0.9, 0.99)
+q_inv <- qnegbinom(n, q, k, p = p_vec)
+check_q_ok <- mapply(function(p, qx) {
+  lhs <- cdf$cdf[qx + 1L]                  
+  rhs <- if (qx > 0) cdf$cdf[qx] else 0    
+  (lhs + 1e-12 >= p) && (rhs + 1e-12 < p)
+}, p_vec, q_inv)
+cbind(p = p_vec, q = q_inv, ok = check_q_ok)
+
+# 5) Simulation vs. PMF moments
+set.seed(123)
+no <- 1e5
+r  <- rnegbinom(n, q, k, no)
+
+mu_th  <- sum(x * pmf$prob)
+var_th <- sum((x - mu_th)^2 * pmf$prob)
+
+mu_emp  <- mean(r)
+var_emp <- var(r)
+
+cbind(theoretical = c(mean = mu_th, var = var_th),
+      empirical    = c(mean = mu_emp, var = var_emp))
+
+```
+## 8) Moment preservation for the finitized Negative Binomial
+
+In the following, we compare the first `n` moments of the finitized negative binomial
+distribution with those of its parent distribution. The classical negative binomial distribution
+is obtained using the `stats` package in R. Since the `finitization` package and the `stats`
+implementation adopt different parameterizations, a conversion is required to ensure comparability.
+
+In the finitization framework, the parameter `q` represents the probability of success per trial,
+and `k` denotes the number of failures until stopping. In contrast, in `stats::dnbinom`, the
+parameterization is defined in terms of the number of successes (`size = k`) and the success
+probability (`prob`). To reconcile the two conventions, the mapping
+
+\[
+\texttt{size} = k, \quad \texttt{prob} = 1 - q
+\]
+
+must be applied.
+
+This alignment of parameter definitions allows for a consistent evaluation of the
+moment-preserving property of finitization, as illustrated in the accompanying code.
+
+
+```{r}
+library(finitization)
+
+# Parameters
+n <- 5              # finitization order -> claims: first n moments preserved
+q <- 0.10           # success probability per trial (package convention)
+k <- 2              # number of failures until stopping (package convention)
+x <- 0:n            # finite support of the finitized NB
+
+# Parent NB in 'stats' uses: size = k (successes), prob = 1 - q (success probability)
+size_parent <- k
+prob_parent <- 1 - q
+```
+
+Next, we compute the finitized `pmf` as a numeric vector of length `n+1`
+```{r}
+pmf_raw <- dnegbinom(n, q, k) 
+pmf_vec <- pmf_raw$prob
+stopifnot(length(pmf_vec) == length(x))
+stopifnot(abs(sum(pmf_vec) - 1) < 1e-10)
+```
+
+Now we compute the parent Negative Binomial `pmf` on a sufficiently long grid (for accurate moments).
+For this we build a grid `{0, ... ,M}` so that the upper tail is negligible (here \(<10^{-14}\)).
+
+```{r}
+# Find M so that tail <= 1e-14
+M <- 50L
+repeat {
+  tail <- 1 - stats::pnbinom(M, size = size_parent, prob = prob_parent)
+  if (tail < 1e-14) break
+  M <- M * 2L
+  if (M > 1e6) stop("Grid grew too large while bounding the tail.")
+}
+grid <- 0:M
+p_parent <- stats::dnbinom(grid, size = size_parent, prob = prob_parent)
+stopifnot(abs(sum(p_parent) - 1) < 1e-10)
+```
+Now we can compute and compare the first `n` raw moments for both distributions:
+```{r}
+# Helper: raw moments from a discrete pmf
+raw_moment <- function(x, p, r) sum((x^r) * p)
+
+# Finitized moments on 0:n
+mom_fin <- sapply(1:n, function(r) raw_moment(x, pmf_vec, r))
+
+# Parent moments on 0:M (practically exact with very small tail)
+mom_par <- sapply(1:n, function(r) raw_moment(grid, p_parent, r))
+
+mom_cmp <- data.frame(
+  r = 1:n,
+  finitized = mom_fin,
+  parent    = mom_par,
+  diff      = mom_fin - mom_par
+)
+mom_cmp
+```
+
+We also present the mean and variance—the first two raw moments—explicitly. Closed-form
+expressions are available for the parent negative binomial distribution, and these provide a
+useful benchmark against which the finitized moments can be validated. In particular, for
+parameters \(k\) (number of failures until stopping) and \(q\) (success probability per trial),
+the parent distribution satisfies
+
+\[
+\mathbb{E}[X] = \frac{kq}{1-q}, \qquad
+\mathrm{Var}(X) = \frac{kq}{(1-q)^2}.
+\]
+
+These closed-form expressions offer an efficient reference point for validation: they allow
+one to verify the accuracy of finitized moments without resorting to numerical summation
+over the entire distributional support. This comparison highlights the moment-preserving
+property of finitization while emphasizing its consistency with the theoretical parent model.
+
+```{r}
+# Mean and variance separately (these are moments 1 and 2)
+mean_fin <- mom_fin[1]
+var_fin  <- raw_moment(x, pmf_vec, 2) - mean_fin^2
+
+# Parent mean/var using both summation and closed forms for cross-check
+mean_par_sum <- mom_par[1]
+var_par_sum  <- (raw_moment(grid, p_parent, 2) - mean_par_sum^2)
+
+# Closed-form moments for stats::NB(size=k, prob=1-q):
+# E[X] = k*q/(1-q), Var[X] = k*q/(1-q)^2
+mean_par_cf <- k * q / (1 - q)
+var_par_cf  <- k * q / (1 - q)^2
+
+data.frame(
+  quantity  = c("mean", "variance"),
+  finitized = c(mean_fin, var_fin),
+  parent_sum= c(mean_par_sum, var_par_sum),
+  parent_cf = c(mean_par_cf, var_par_cf),
+  diff_fin_parent_cf = c(mean_fin - mean_par_cf, var_fin - var_par_cf)
+)
+```
+
+
 
 ## Finitized Binomial distribution
 
