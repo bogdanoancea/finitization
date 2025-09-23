@@ -74,12 +74,12 @@ test_that("dnegbinom returns NULL for invalid 'val' input", {
 })
 
 test_that("dnegbinom returns correct density for a single value", {
-    # For n = 3, q = 0.15, k = 4 and val = 3, the expected density is approximately 0.1099125.
+    # For n = 3, q = 0.14, k = 4 and val = 3, the expected density is approximately 0.08628171.
     expected <- data.frame(
         val  = 3,
-        prob = 0.1099125
+        prob = 0.08628171
     )
-    result <- dnegbinom(n = 3, q = 0.15, k = 4, val = 3)
+    result <- dnegbinom(n = 3, q = 0.14, k = 4, val = 3)
 
     expect_s3_class(result, "data.frame")
     expect_equal(result$val, expected$val)

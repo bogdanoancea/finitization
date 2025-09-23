@@ -134,6 +134,9 @@ private:
     bool m_ntsfFirstTime;       ///< Used to delay computation of ntsf form
     ex m_ntsfSymb;              ///< Cached symbolic form of the normalized truncated series
     std::unordered_map<int, ex> m_cache; ///< Cache of symbolic evaluations at specific values
+
+    double*  m_pmf_small;          // optional: normalized PMF when K ≤ 8, else nullptr
+    bool     m_smallK;             // true when K ≤ 8 and m_pmf_small is set
 };
 
 #endif /* FINITIZATION_H_ */

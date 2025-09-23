@@ -1431,4 +1431,279 @@ list(
   quantile_inversion  = qinversion_ok
 )
 ```
+# Applications of finitized distributions
 
+## Performance of Random Generators (Alias Method) vs. Parent Distributions
+
+The `r*` functions in **finitization** implement an **aliasing**-based generator to produce
+random variates on the finite support \(\{0,\dots,n\}\) with very low constant-time cost per draw.
+To illustrate relative performance, we compare the finitized generators against their
+classical/parent generators from base R (and, for the logarithmic-series, from an external
+package). The goal is to compare **throughput** (values per second) for generating large
+batches.
+
+> **Notes.**
+> 1. Parameters are chosen to lie within the **MFPS** for the finitized models so that the
+>    PMFs are valid (nonnegative and normalized).
+> 2. The classical logarithmic-series distribution in base R is not available; we use
+>    `extraDistr::rlogser` and shift by \(-1\) to obtain a **zero-including** variant consistent
+>    with our finitized form.
+> 3. To keep vignette build times reasonable, we use moderate batch sizes and few repetitions.
+>    You can increase `no` (e.g., \(10^6\)) and `times` locally for a stronger signal.
+
+```{r}
+# ---- Setup ---------------------------------------------------------------
+library(finitization)
+suppressPackageStartupMessages({
+  have_extraDistr <- requireNamespace("extraDistr", quietly = TRUE)
+  have_microbm    <- requireNamespace("microbenchmark", quietly = TRUE)
+})
+set.seed(123)
+
+# Finitization orders and parameters (kept modest for vignette speed)
+pars <- list(
+  pois = list(n = 3L, theta = 0.9),
+  nbin = list(n = 3L,  q = 0.10, k = 2L),                # parent: size = k, prob = 1 - q
+  bin  = list(n = 3L,  p = 0.10, N = 10L),
+  log  = list(n = 3L,  theta = 0.60)                     # parent via extraDistr::rlogser - 1
+)
+
+# Batch size per timing call; repetitions for microbenchmark
+no    <- 5e7     # increase locally (e.g., 5e7 or 1e8) for stronger signal
+times <- if (identical(Sys.getenv("NOT_CRAN"), "true")) 15L else 10L
+
+# Helper to compute throughput from microbenchmark results (values per second)
+throughput <- function(mb, draws_per_call = no) {
+  # median time in seconds across runs
+  med_sec <- stats::median(mb$time) / 1e9
+  draws_per_call / med_sec
+}
+```
+
+### Poisson: `finitized` vs. `stats::rpois`
+```{r}
+# Finitized Poisson: rpois(n, theta, no)
+mb_pois_fin <- if (have_microbm) {
+  microbenchmark::microbenchmark(
+    finitized = rpois(pars$pois$n, pars$pois$theta, no),
+    times = times
+  )
+} else NA
+
+# Parent (classical) Poisson: stats::rpois(no, lambda)
+mb_pois_par <- if (have_microbm) {
+  microbenchmark::microbenchmark(
+    parent = stats::rpois(no, lambda = pars$pois$theta),
+    times = times
+  )
+} else NA
+
+pois_res <- if (have_microbm) {
+  data.frame(
+    model      = c("finitized", "parent"),
+    generator  = c("finitization::rpois", "stats::rpois"),
+    throughput = c(throughput(mb_pois_fin), throughput(mb_pois_par)),
+    stringsAsFactors = FALSE
+  )
+} else data.frame()
+
+pois_res
+```
+
+### Negative Binomial: `finitized` vs. `stats::rnbinom`
+```{r}
+# Finitized NB: rnegbinom(n, q, k, no)
+mb_nb_fin <- if (have_microbm) {
+  microbenchmark::microbenchmark(
+    finitized = rnegbinom(pars$nbin$n, pars$nbin$q, pars$nbin$k, no),
+    times = times
+  )
+} else NA
+
+# Parent NB: stats::rnbinom(no, size = k, prob = 1 - q)
+mb_nb_par <- if (have_microbm) {
+  microbenchmark::microbenchmark(
+    parent = stats::rnbinom(no, size = pars$nbin$k, prob = 1 - pars$nbin$q),
+    times = times
+  )
+} else NA
+
+nb_res <- if (have_microbm) {
+  data.frame(
+    model      = c("finitized", "parent"),
+    generator  = c("finitization::rnegbinom", "stats::rnbinom"),
+    throughput = c(throughput(mb_nb_fin), throughput(mb_nb_par)),
+    stringsAsFactors = FALSE
+  )
+} else data.frame()
+
+nb_res
+```
+### Binomial: `finitized` vs. `stats::rbinom`
+
+```{r}
+# Finitized Binomial: rbinom(n, p, N, no)
+mb_bin_fin <- if (have_microbm) {
+  microbenchmark::microbenchmark(
+    finitized = rbinom(pars$bin$n, pars$bin$p, pars$bin$N, no),
+    times = times
+  )
+} else NA
+
+# Parent Binomial: stats::rbinom(no, size = N, prob = p)
+mb_bin_par <- if (have_microbm) {
+  microbenchmark::microbenchmark(
+    parent = stats::rbinom(no, size = pars$bin$N, prob = pars$bin$p),
+    times = times
+  )
+} else NA
+
+bin_res <- if (have_microbm) {
+  data.frame(
+    model      = c("finitized", "parent"),
+    generator  = c("finitization::rbinom", "stats::rbinom"),
+    throughput = c(throughput(mb_bin_fin), throughput(mb_bin_par)),
+    stringsAsFactors = FALSE
+  )
+} else data.frame()
+
+bin_res
+```
+### Logarithmic (Log-Series): `finitized` vs. `extraDistr::rlogser` (shifted)
+```{r}
+if (!have_extraDistr) {
+  message("Package 'extraDistr' not available; skipping parent log-series benchmark.")
+}
+
+# Finitized logarithmic: rlogarithmic(n, theta, no)
+mb_log_fin <- if (have_microbm) {
+  microbenchmark::microbenchmark(
+    finitized = rlog(pars$log$n, pars$log$theta, no),
+    times = times
+  )
+} else NA
+
+# Parent zero-including log-series: extraDistr::rlogser(no, theta) - 1
+mb_log_par <- if (have_microbm && have_extraDistr) {
+  microbenchmark::microbenchmark(
+    parent = extraDistr::rlgser(no, pars$log$theta) - 1L,
+    times = times
+  )
+} else NA
+
+log_res <- if (have_microbm) {
+  data.frame(
+    model      = c("finitized", if (have_extraDistr) "parent" else NULL),
+    generator  = c("finitization::rlogarithmic", if (have_extraDistr) "extraDistr::rlgser - 1" else NULL),
+    throughput = c(throughput(mb_log_fin),
+                   if (have_extraDistr) throughput(mb_log_par) else NULL),
+    stringsAsFactors = FALSE
+  )
+} else data.frame()
+
+log_res
+```
+### Summary of relative performace
+```{r}
+# --- Relative speed table (self-contained) ---------------------------------
+suppressPackageStartupMessages({
+  library(dplyr); library(knitr)
+  have_microbm    <- requireNamespace("microbenchmark", quietly = TRUE)
+  have_extraDistr <- requireNamespace("extraDistr",    quietly = TRUE)
+})
+
+# Reuse your global parameters if they exist; otherwise set reasonable defaults
+pars <- list(
+pois = list(n = 3L, theta = 0.1),
+nbin = list(n = 3L,  q = 0.10, k = 5L),     # parent: size = k, prob = 1 - q
+bin  = list(n = 3L,  p = 0.10, N = 10L),
+log  = list(n = 3L,  theta = 0.10)          # parent via extraDistr::rlogser - 1
+)
+# Draws and repetitions (keep small for vignette; increase locally)
+no    <- 1e8
+times <- 1L
+
+throughput <- function(times_sec_vec, draws_per_call = no) {
+  med_sec <- stats::median(times_sec_vec)
+  draws_per_call / med_sec
+}
+
+time_call_sec <- function(expr_fn, times = NULL) {
+  # pick a safe default if caller didn’t pass 'times'
+  if (is.null(times)) {
+    times <- get0("times", ifnotfound = 3L, inherits = TRUE)
+  }
+  v <- numeric(times)
+  for (i in seq_len(times)) {
+    gc()
+    t0 <- proc.time()[["elapsed"]]   # wall-clock is what you want for throughput
+    expr_fn()                        # call the function that does the work
+    v[i] <- proc.time()[["elapsed"]] - t0
+  }
+  v
+}
+
+
+# Helper: compute a minimal result data.frame if a family result is missing
+ensure_family_res <- function(family) {
+  # If user already computed e.g. pois_res earlier, reuse it
+
+  # Otherwise compute a quick pair (finitized vs parent) for that family
+  if (family == "pois") {
+    t_fin <- time_call_sec(function() finitization::rpois(pars$pois$n, pars$pois$theta, no), times = times)
+    t_par <- time_call_sec(function() stats::rpois(no, lambda = pars$pois$theta), times = times)
+    data.frame(model = c("finitized","parent"),
+               generator = c("finitization::rpois","stats::rpois"),
+               throughput = c(throughput(t_fin), throughput(t_par)))
+  } else if (family == "nb") {
+    t_fin <- time_call_sec(function() finitization::rnegbinom(pars$nbin$n, pars$nbin$q, pars$nbin$k, no), times = times)
+    t_par <- time_call_sec(function() stats::rnbinom(no, size = pars$nbin$k, prob = 1 - pars$nbin$q), times = times)
+    data.frame(model = c("finitized","parent"),
+               generator = c("finitization::rnegbinom","stats::rnbinom"),
+               throughput = c(throughput(t_fin), throughput(t_par)))
+  } else if (family == "bin") {
+    t_fin <- time_call_sec(function() finitization::rbinom(pars$bin$n, pars$bin$p, pars$bin$N, no), times = times)
+    t_par <- time_call_sec(function() stats::rbinom(no, size = pars$bin$N, prob = pars$bin$p), times)
+    data.frame(model = c("finitized","parent"),
+               generator = c("finitization::rbinom","stats::rbinom"),
+               throughput = c(throughput(t_fin), throughput(t_par)))
+  } else if (family == "log") {
+    t_fin <- time_call_sec(function() finitization::rlog(pars$log$n, pars$log$theta, no), times = times)
+    if (have_extraDistr) {
+      t_par <- time_call_sec(function() extraDistr::rlgser(no, pars$log$theta) - 1L, times = times)
+      data.frame(model = c("finitized","parent"),
+                 generator = c("finitization::rlogarithmic","extraDistr::rlgser - 1"),
+                 throughput = c(throughput(t_fin), throughput(t_par)))
+    } else {
+      data.frame(model = "finitized",
+                 generator = "finitization::rlogarithmic",
+                 throughput = throughput(t_fin))
+    }
+  } else {
+    stop("Unknown family: ", family)
+  }
+}
+
+# Build/collect all families
+pois_res <- ensure_family_res("pois") %>% mutate(family = "Poisson")
+nb_res   <- ensure_family_res("nb")   %>% mutate(family = "NegBin")
+bin_res  <- ensure_family_res("bin")  %>% mutate(family = "Binomial")
+log_res  <- ensure_family_res("log")  %>% mutate(family = "Logarithmic")
+
+summ <- bind_rows(pois_res, nb_res, bin_res, log_res) %>%
+  select(family, model, throughput)
+
+# Compute relative speed (keep only finitized rows)
+rel <- summ %>%
+  group_by(family) %>%
+  mutate(rel_to_parent = throughput / throughput[match("parent", model)]) %>%
+  ungroup() %>%
+  filter(model == "finitized") %>%
+  transmute(
+    Family = family,
+    `Relative throughput (finitized / parent)` = rel_to_parent
+  )
+
+kable(rel, digits = 2,
+      caption = "Relative speed gain of aliasing-based finitized generators versus parent generators. Values > 1 indicate a throughput advantage.")
+```
