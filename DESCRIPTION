@@ -33,7 +33,8 @@ Suggests:
     testthat (>= 3.0.0),
     knitr,
     rmarkdown,
-    tibble
+    tibble,
+    extraDistr
 VignetteBuilder: knitr
 LinkingTo: Rcpp
 Config/testthat/edition: 3
