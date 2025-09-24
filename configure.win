@@ -49,6 +49,5 @@ mkdir -p src
 cat > src/Makevars.win <<EOF
 CXX_STD = $CXXSTD
 PKG_CPPFLAGS = $CPPFLAGS
-PKG_CXXFLAGS += -O3 -fno-math-errno -DNDEBUG
 PKG_LIBS     = $LDFLAGS
 EOF

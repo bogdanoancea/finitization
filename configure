@@ -101,7 +101,6 @@ LDFLAGS=$(printf "%s\n" $LDFLAGS | awk '!seen[$0]++' | tr '\n' ' ')
 cat > src/Makevars <<EOF
 CXX_STD = $CXXSTD
 PKG_CPPFLAGS = $CPPFLAGS
-PKG_CXXFLAGS += -O3 -fno-math-errno -DNDEBUG
 PKG_LIBS = $LDFLAGS
 EOF
 
@@ -109,7 +108,6 @@ EOF
 cat > src/Makevars.win <<EOF
 CXX_STD = $CXXSTD
 PKG_CPPFLAGS = $CPPFLAGS
-PKG_CXXFLAGS += -O3 -fno-math-errno -DNDEBUG
 PKG_LIBS = $LDFLAGS
 EOF
 
