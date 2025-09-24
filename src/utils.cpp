@@ -268,7 +268,7 @@ String MFPS_pdf(int n, Rcpp::List const &params, int dtype ) {
     case DistributionType::NEGATIVEBINOMIAL:
         if(params.containsElementNamed("k")) {
             k = Rcpp::as < int >( params["k"]);
-            f = new FinitizedNegativeBinomialDistribution(n, 0.1, k);
+            f = new FinitizedNegativeBinomialDistribution(n, 0.01, k);
         }
         else
             Rcerr << "Negative Binomial distribution parameter(s) not provided!" << endl;

@@ -24,6 +24,6 @@ Binomial distribution. The number of values is given by the parameter \code{no}.
 }
 \examples{
 library(finitization)
-rnegbinom(2, 0.5, 2, 10)
+rnegbinom(2, 0.15, 2, 10)
 
 }
