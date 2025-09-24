@@ -544,7 +544,7 @@ k <- 2      # number of failures until stopping
 x <- 0:n
 ```
 
-## 1) PMF — `dnegbinom()`
+## PMF — `dnegbinom()`
 
 
 The function `dnegbinom()` returns the probability mass function (PMF) of the finitized
@@ -570,7 +570,7 @@ d_log
 ```
 
 
-## 2) CDF — `pnegbinom()`
+## CDF — `pnegbinom()`
 
 The function `pnegbinom()` evaluates the cumulative distribution function (CDF) of the
 finitized negative binomial distribution. By default, it returns lower-tail probabilities
@@ -593,7 +593,7 @@ p_hi <- pnegbinom(n, q, k, val = c(2, 3, 5), lower.tail = FALSE)
 p_hi
 ```
 
-## 3) Quantiles — `qnegbinom()`
+## Quantiles — `qnegbinom()`
 
 The function `qnegbinom()` provides the quantile function (inverse CDF) of the finitized
 negative binomial distribution. Given a probability level \(p\), it returns the smallest
@@ -613,7 +613,7 @@ q_upper10 <- qnegbinom(n, q, k, p = 0.1, lower.tail = FALSE)
 q_upper10
 ```
 
-## 4) Random generation — `rnegbinom()`
+## Random generation — `rnegbinom()`
 
 The function `rnegbinom()` generates random variates from the finitized negative binomial
 distribution on the finite support \(\{0,1,\dots,n\}\). The argument `no` specifies the
@@ -640,7 +640,7 @@ points(x, as.numeric(freq), pch = 16)
 legend("topright", bty = "n", legend = c("PMF", "Empirical"), pch = c(NA, 16), lty = c(1, NA))
 ```
 
-## 5) Maximum Feasible Parameter Space — `getNegativeBinomialMFPS()`
+## Maximum Feasible Parameter Space — `getNegativeBinomialMFPS()`
 
 The function `getNegativeBinomialMFPS()` determines the boundaries of the maximum feasible
 parameter space (MFPS) for the finitized negative binomial distribution. The MFPS specifies
@@ -654,7 +654,7 @@ mfps <- getNegativeBinomialMFPS(n, k)
 length(mfps); head(mfps)
 ```
 
-## 6) Closed-form display — `printFinitizedNegativeBinomialDensity()`
+## Closed-form display — `printFinitizedNegativeBinomialDensity()`
 
 The function `printFinitizedNegativeBinomialDensity()` prints the finitized negative
 binomial density in a symbolic, human-readable form. Optionally, evaluation points may be
@@ -670,7 +670,7 @@ printFinitizedNegativeBinomialDensity(n, k, latex = TRUE)
 
 ---
 
-## 7) Validation and Diagnostics
+## Validation and Diagnostics
 
 To ensure the correctness of the finitized negative binomial implementation, it is useful
 to carry out a series of diagnostic checks. These include verification of the normalization
@@ -725,7 +725,7 @@ cbind(theoretical = c(mean = mu_th, var = var_th),
       empirical    = c(mean = mu_emp, var = var_emp))
 
 ```
-## 8) Moment preservation for the finitized Negative Binomial
+## Moment preservation for the finitized Negative Binomial
 
 In the following, we compare the first `n` moments of the finitized negative binomial
 distribution with those of its parent distribution. The classical negative binomial distribution
@@ -1033,7 +1033,6 @@ list(norm_err = norm_err,
 This section follows the structure introduced for the finitized **Negative Binomial** and **Binomial** distributions, but in a more concise form. The finitized Poisson of order \(n\) replaces the infinite-support Poisson by a distribution supported on \(\{0,1,...,n\}\) that preserves the first \(n\) moments of the parent model.
 
 
-
 ```{r}
 library(finitization)
 
@@ -1119,7 +1118,7 @@ printFinitizedPoissonDensity(n, val = c(0, 1, 2))
 printFinitizedPoissonDensity(n, latex = TRUE)
 ```
 
-## Diagnostics
+## Diagnostics and Validation
 
 The following diagnostics assess the internal consistency of the finitized Poisson implementation:
 (i) normalization of the PMF; (ii) agreement between the CDF and cumulative PMF; (iii) CDF monotonicity;
@@ -1435,7 +1434,7 @@ list(
 ```
 # Applications of finitized distributions
 
-## Performance of Random Generators (Alias Method) vs. Parent Distributions
+## Random Number Generators: Alias Method implemented in `finitization` vs. Parent Distributions
 
 The `r*` functions in **finitization** implement an **aliasing**-based generator to produce
 random variates on the finite support \(\{0,\dots,n\}\) with very low constant-time cost per draw.
