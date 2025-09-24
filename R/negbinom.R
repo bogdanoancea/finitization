@@ -240,7 +240,7 @@ printFinitizedNegativeBinomialDensity <-
 #'
 #' @examples
 #' library(finitization)
-#' rnegbinom(2, 0.5, 2, 10)
+#' rnegbinom(2, 0.15, 2, 10)
 #'
 #' @include utils.R
 #' @export
