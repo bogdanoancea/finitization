@@ -4,7 +4,7 @@
 
 set -e
 
-# 1. Detect OS
+# Detect OS
 UNAME_S=$(uname -s)
 case "$UNAME_S" in
   Darwin)   OS=macos ;;
@@ -14,7 +14,7 @@ case "$UNAME_S" in
 esac
 
 if [ "$OS" = "macos" ]; then
-  # ensure we target at least 11.0 to match our .a’s LC_VERSION_MIN
+  # ensure we target at least 11.0 to match our .external libraries LC_VERSION_MIN
   CPPFLAGS="-mmacosx-version-min=11.0 $CPPFLAGS"
   LDFLAGS="-mmacosx-version-min=11.0 $LDFLAGS"
   export CPPFLAGS LDFLAGS
@@ -96,7 +96,7 @@ if command -v pkg-config >/dev/null 2>&1; then
       fi
 
     else
-      echo "Unsupported OS for automated install. Please install gmp/cln/ginac and retry."
+      echo "Unsupported OS for automated install. Please install gmp/cln/ginac manually and retry. See the README.md file for more details."
       exit 1
     fi
   fi
@@ -107,7 +107,7 @@ else
 fi
 
 
-# 4. Fallback static linking
+# Fallback static linking
 # if [ "$USE_FALLBACK" -eq 1 ]; then
 #   echo "Using bundled static libraries."
 #   CPPFLAGS="-I../inst/include"
@@ -116,7 +116,7 @@ fi
 #            ../inst/extlibs/$ARCHDIR/libgmp.a"
 # fi
 
-# 5. Decide which C++ standard to ask R to use
+# Decide which C++ standard to ask R to use
 if [ "$OS" = "macos" ] && [ "$ARCHDIR" = "x86_64" ]; then
   CXXSTD="CXX11"
   echo "  Will request C++11 on macOS Intel"
@@ -134,7 +134,7 @@ LDFLAGS=$(printf "%s\n" $LDFLAGS | awk '!seen[$0]++' | tr '\n' ' ')
 # Safe optimization flags for CRAN
 PKG_CXXFLAGS="-DNDEBUG"
 
-# 6. Write src/Makevars
+# Write src/Makevars
 cat > src/Makevars <<EOF
 CXX_STD = $CXXSTD
 PKG_CPPFLAGS = $CPPFLAGS
@@ -143,7 +143,7 @@ PKG_LIBS = $LDFLAGS
 EOF
 
 
-# 7. Write src/Makevars.win
+# Write src/Makevars.win
 cat > src/Makevars.win <<EOF
 CXX_STD = $CXXSTD
 PKG_CPPFLAGS = $CPPFLAGS
