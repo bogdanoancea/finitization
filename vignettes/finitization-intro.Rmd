@@ -185,7 +185,7 @@ Table 1 presents 4 distributions and their 2nd order finitized distributions usi
 ```{r, echo=FALSE, results="asis"}
 library(knitr)
 
-tab1 <- tibble::tibble(
+tab1 <- data.frame(
   Distribution = c(
     "Poisson ($\\theta$)",
     "Negative binomial (k=2, $\\theta$)",
@@ -344,10 +344,8 @@ Table 2 show the finitization of the same distributions as those presented in Ta
 
 ```{r, echo=FALSE, results="asis"}
 library(knitr)
-library(tibble)
 
-
-tab2 <- tibble::tibble(
+tab2 <- data.frame(
   Distribution = c(
     "Poisson($\\lambda$)",
     "Negative binomial (k=2, q)",
