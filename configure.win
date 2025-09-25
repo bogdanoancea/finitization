@@ -7,7 +7,7 @@ case "$(uname -s)" in
 esac
 
 PKG_CONFIG_PATH=""
-for p in /mingw64/lib/pkgconfig /mingw64/share/pkgconfig /ucrt64/lib/pkgconfig; do
+for p in /ucrt64/lib/pkgconfig; do
   [ -d "$p" ] && PKG_CONFIG_PATH="${PKG_CONFIG_PATH:+$PKG_CONFIG_PATH:}$p"
 done
 export PKG_CONFIG_PATH
