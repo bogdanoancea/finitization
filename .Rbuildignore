@@ -8,3 +8,5 @@
 ^\.gitignore$
 ^doc$
 ^Meta$
+^inst/extlibs/
+^inst/.*\.(a|lib)$

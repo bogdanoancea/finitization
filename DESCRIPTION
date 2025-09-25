@@ -1,5 +1,6 @@
 Package: finitization
-Title: Finitization Methods for Discrete Probability Distributions
+Type: Package
+Title: Moment-Preserving Finitization for Power-Series Distributions
 Description: Implements the finitization of discrete probability distributions, a technique that approximates a distribution by preserving a finite number of moments. These finitized distributions enable faster random variate generation than inverse transform sampling and are useful in simulation and statistical modeling.
 Version: 0.1.0
 Authors@R: 
@@ -15,6 +16,7 @@ SystemRequirements:
     GiNaC (>= 1.8.3, https://www.ginac.de/Download.html),
     GMP (>= 6.2.0, https://gmplib.org/download/gmp/),
     GNU Make,
+    pkg-config
     On Windows: precompiled static libraries are provided under
       'inst/extlibs/x64/' for 64-bit builds,
     On macOS:
@@ -48,3 +50,4 @@ Collate:
     'negbinom.R'
     'pois.R'
     'zzz.R'
+OS_type: unix

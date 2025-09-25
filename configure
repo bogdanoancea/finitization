@@ -53,34 +53,68 @@ if command -v pkg-config >/dev/null 2>&1; then
             LDFLAGS=$(echo "$PKG_FLAGS" | awk '{ for(i=1;i<=NF;i++) if ($i ~ /^-L|^-l/) printf "%s ", $i }')
           else
             echo "pkg-config still cannot find libraries after brew."
-            USE_FALLBACK=1
+            echo "Please install development packages: ginac, cln, gmp. See details in README.md."
+            exit 1
           fi
         else
-          echo "brew install failed; falling back to static libraries."
-          USE_FALLBACK=1
+          echo "brew install failed."
+          exit 1
         fi
       else
-        echo "Homebrew not installed; falling back to static libraries."
-        USE_FALLBACK=1
+        echo "Homebrew not installed."
+        exit 1
       fi
+
+    elif [ "$OS" = "linux" ]; then
+      echo "Linux detected."
+      if command -v apt-get >/dev/null 2>&1; then
+        echo "Attempting APT install of dependencies (requires sudo)..."
+        if sudo apt-get update && \
+           sudo apt-get install -y libgmp-dev libcln-dev libginac-dev pkg-config; then
+          echo "APT install succeeded; retrying pkg-config..."
+          if pkg-config --exists gmp cln ginac; then
+            PKG_FLAGS=$(pkg-config --cflags --libs gmp cln ginac)
+            CPPFLAGS=$(echo "$PKG_FLAGS" | awk '{ for(i=1;i<=NF;i++) if ($i ~ /^-I/) printf "%s ", $i }')
+            LDFLAGS=$(echo "$PKG_FLAGS" | awk '{ for(i=1;i<=NF;i++) if ($i ~ /^-L|^-l/) printf "%s ", $i }')
+          else
+            echo "pkg-config still cannot find libraries after APT install."
+            echo "Please ensure libgmp-dev, libcln-dev, libginac-dev are installed and visible to pkg-config."
+            exit 1
+          fi
+        else
+          echo "APT install failed."
+          exit 1
+        fi
+      else
+        echo "Non-APT Linux distribution detected."
+        echo "Please install development packages for GMP, CLN, GiNaC and ensure pkg-config can find them."
+        echo "Examples:"
+        echo "  Fedora:  sudo dnf install gmp-devel cln-devel ginac-devel pkgconf-pkg-config"
+        echo "  openSUSE: sudo zypper install gmp-devel cln-devel ginac-devel pkgconf-pkg-config"
+        echo "  Arch:    sudo pacman -S gmp cln ginac pkgconf"
+        exit 1
+      fi
+
     else
-      echo "Non‐macOS or no package manager: falling back to static libraries."
-      USE_FALLBACK=1
+      echo "Unsupported OS for automated install. Please install gmp/cln/ginac and retry."
+      exit 1
     fi
   fi
 else
-  echo "pkg-config not available; falling back to static libraries."
-  USE_FALLBACK=1
+  echo "pkg-config not available;"
+  echo "ERROR: 'pkg-config' not found. Please install it." 1>&2
+  exit 1
 fi
 
+
 # 4. Fallback static linking
-if [ "$USE_FALLBACK" -eq 1 ]; then
-  echo "Using bundled static libraries."
-  CPPFLAGS="-I../inst/include"
-  LDFLAGS="../inst/extlibs/$ARCHDIR/libginac.a \
-           ../inst/extlibs/$ARCHDIR/libcln.a  \
-           ../inst/extlibs/$ARCHDIR/libgmp.a"
-fi
+# if [ "$USE_FALLBACK" -eq 1 ]; then
+#   echo "Using bundled static libraries."
+#   CPPFLAGS="-I../inst/include"
+#   LDFLAGS="../inst/extlibs/$ARCHDIR/libginac.a \
+#            ../inst/extlibs/$ARCHDIR/libcln.a  \
+#            ../inst/extlibs/$ARCHDIR/libgmp.a"
+# fi
 
 # 5. Decide which C++ standard to ask R to use
 if [ "$OS" = "macos" ] && [ "$ARCHDIR" = "x86_64" ]; then
@@ -97,20 +131,27 @@ CPPFLAGS="$CPPFLAGS $STD_FLAG"
 # Dedupe linker flags
 LDFLAGS=$(printf "%s\n" $LDFLAGS | awk '!seen[$0]++' | tr '\n' ' ')
 
+# Safe optimization flags for CRAN
+PKG_CXXFLAGS="-DNDEBUG"
+
 # 6. Write src/Makevars
 cat > src/Makevars <<EOF
 CXX_STD = $CXXSTD
 PKG_CPPFLAGS = $CPPFLAGS
+PKG_CXXFLAGS = $PKG_CXXFLAGS
 PKG_LIBS = $LDFLAGS
 EOF
+
 
 # 7. Write src/Makevars.win
 cat > src/Makevars.win <<EOF
 CXX_STD = $CXXSTD
 PKG_CPPFLAGS = $CPPFLAGS
+PKG_CXXFLAGS = $PKG_CXXFLAGS
 PKG_LIBS = $LDFLAGS
 EOF
 
+echo "configure: Found GMP/CLN/GiNaC via pkg-config."
 echo "Configuration complete."
 echo "  CPPFLAGS: $CPPFLAGS"
 echo "  LDFLAGS:  $LDFLAGS"
