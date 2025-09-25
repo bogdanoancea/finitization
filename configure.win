@@ -28,8 +28,10 @@ if [ -n "$PKGCFG" ] && $PKGCFG --exists gmp cln ginac; then
     CPPFLAGS="$CPPFLAGS $CFLAGS"
     LDFLAGS="$LPATH -lginac -lcln -lgmp"
 else
-  CPPFLAGS="-I../inst/include"
-  LDFLAGS="../inst/extlibs/$ARCHDIR/libginac.a ../inst/extlibs/$ARCHDIR/libcln.a ../inst/extlibs/$ARCHDIR/libgmp.a"
+  #CPPFLAGS="-I../inst/include"
+  #LDFLAGS="../inst/extlibs/$ARCHDIR/libginac.a ../inst/extlibs/$ARCHDIR/libcln.a ../inst/extlibs/$ARCHDIR/libgmp.a"
+  echo "External libraries ginac, cln and gmp not found. Please install them first.See the README.md file for more details."
+  exit 1
 fi
 
 CPPFLAGS="${CPPFLAGS} -U_GLIBCXX_HAVE_QUICK_EXIT -U_GLIBCXX_HAVE_AT_QUICK_EXIT -D__MINGW32__"
@@ -45,9 +47,14 @@ for f in $LDFLAGS; do
 done
 LDFLAGS="$unique"
 
+# Safe optimization flags for CRAN
+PKG_CXXFLAGS="-DNDEBUG"
+
+
 mkdir -p src
 cat > src/Makevars.win <<EOF
 CXX_STD = $CXXSTD
 PKG_CPPFLAGS = $CPPFLAGS
 PKG_LIBS     = $LDFLAGS
+PKG_CXXFLAGS = $PKG_CXXFLAGS
 EOF
