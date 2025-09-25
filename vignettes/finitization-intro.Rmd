@@ -383,7 +383,9 @@ tab2 <- data.frame(
     "$0 < q \\leq 1/4$",
     "$0 < p \\leq 1/3$",
     "$0 < \\theta \\leq 0.440423$"
-  )
+  ),
+    stringsAsFactors = FALSE,
+  check.names = FALSE   # <- keeps your LaTeX column names
 )
 
 kable(tab2, format = "markdown", align = "l", caption = "Table 2. Common PSDs and their finitized pdfs of order 2 using the NTFS method")
