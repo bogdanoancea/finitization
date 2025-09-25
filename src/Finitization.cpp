@@ -15,11 +15,11 @@ Finitization::Finitization(int n): m_finitizationOrder(n), m_dprobs{nullptr}, m_
     const int K = m_finitizationOrder + 1;
     m_alias = new int[K];
     m_prob = new double[K];
-    m_values = new int[m_finitizationOrder+1];
+    m_values = new int[K];
     m_ntsfFirstTime = true;
     for(int i = 0; i <= n; i++)
         m_values[i] = i;
-    m_generator.seed(time(0)); // Seed RNG
+    //m_generator.seed(time(0)); // Seed RNG
 
     // optional small-K PMF cache (allocated lazily in setProbs)
     m_pmf_small = nullptr;
@@ -424,7 +424,12 @@ double Finitization::fin_pdf(int val) {
         return m_dprobs[val];
     else {
         ex pdf_ = fin_pdfSymb(val);
-        return GiNaC::ex_to<GiNaC::numeric>(evalf(pdf_.subs(m_paramSymb == m_theta))).to_double();
+        double tmp = GiNaC::ex_to<GiNaC::numeric>(evalf(pdf_.subs(m_paramSymb == m_theta))).to_double();
+        const double eps   = std::numeric_limits<double>::epsilon();
+        const double scale = std::max(1.0, std::abs(tmp));
+        const double tol   = 64.0 * eps * scale + 1e-300;   // the 1e-300 floor kills denormal noise
+        return (std::abs(tmp) <= tol) ? 0.0 : tmp;
+        //return tmp;
     }
 }
 

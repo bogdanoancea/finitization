@@ -49,7 +49,7 @@ StringVector c_printDensity(int n, IntegerVector val, Rcpp::List const &params, 
 
     switch(dtype) {
     case DistributionType::POISSON:
-        f = new FinitizedPoissonDistribution(n, 0.1);
+        f = new FinitizedPoissonDistribution(n, 0.0);
         break;
     case DistributionType::LOGARITHMIC:
         f = new FinitizedLogarithmicDistribution(n, 0.01);
@@ -57,7 +57,7 @@ StringVector c_printDensity(int n, IntegerVector val, Rcpp::List const &params, 
     case DistributionType::BINOMIAL:
         if(params.containsElementNamed("N")) {
             N = Rcpp::as < int >( params["N"]);
-            f = new FinitizedBinomialDistribution(n, 0, N);
+            f = new FinitizedBinomialDistribution(n, 0.0, N);
         }
         else
             Rcerr << "Parameter N of the Binomial distribution not provided!" << endl;
@@ -66,7 +66,7 @@ StringVector c_printDensity(int n, IntegerVector val, Rcpp::List const &params, 
     case DistributionType::NEGATIVEBINOMIAL:
         if(params.containsElementNamed("k")) {
             k = Rcpp::as < int >( params["k"]);
-            f = new FinitizedNegativeBinomialDistribution(n, 0, k);
+            f = new FinitizedNegativeBinomialDistribution(n, 0.0, k);
         }
         else
             Rcerr << "Parameter k of the Negative Binomial distribution not provided!" << endl;
@@ -252,15 +252,15 @@ String MFPS_pdf(int n, Rcpp::List const &params, int dtype ) {
     double  N, k;
     switch(dtype) {
     case DistributionType::POISSON:
-        f = new FinitizedPoissonDistribution(n, 0.01);
+        f = new FinitizedPoissonDistribution(n, 0.0);
         break;
     case DistributionType::LOGARITHMIC:
-        f = new FinitizedLogarithmicDistribution(n, 0.01);
+        f = new FinitizedLogarithmicDistribution(n, 0.001);
         break;
     case DistributionType::BINOMIAL:
         if(params.containsElementNamed("N") ) {
             N = Rcpp::as < int >( params["N"]);
-            f = new FinitizedBinomialDistribution(n, 0.1, N);
+            f = new FinitizedBinomialDistribution(n, 0.0, N);
         }
         else
             Rcerr << "Binomial distribution parameter(s) not provided!" << endl;
@@ -268,7 +268,7 @@ String MFPS_pdf(int n, Rcpp::List const &params, int dtype ) {
     case DistributionType::NEGATIVEBINOMIAL:
         if(params.containsElementNamed("k")) {
             k = Rcpp::as < int >( params["k"]);
-            f = new FinitizedNegativeBinomialDistribution(n, 0.01, k);
+            f = new FinitizedNegativeBinomialDistribution(n, 0.0, k);
         }
         else
             Rcerr << "Negative Binomial distribution parameter(s) not provided!" << endl;
