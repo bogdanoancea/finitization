@@ -216,7 +216,9 @@ tab1 <- data.frame(
     "$0<2\\theta=\\lambda\\le 1$",
     "$0<4\\theta=\\lambda\\le 1$",
     "$0<\\theta/2=\\lambda\\le 1/2$"
-  )
+  ),
+  stringsAsFactors = FALSE,
+  check.names = FALSE   # <- keeps your LaTeX column names
 )
 
 kable(tab1, escape = FALSE,
