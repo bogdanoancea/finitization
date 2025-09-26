@@ -35,7 +35,6 @@ Suggests:
     testthat (>= 3.0.0),
     knitr,
     rmarkdown,
-    tibble,
     extraDistr
 VignetteBuilder: knitr
 LinkingTo: Rcpp

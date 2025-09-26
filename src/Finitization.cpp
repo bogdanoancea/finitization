@@ -426,10 +426,12 @@ double Finitization::fin_pdf(int val) {
         ex pdf_ = fin_pdfSymb(val);
         double tmp = GiNaC::ex_to<GiNaC::numeric>(evalf(pdf_.subs(m_paramSymb == m_theta))).to_double();
         const double eps   = std::numeric_limits<double>::epsilon();
-        const double scale = std::max(1.0, std::abs(tmp));
-        const double tol   = 64.0 * eps * scale + 1e-300;   // the 1e-300 floor kills denormal noise
-        return (std::abs(tmp) <= tol) ? 0.0 : tmp;
-        //return tmp;
+        const double atmp  = std::abs(tmp);
+        const double scale = std::max(1.0, atmp);
+        const double tol   = 64.0 * eps * scale + 1e-300; // denormal floor
+        double x = (atmp <= tol) ? 0.0 : tmp;  // zero tiny magnitudes
+        x = std::max(x, 0.0);
+        return x;
     }
 }
 
