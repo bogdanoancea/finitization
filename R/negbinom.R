@@ -179,7 +179,7 @@ getNegativeBinomialMFPS <- function(n, k) {
     fg <- function(q) {
         "x"
     }
-    body(fg)[[2]] <- parse(text = MFPS_pdf(n, list("k" = k), getNegativeBinomialType()))[[1]]
+    body(fg)[[2]] <- parse(text= MFPS_pdf(n, list("k" = k), getNegativeBinomialType()))[[1]]
     return(findSolutions(fg))
 }
 

@@ -81,7 +81,9 @@ getLogarithmicMFPS <- function(n) {
     }
     body(fg)[[2]] <- parse(text = MFPS_pdf(n, NULL, getLogarithmicType()))[[1]]
 
+
     return(findSolutions(fg))
+
 }
 
 #' The string representation of the probability density function for the finitized Logarithmic distribution.

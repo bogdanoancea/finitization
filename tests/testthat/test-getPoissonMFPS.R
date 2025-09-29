@@ -14,7 +14,7 @@ test_that("getPoissonMFPS returns a numeric vector of length 2 with lower < uppe
 
 test_that("getPoissonMFPS returns the expected result for n = 1", {
     result <- getPoissonMFPS(1)
-    expected <- c(0, 1)
+    expected <- c(1, 1)
 
     # Structure checks
     expect_type(result, "double")

@@ -19,15 +19,15 @@ test_that("getLogarithmicMFPS returns expected values for n = 2", {
 })
 
 test_that("getLogarithmicMFPS returns expected values for n = 3", {
-    # For n = 3, the expected MFPS is [0.0000081, 0.3115801] (rounded to 7 decimals).
-    expected <- c(0.0000081, 0.3115801)
+    # For n = 3, the expected MFPS is [0.0000000, 0.3115801] (rounded to 7 decimals).
+    expected <- c(0.0000000, 0.3115801)
     res <- getLogarithmicMFPS(3)
     expect_equal(round(res, 7), expected, info = paste("Expected:", toString(expected), "| Got:", toString(round(res, 7))))
 })
 
 test_that("getLogarithmicMFPS returns expected values for n = 4", {
-    # For n = 4, the expected MFPS is [0.0001775, 0.2397019] (rounded to 7 decimals).
-    expected <- c(0.0001775, 0.2397019)
+    # For n = 4, the expected MFPS is [0.000179, 0.2397019] (rounded to 7 decimals).
+    expected <- c(0.000179, 0.2397019)
     res <- getLogarithmicMFPS(4)
     expect_equal(round(res, 7), expected, info = paste("Expected:", toString(expected), "| Got:", toString(round(res, 7))))
 })

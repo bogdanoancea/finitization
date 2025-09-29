@@ -410,14 +410,35 @@ ex Finitization::fin_pdfSymb(int x_val) {
     return pdf_;
 }
 
+
+#include <cfloat>   // DBL_EPSILON
+#include <cmath>    // std::fabs
+#include <ginac/ginac.h>
+// Map the expression tree, turning numerics into doubles,
+// and zeroing those strictly below machine epsilon.
+GiNaC::ex map_double_and_zero_eps(const GiNaC::ex& e) {
+    using namespace GiNaC;
+    if (is_a<numeric>(e)) {
+        const double d = ex_to<numeric>(e).to_double();
+        if (std::fabs(d) < DBL_EPSILON)
+            return numeric(DBL_EPSILON);      // exact zero
+        return numeric(d);          // floating numeric from a double
+    }
+    return e.map(map_double_and_zero_eps);
+}
+
 string Finitization::pdfToString(int val, bool tolatex) {
     stringstream result;
     ex pdf_ = fin_pdfSymb(val);
+
+    pdf_ = map_double_and_zero_eps(pdf_); // then ensure atoms are made from doubles
+
     if(tolatex)
         result << latex;
     result << pdf_;
     return result.str();
 }
+
 
 double Finitization::fin_pdf(int val) {
     if(m_finish && val <= m_finitizationOrder)

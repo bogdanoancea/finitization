@@ -114,8 +114,7 @@ getPoissonMFPS <- function(n) {
     fg <- function(theta) {
         "x"
     }
-    body(fg)[[2]] <- parse(text = MFPS_pdf(n, NULL, getPoissonType()))[[1]]
-
+    body(fg)[[2]] <-parse(text= MFPS_pdf(n, NULL, getPoissonType()))[[1]]
     return(findSolutions(fg))
 }
 

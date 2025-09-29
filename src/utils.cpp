@@ -6,6 +6,8 @@
 #include "FinitizedNegativeBinomialDistribution.h"
 #include "DistributionType.h"
 #include <ginac/ginac.h>
+#include <cln/float.h>
+
 
 using namespace std;
 using namespace Rcpp;
@@ -399,4 +401,13 @@ bool check_symbolic_equivalence(std::string expr1_str, std::string expr2_str) {
     }
 }
 
+
+ // void finitization_init_double_precision()
+ // {
+ //     // CLN: make “float” operations default to IEEE double precision
+ //     cln::fset_default_float_format(cln::float_format(53));  // 53-bit mantissa
+ //
+ //     // GiNaC: set decimal digits for floating output/evalf (≈ double)
+ //     GiNaC::Digits = 16;  // ~ 15–16 significant decimal digits
+ // }
 

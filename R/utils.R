@@ -23,7 +23,6 @@ printDensity <- function(n, val, params, type, latex) {
         lim <- 0:n
     else
         lim <- val
-
     cat(paste0("X", "\t", "pdf\n"))
     result <- c_printDensity(n, lim, params, type, latex)
     k <- 1
@@ -148,32 +147,184 @@ checkVals <- function(n, val) {
     return(result)
 }
 
-#' Solves the equation \eqn{pdf(n-1) = 0} and returns the maximum feasible parameter space.
+#' Find maximum feasible parameter space (MFPS) bounds
 #'
-#' It is used to actually solve the equation \eqn{pdf(n-1) = 0} needed
-#' the find the maximum feasible parameter space for a finitized distribution. After finding the solutions, it builds the interval
-#' which represents the maximum feasible parameter space.
-#' @param func a function. The actual parameter will be \code{pdf(n-1)}.
+#' This helper locates the two rightmost roots of the polynomial
+#' \eqn{pdf(n-1)} that define the maximum feasible parameter space (MFPS)
+#' of a finitized distribution.
+#'
+#' The algorithm works in two stages:
+#' \enumerate{
+#'   \item An initial dense search in the interval \code{[lower, upper]} using
+#'   \code{\link[rootSolve]{uniroot.all}}, keeping only the two largest roots.
+#'   Endpoints are treated as roots if the function value is numerically close
+#'   to zero (within \code{eps_endpoint}).
+#'   \item If the largest root may lie to the right of \code{upper}, the search
+#'   expands rightward in geometrically increasing segments, first with a coarse
+#'   grid then refined with a finer grid. Expansion stops when no additional
+#'   roots are found or when \code{max_upper} is reached.
+#' }
+#'
+#' The result is the interval \eqn{[\mathrm{LL}, \mathrm{UL}]}, where \eqn{UL}
+#' is the largest detected root and \eqn{LL} is the second-largest root (or
+#' \eqn{0} if only one root is found).
+#'
+#' @param func A function of one variable (typically \code{theta}) representing
+#'   the polynomial \eqn{pdf(n-1)} whose roots determine the MFPS.
+#' @param lower Numeric, left endpoint of the initial search interval
+#'   (default \code{0}).
+#' @param upper Numeric, right endpoint of the initial search interval
+#'   (default \code{1}).
+#' @param eps_endpoint Numeric tolerance for treating an endpoint as a root
+#'   (default \code{1e-10}).
+#' @param tol Numeric tolerance passed to \code{\link[rootSolve]{uniroot.all}}
+#'   (default \code{1e-8}).
+#' @param initial_n Integer grid size for the initial dense search in
+#'   \code{[lower, upper]} (default \code{1e7}).
+#' @param growth Numeric growth factor for rightward expansion (default \code{2}).
+#' @param max_upper Maximum right endpoint for expansion (default \code{1}).
+#' @param coarse_pts Number of coarse grid points in rightward probing
+#'   (default \code{256}).
+#' @param fine_pts Number of fine grid points in rightward probing
+#'   (default \code{4096}).
+#'
+#' @return A numeric vector of length two: \code{c(LL, UL)}, the lower and upper
+#'   bounds of the maximum feasible parameter space. Returns \code{c(NA, NA)}
+#'   if no roots are found.
+#'
 #' @keywords internal
-#' @return a vector with two values: the lower and the upper limits of the maximum feasible parameter space.
-findSolutions <- function(func) {
-    U <- 1
-    L <- 0
+#'
+#' @examples
+#' ## Example 1: Well-conditioned polynomial with exact roots at 0 and 1
+#' f1 <- function(theta) (2.2e-16) * theta^12 * (1 - theta)
+#' findSolutions(f1, initial_n = 1e5, tol = 1e-10)
+#'
+#' ## Example 2: Endpoint snapping (near-zero at 0 and 1 within eps)
+#' f2 <- function(theta) 1e-14 * theta^8 * (theta - 1) + 1e-20
+#' # Treat endpoint values within eps as zeros:
+#' findSolutions(f2, eps_endpoint = 1e-12, initial_n = 2e5)
+#'
+#' ## Example 3: Largest root beyond 1 → rightward expansion finds it
+#' ##            (toy function with roots near 0.3 and 1.2)
+#' f3 <- function(theta) (theta - 0.3) * (theta - 1.2)
+#' # Start in [0,1], then expand to the right up to max_upper = 2
+#' findSolutions(f3, lower = 0, upper = 1, max_upper = 2,
+#'               initial_n = 2e5, coarse_pts = 128L, fine_pts = 1024L)
+#'
+#' ## Example 4 (MFPS flavor): A PSD-style series truncated to n−1
+#' ## Suppose pdf(n-1) reduces to a low-degree polynomial in theta:
+#' f4 <- function(theta) 1 - 4*theta + 10*theta^2 - 20*theta^3 + 35*theta^4
+#' # Return the two rightmost admissible theta values as MFPS bounds
+#' findSolutions(f4, lower = 0, upper = 1, initial_n = 1e7, tol = 1e-10)
+findSolutions <- function(func,
+                          lower = 0, upper = 1,
+                          eps_endpoint = 1e-10,  # treat endpoint as root if |f| <= eps
+                          tol = 1e-8,            # uniroot() tolerance
+                          initial_n = 1e7,       # grid points in [lower, upper]
+                          growth = 2,            # rightward geometric growth
+                          max_upper = 1e0,       # cap for right expansion
+                          coarse_pts = 256L,     # coarse grid per right segment
+                          fine_pts   = 4096L) {  # fine grid after coarse hit
+    stopifnot(lower < upper, growth > 1,
+              initial_n >= 1e3, coarse_pts >= 16L, fine_pts > coarse_pts)
 
-    while (is.infinite(func(U)))
-        U <- U - .Machine$double.eps
-    while (is.infinite(func(L)))
-        L <- L + .Machine$double.eps
-    solutions <-
-        rootSolve::uniroot.all(func, c(U, L), n = 10 ^ 7, tol = .Machine$double.eps)
-    UL = solutions[length(solutions)]
-    if (length(solutions) > 1)
-        LL = solutions[length(solutions) - 1]
-    else
+    f0 <- suppressWarnings(func(lower))
+    f1 <- suppressWarnings(func(upper))
+    # Decide if endpoints are (near) roots
+    has0 <- is.finite(f0) && abs(f0) <= eps_endpoint
+    has1 <- is.finite(f1) && abs(f1) <= eps_endpoint
+
+
+    # --- helper from above ---
+    last_two_roots_in <- function(a, b, m) {
+        inset <- max(.Machine$double.eps^(1/4), (b - a) * 1e-12)
+        a2 <- a + inset; b2 <- b - inset
+        if (!(a2 < b2)) return(numeric(0))
+
+        roots <- tryCatch(
+            rootSolve::uniroot.all(func, c(a2, b2), n = as.integer(m), tol = tol),
+            error = function(e) numeric(0)
+        )
+
+        fa <- suppressWarnings(func(a))
+        if (is.finite(fa) && abs(fa) <= eps_endpoint) roots <- c(a, roots)
+        fb <- suppressWarnings(func(b))
+        if (is.finite(fb) && abs(fb) <= eps_endpoint) roots <- c(roots, b)
+
+        roots <- sort(unique(roots))
+        if (length(roots) > 2L) roots <- tail(roots, 2L)
+        roots
+    }
+
+    # 1) Initial dense scan on [lower, upper]
+    roots <- last_two_roots_in(lower, upper, m = as.integer(initial_n))
+    # If still fewer than 2 roots, snap endpoints when they are (near) zeros
+    if (length(roots) < 2L) {
+        fU <- suppressWarnings(func(upper))
+        if (is.finite(fU) && abs(fU) <= eps_endpoint) roots <- sort(unique(c(roots, upper)))
+    }
+    if (length(roots) < 2L) {
+        fL <- suppressWarnings(func(lower))
+        if (is.finite(fL) && abs(fL) <= eps_endpoint) roots <- sort(unique(c(roots, lower)))
+    }
+    roots <- sort(unique(roots))
+
+    # Initialize LL, UL (two rightmost roots known so far)
+    # if (length(roots) == 0L) {
+    #     LL <- NA_real_; UL <- NA_real_
+    # } else if (length(roots) == 1L) {
+    #     LL <- min(lower, roots[1L]); UL <- roots[1L]
+    # } else {
+    #     LL <- roots[length(roots) - 1L]
+    #     UL <- roots[length(roots)]
+    # }
+
+
+    roots_all <- c(if (has0) lower else NULL,
+                   roots,
+                   if (has1) upper else NULL)
+
+    if (!length(roots_all)) {
+        LL<- NA_real_; UL <- NA_real_
+    }
+    if(length(roots_all) == 1)
         LL = 0
-    return(c(min(LL, UL), max(LL, UL)))
+    else
+        LL <- min(roots_all)
+    UL <- max(roots_all)
+
+    # 2) Expand to the right only if needed (coarse→fine)
+    a <- upper
+    b <- min(max_upper, max(upper * growth, upper + 1))
+    while (a < max_upper) {
+        coarse_roots <- last_two_roots_in(a, b, m = as.integer(coarse_pts))
+        if (!length(coarse_roots)) break  # no sign change → stop
+
+        fine_roots <- last_two_roots_in(a, b, m = as.integer(fine_pts))
+        if (length(fine_roots)) {
+            candidates <- sort(unique(c(LL, UL, fine_roots)))
+            if (length(candidates) == 1L) {
+                LL <- min(lower, candidates[1L]); UL <- candidates[1L]
+            } else {
+                LL <- candidates[length(candidates) - 1L]
+                UL <- candidates[length(candidates)]
+            }
+        }
+
+        a <- b
+        b <- min(max_upper, b * growth)
+        if (b <= a) break
+    }
+
+    c(LL, UL)
 }
 
+
+## Safe scalar evaluation (clamps x to finite range and swallows warnings)
+.fsafe <- function(f, x) {
+    y <- suppressWarnings(f(x))
+    if (is.finite(y)) y else NA_real_
+}
 
 
 #' Checks if a parameter has an integer value.
