@@ -17,13 +17,6 @@ SystemRequirements:
     GMP (>= 6.2.0, https://gmplib.org/download/gmp/),
     GNU Make,
     pkg-config
-    On Windows: precompiled static libraries are provided under
-      'inst/extlibs/x64/' for 64-bit builds,
-    On macOS:
-      - For Intel architecture (x86_64): precompiled static libraries are provided under 'inst/extlibs/x86_64/'
-      - For Apple Silicon architecture (arm64): precompiled static libraries are provided under 'inst/extlibs/arm64/'
-    (see README for additional installation details),
-    and include files are provided under 'inst/include/'.
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 URL: https://github.com/bogdanoancea/finitization
