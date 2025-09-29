@@ -1,26 +1,24 @@
 #!/bin/sh
-# configure script for CRAN‐safe fallback static linking of GMP, CLN, and GiNaC
-# with explicit C++11 for macOS Intel and C++14 otherwise
-
 set -e
 
-# Detect OS
+# Detect OS (only to set -mmacosx-version-min)
 UNAME_S=$(uname -s)
 case "$UNAME_S" in
-  Darwin)   OS=macos ;;
-  MINGW*| MSYS*| CYGWIN*)  OS=windows ;;
-  Linux)    OS=linux ;;
-  *)        OS=unknown ;;
+  Darwin) OS=macos ;;
+  Linux)  OS=linux ;;
+  *)      OS=other ;;
 esac
 
+# macOS minimum deployment target (safe to keep)
 if [ "$OS" = "macos" ]; then
-  # ensure we target at least 11.0 to match our .external libraries LC_VERSION_MIN
   CPPFLAGS="-mmacosx-version-min=11.0 $CPPFLAGS"
   LDFLAGS="-mmacosx-version-min=11.0 $LDFLAGS"
   export CPPFLAGS LDFLAGS
 fi
 
-# 2. Detect architecture
+: "${PKG_CONFIG:=pkg-config}"
+
+# Detect architecture
 if [ "$OS" = "windows" ]; then
   ARCHDIR=${R_ARCH:-x64}
 else
@@ -31,90 +29,33 @@ echo "Configuring for $OS / $ARCHDIR"
 
 CPPFLAGS=""
 LDFLAGS=""
-USE_FALLBACK=0
 
-# 3. Try pkg-config
-if command -v pkg-config >/dev/null 2>&1; then
-  echo "Using pkg-config to locate GMP, CLN, and GiNaC..."
-  if pkg-config --exists gmp cln ginac; then
-    PKG_FLAGS=$(pkg-config --cflags --libs gmp cln ginac)
-    CPPFLAGS=$(echo "$PKG_FLAGS" | awk '{ for(i=1;i<=NF;i++) if ($i ~ /^-I/) printf "%s ", $i }')
-    LDFLAGS=$(echo "$PKG_FLAGS" | awk '{ for(i=1;i<=NF;i++) if ($i ~ /^-L|^-l/) printf "%s ", $i }')
-  else
-    echo "Required pkg-config packages not found."
-    if [ "$OS" = "macos" ]; then
-      echo "macOS detected: attempting Homebrew install..."
-      if command -v brew >/dev/null 2>&1; then
-        if brew install gmp cln ginac; then
-          echo "Homebrew install succeeded; retrying pkg-config..."
-          if pkg-config --exists gmp cln ginac; then
-            PKG_FLAGS=$(pkg-config --cflags --libs gmp cln ginac)
-            CPPFLAGS=$(echo "$PKG_FLAGS" | awk '{ for(i=1;i<=NF;i++) if ($i ~ /^-I/) printf "%s ", $i }')
-            LDFLAGS=$(echo "$PKG_FLAGS" | awk '{ for(i=1;i<=NF;i++) if ($i ~ /^-L|^-l/) printf "%s ", $i }')
-          else
-            echo "pkg-config still cannot find libraries after brew."
-            echo "Please install development packages: ginac, cln, gmp. See details in README.md."
-            exit 1
-          fi
-        else
-          echo "brew install failed."
-          exit 1
-        fi
-      else
-        echo "Homebrew not installed."
-        exit 1
-      fi
-
-    elif [ "$OS" = "linux" ]; then
-      echo "Linux detected."
-      if command -v apt-get >/dev/null 2>&1; then
-        echo "Attempting APT install of dependencies (requires sudo)..."
-        if sudo apt-get update && \
-           sudo apt-get install -y libgmp-dev libcln-dev libginac-dev pkg-config; then
-          echo "APT install succeeded; retrying pkg-config..."
-          if pkg-config --exists gmp cln ginac; then
-            PKG_FLAGS=$(pkg-config --cflags --libs gmp cln ginac)
-            CPPFLAGS=$(echo "$PKG_FLAGS" | awk '{ for(i=1;i<=NF;i++) if ($i ~ /^-I/) printf "%s ", $i }')
-            LDFLAGS=$(echo "$PKG_FLAGS" | awk '{ for(i=1;i<=NF;i++) if ($i ~ /^-L|^-l/) printf "%s ", $i }')
-          else
-            echo "pkg-config still cannot find libraries after APT install."
-            echo "Please ensure libgmp-dev, libcln-dev, libginac-dev are installed and visible to pkg-config."
-            exit 1
-          fi
-        else
-          echo "APT install failed."
-          exit 1
-        fi
-      else
-        echo "Non-APT Linux distribution detected."
-        echo "Please install development packages for GMP, CLN, GiNaC and ensure pkg-config can find them."
-        echo "Examples:"
-        echo "  Fedora:  sudo dnf install gmp-devel cln-devel ginac-devel pkgconf-pkg-config"
-        echo "  openSUSE: sudo zypper install gmp-devel cln-devel ginac-devel pkgconf-pkg-config"
-        echo "  Arch:    sudo pacman -S gmp cln ginac pkgconf"
-        exit 1
-      fi
-
-    else
-      echo "Unsupported OS for automated install. Please install gmp/cln/ginac manually and retry. See the README.md file for more details."
-      exit 1
-    fi
-  fi
-else
-  echo "pkg-config not available;"
-  echo "ERROR: 'pkg-config' not found. Please install it." 1>&2
+# Try pkg-config
+if ! command -v "$PKG_CONFIG" >/dev/null 2>&1; then
+  cat >&2 <<'EOM'
+ERROR: 'pkg-config' was not found.
+Please install pkg-config and the development packages for GMP, CLN, and GiNaC.
+  - Debian/Ubuntu: sudo apt-get install -y pkg-config libgmp-dev libcln-dev libginac-dev
+  - Fedora:        sudo dnf install pkgconf-pkg-config gmp-devel cln-devel ginac-devel
+  - openSUSE:      sudo zypper install pkgconf-pkg-config gmp-devel cln-devel ginac-devel
+  - macOS (Homebrew): brew install pkg-config gmp cln ginac
+EOM
   exit 1
 fi
-
-
-# Fallback static linking
-# if [ "$USE_FALLBACK" -eq 1 ]; then
-#   echo "Using bundled static libraries."
-#   CPPFLAGS="-I../inst/include"
-#   LDFLAGS="../inst/extlibs/$ARCHDIR/libginac.a \
-#            ../inst/extlibs/$ARCHDIR/libcln.a  \
-#            ../inst/extlibs/$ARCHDIR/libgmp.a"
-# fi
+if "$PKG_CONFIG" --exists gmp cln ginac; then
+  PKG_CPPFLAGS=$("$PKG_CONFIG" --cflags gmp cln ginac)
+  PKG_LIBS=$("$PKG_CONFIG" --libs   gmp cln ginac)
+else
+  cat >&2 <<'EOM'
+ERROR: Could not find GMP/CLN/GiNaC via pkg-config.
+Please install the development packages and ensure pkg-config can find them.
+  - Debian/Ubuntu: sudo apt-get install -y libgmp-dev libcln-dev libginac-dev
+  - Fedora:        sudo dnf install gmp-devel cln-devel ginac-devel
+  - openSUSE:      sudo zypper install gmp-devel cln-devel ginac-devel
+  - macOS (Homebrew): brew install gmp cln ginac
+EOM
+  exit 1
+fi
 
 # Decide which C++ standard to ask R to use
 if [ "$OS" = "macos" ] && [ "$ARCHDIR" = "x86_64" ]; then
@@ -137,18 +78,18 @@ PKG_CXXFLAGS="-DNDEBUG"
 # Write src/Makevars
 cat > src/Makevars <<EOF
 CXX_STD = $CXXSTD
-PKG_CPPFLAGS = $CPPFLAGS
+PKG_CPPFLAGS = $PKG_CPPFLAGS
 PKG_CXXFLAGS = $PKG_CXXFLAGS
-PKG_LIBS = $LDFLAGS
+PKG_LIBS = $PKG_LIBS
 EOF
 
 
 # Write src/Makevars.win
 cat > src/Makevars.win <<EOF
-CXX_STD = $CXXSTD
-PKG_CPPFLAGS = $CPPFLAGS
+CXX_STD      = $CXXSTD
+PKG_CPPFLAGS = $PKG_CPPFLAGS
 PKG_CXXFLAGS = $PKG_CXXFLAGS
-PKG_LIBS = $LDFLAGS
+PKG_LIBS     = $PKG_LIBS
 EOF
 
 echo "configure: Found GMP/CLN/GiNaC via pkg-config."
