@@ -2,19 +2,102 @@
 % Please edit documentation in R/utils.R
 \name{findSolutions}
 \alias{findSolutions}
-\title{Solves the equation \eqn{pdf(n-1) = 0} and returns the maximum feasible parameter space.}
+\title{Find maximum feasible parameter space (MFPS) bounds}
 \usage{
-findSolutions(func)
+findSolutions(
+  func,
+  lower = 0,
+  upper = 1,
+  eps_endpoint = 1e-10,
+  tol = 1e-08,
+  initial_n = 1e+07,
+  growth = 2,
+  max_upper = 1,
+  coarse_pts = 256L,
+  fine_pts = 4096L
+)
 }
 \arguments{
-\item{func}{a function. The actual parameter will be \code{pdf(n-1)}.}
+\item{func}{A function of one variable (typically \code{theta}) representing
+the polynomial \eqn{pdf(n-1)} whose roots determine the MFPS.}
+
+\item{lower}{Numeric, left endpoint of the initial search interval
+(default \code{0}).}
+
+\item{upper}{Numeric, right endpoint of the initial search interval
+(default \code{1}).}
+
+\item{eps_endpoint}{Numeric tolerance for treating an endpoint as a root
+(default \code{1e-10}).}
+
+\item{tol}{Numeric tolerance passed to \code{\link[rootSolve]{uniroot.all}}
+(default \code{1e-8}).}
+
+\item{initial_n}{Integer grid size for the initial dense search in
+\code{[lower, upper]} (default \code{1e7}).}
+
+\item{growth}{Numeric growth factor for rightward expansion (default \code{2}).}
+
+\item{max_upper}{Maximum right endpoint for expansion (default \code{1}).}
+
+\item{coarse_pts}{Number of coarse grid points in rightward probing
+(default \code{256}).}
+
+\item{fine_pts}{Number of fine grid points in rightward probing
+(default \code{4096}).}
 }
 \value{
-a vector with two values: the lower and the upper limits of the maximum feasible parameter space.
+A numeric vector of length two: \code{c(LL, UL)}, the lower and upper
+bounds of the maximum feasible parameter space. Returns \code{c(NA, NA)}
+if no roots are found.
 }
 \description{
-It is used to actually solve the equation \eqn{pdf(n-1) = 0} needed
-the find the maximum feasible parameter space for a finitized distribution. After finding the solutions, it builds the interval
-which represents the maximum feasible parameter space.
+This helper locates the two rightmost roots of the polynomial
+\eqn{pdf(n-1)} that define the maximum feasible parameter space (MFPS)
+of a finitized distribution.
+}
+\details{
+The algorithm works in two stages:
+\enumerate{
+\item An initial dense search in the interval \code{[lower, upper]} using
+\code{\link[rootSolve]{uniroot.all}}, keeping only the two largest roots.
+Endpoints are treated as roots if the function value is numerically close
+to zero (within \code{eps_endpoint}).
+\item If the largest root may lie to the right of \code{upper}, the search
+expands rightward in geometrically increasing segments, first with a coarse
+grid then refined with a finer grid. Expansion stops when no additional
+roots are found or when \code{max_upper} is reached.
+}
+
+The result is the interval \eqn{[\mathrm{LL}, \mathrm{UL}]}, where \eqn{UL}
+is the largest detected root and \eqn{LL} is the second-largest root (or
+\eqn{0} if only one root is found).
+}
+\examples{
+## Example 1: Well-conditioned polynomial with exact roots at 0 and 1
+f1 <- function(theta) (2.2e-16) * theta^12 * (1 - theta)
+findSolutions <- getFromNamespace("findSolutions", "finitization")
+findSolutions(f1, initial_n = 1e5, tol = 1e-10)
+
+## Example 2: Endpoint snapping (near-zero at 0 and 1 within eps)
+f2 <- function(theta) 1e-14 * theta^8 * (theta - 1) + 1e-20
+findSolutions <- getFromNamespace("findSolutions", "finitization")
+# Treat endpoint values within eps as zeros:
+findSolutions(f2, eps_endpoint = 1e-12, initial_n = 2e5)
+
+## Example 3: Largest root beyond 1 → rightward expansion finds it
+##            (toy function with roots near 0.3 and 1.2)
+f3 <- function(theta) (theta - 0.3) * (theta - 1.2)
+findSolutions <- getFromNamespace("findSolutions", "finitization")
+# Start in [0,1], then expand to the right up to max_upper = 2
+findSolutions(f3, lower = 0, upper = 1, max_upper = 2,
+              initial_n = 2e5, coarse_pts = 128L, fine_pts = 1024L)
+
+## Example 4 (MFPS flavor): A PSD-style series truncated to n−1
+## Suppose pdf(n-1) reduces to a low-degree polynomial in theta:
+f4 <- function(theta) 1 - 4*theta + 10*theta^2 - 20*theta^3 + 35*theta^4
+findSolutions <- getFromNamespace("findSolutions", "finitization")
+# Return the two rightmost admissible theta values as MFPS bounds
+findSolutions(f4, lower = 0, upper = 1, initial_n = 1e7, tol = 1e-10)
 }
 \keyword{internal}

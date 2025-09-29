@@ -197,16 +197,19 @@ checkVals <- function(n, val) {
 #' @examples
 #' ## Example 1: Well-conditioned polynomial with exact roots at 0 and 1
 #' f1 <- function(theta) (2.2e-16) * theta^12 * (1 - theta)
+#' findSolutions <- getFromNamespace("findSolutions", "finitization")
 #' findSolutions(f1, initial_n = 1e5, tol = 1e-10)
 #'
 #' ## Example 2: Endpoint snapping (near-zero at 0 and 1 within eps)
 #' f2 <- function(theta) 1e-14 * theta^8 * (theta - 1) + 1e-20
+#' findSolutions <- getFromNamespace("findSolutions", "finitization")
 #' # Treat endpoint values within eps as zeros:
 #' findSolutions(f2, eps_endpoint = 1e-12, initial_n = 2e5)
 #'
 #' ## Example 3: Largest root beyond 1 → rightward expansion finds it
 #' ##            (toy function with roots near 0.3 and 1.2)
 #' f3 <- function(theta) (theta - 0.3) * (theta - 1.2)
+#' findSolutions <- getFromNamespace("findSolutions", "finitization")
 #' # Start in [0,1], then expand to the right up to max_upper = 2
 #' findSolutions(f3, lower = 0, upper = 1, max_upper = 2,
 #'               initial_n = 2e5, coarse_pts = 128L, fine_pts = 1024L)
@@ -214,8 +217,10 @@ checkVals <- function(n, val) {
 #' ## Example 4 (MFPS flavor): A PSD-style series truncated to n−1
 #' ## Suppose pdf(n-1) reduces to a low-degree polynomial in theta:
 #' f4 <- function(theta) 1 - 4*theta + 10*theta^2 - 20*theta^3 + 35*theta^4
+#' findSolutions <- getFromNamespace("findSolutions", "finitization")
 #' # Return the two rightmost admissible theta values as MFPS bounds
 #' findSolutions(f4, lower = 0, upper = 1, initial_n = 1e7, tol = 1e-10)
+#' @importFrom utils tail
 findSolutions <- function(func,
                           lower = 0, upper = 1,
                           eps_endpoint = 1e-10,  # treat endpoint as root if |f| <= eps
@@ -318,14 +323,6 @@ findSolutions <- function(func,
 
     c(LL, UL)
 }
-
-
-## Safe scalar evaluation (clamps x to finite range and swallows warnings)
-.fsafe <- function(f, x) {
-    y <- suppressWarnings(f(x))
-    if (is.finite(y)) y else NA_real_
-}
-
 
 #' Checks if a parameter has an integer value.
 #'
