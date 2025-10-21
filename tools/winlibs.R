@@ -11,9 +11,7 @@ if (.Platform$OS.type == "windows") {
     # Prefer environment override in CI; otherwise use your GitHub release URL.
     base_url <- Sys.getenv(
         "FINITIZATION_WINLIBS_BASE",
-        # TODO: <<< CHANGE THIS TO YOUR ACTUAL RELEASE BASE URL >>>
-        # e.g. "https://github.com/bogdanoancea/finitization-winlibs/releases/download/v1"
-        "https://example.com/your/bundles"  # <— placeholder, replace!
+        "https://github.com/bogdanoancea/finitization-winlibs/releases/download/v1.0.0/"  # <— placeholder, replace!
     )
 
     # Architecture / toolchain tag: use UCRT for R >= 4.2
@@ -24,7 +22,7 @@ if (.Platform$OS.type == "windows") {
     #   windows/ucrt64/include/{gmp,cln,ginac}/...
     #   windows/ucrt64/lib/{libgmp.a,libcln.a,libginac.a}
     #   windows/ucrt64/lib/pkgconfig/{gmp.pc,cln.pc,ginac.pc}
-    bundle_name <- sprintf("ginac-1.8.9+cln-1.3.7+gmp-6.3.0-%s.zip", plat)
+    bundle_name <- sprintf("finitization-ucrt64-gmp+cln+ginac-static.zip", plat)
     bundle_url  <- sprintf("%s/%s", sub("/+$", "", base_url), bundle_name)
 
     dest_dir <- normalizePath(file.path("windows", plat), mustWork = FALSE)
@@ -99,7 +97,7 @@ if (.Platform$OS.type == "windows") {
         prefix = dest_dir,
         libdir = libdir,
         includedir = file.path(incdir, "cln"),
-        version = "1.3.6",
+        version = "1.3.7",
         libs = "-L${libdir} -lcln -lgmp"
     )
     write_pc_if_missing(
@@ -107,7 +105,7 @@ if (.Platform$OS.type == "windows") {
         prefix = dest_dir,
         libdir = libdir,
         includedir = file.path(incdir, "ginac"),
-        version = "1.8.7",
+        version = "1.8.9",
         libs = "-L${libdir} -lginac -lcln -lgmp"
     )
 

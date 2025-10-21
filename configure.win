@@ -14,8 +14,8 @@ else
   # Optionally fetch prebuilt libs for CRAN’s Windows build:
   if [ -f tools/winlibs.R ]; then
     Rscript tools/winlibs.R
-    PKG_CPPFLAGS="-Iwindows/include"
-    PKG_LIBS="windows/lib/ginac.lib windows/lib/cln.lib windows/lib/gmp.lib"
+    PKG_CPPFLAGS="-I../windows/ucrt64/include -g0 -ffunction-sections -fdata-sections -DNDEBUG"
+    PKG_LIBS="-L../windows/ucrt64/lib -lginac -lcln -lgmp"
   else
     echo "GiNaC/CLN/GMP not found. See README.md for Windows setup." >&2
     exit 1
@@ -26,6 +26,7 @@ mkdir -p src
 cat > src/Makevars.win <<EOF
 CXX_STD = CXX14
 PKG_CPPFLAGS = $PKG_CPPFLAGS
-PKG_CXXFLAGS = -DNDEBUG
+PKG_CXXFLAGS = -g0 -ffunction-sections -fdata-sections -DNDEBUG
 PKG_LIBS     = $PKG_LIBS
+PKGLIBS +=-Wl, --gc-sections
 EOF
