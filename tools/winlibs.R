@@ -16,12 +16,6 @@ if (.Platform$OS.type == "windows") {
 
     # Architecture / toolchain tag: use UCRT for R >= 4.2
     plat <- Sys.getenv("FINITIZATION_WIN_ARCH", unset = "ucrt64")
-
-    # File naming convention for your bundle (adjust if yours differ)
-    # Must contain:
-    #   windows/ucrt64/include/{gmp,cln,ginac}/...
-    #   windows/ucrt64/lib/{libgmp.a,libcln.a,libginac.a}
-    #   windows/ucrt64/lib/pkgconfig/{gmp.pc,cln.pc,ginac.pc}
     bundle_name <- sprintf("finitization-ucrt64-gmp+cln+ginac-static.zip", plat)
     bundle_url  <- sprintf("%s/%s", sub("/+$", "", base_url), bundle_name)
 
@@ -30,8 +24,8 @@ if (.Platform$OS.type == "windows") {
     zipfile  <- file.path(tempdir(), bundle_name)
 
     # Optional: SHA256 for integrity (set in CI via env var)
-    sha256_expected <- Sys.getenv("FINITIZATION_WINLIBS_SHA256", unset = "")
-
+    # sha256_expected <- Sys.getenv("FINITIZATION_WINLIBS_SHA256", unset = "")
+    sha256_expected <- as.character("6ce8cccf03db78285cef30a66ff697033d65bd6405e8cfd725bbc9a757079a98")
     # ---- Helpers --------------------------------------------------------------
     download_file <- function(url, dst) {
         dir.create(dirname(dst), recursive = TRUE, showWarnings = FALSE)
@@ -68,7 +62,11 @@ if (.Platform$OS.type == "windows") {
 
     if (nzchar(sha256_expected)) {
         got <- sha256(zipfile)
-        if (!nzchar(got) || !identical(tolower(got), tolower(sha256_expected))) {
+        got <- as.character(unname(got)[1])       # drop names & ensure length-1 scalar
+        got <- tolower(trimws(got))
+        sha256_expected <- tolower(trimws(sha256_expected))
+
+        if (!nzchar(got) || got != sha256_expected) {
             stop("tools/winlibs.R: SHA256 mismatch for ", basename(zipfile),
                  "\n  expected: ", sha256_expected, "\n  got:      ", got)
         }
