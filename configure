@@ -73,8 +73,8 @@ CPPFLAGS="$CPPFLAGS $STD_FLAG"
 LDFLAGS=$(printf "%s\n" $LDFLAGS | awk '!seen[$0]++' | tr '\n' ' ')
 
 # Safe optimization flags for CRAN
-PKG_CXXFLAGS="-g0 -ffunction-sections -fdata-sections -DNDEBUG"
-PKG_CFLAGS="-g0 -ffunction-sections -fdata-sections"
+PKG_CXXFLAGS="-g0 -DNDEBUG"
+PKG_CFLAGS="-g0"
 # Write src/Makevars
 cat > src/Makevars <<EOF
 CXX_STD = $CXXSTD
