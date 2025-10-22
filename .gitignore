@@ -41,7 +41,6 @@ tools/winlibs.R
 # Documentation and site builds
 docs/
 pkgdown/
-inst/doc/
 vignettes/*.html
 vignettes/*.pdf
 
