@@ -31,7 +31,6 @@
 ^pkgdown$
 ^man/figures$
 ^data-raw$
-^inst/doc$
 ^vignettes/.*\.(html|pdf)$
 ^tests/testthat/_snaps$
 
