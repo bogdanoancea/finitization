@@ -26,6 +26,7 @@ Suggests:
 VignetteBuilder: knitr
 LinkingTo: Rcpp
 Config/testthat/edition: 3
+BuildVignettes: false
 Collate: 
     'RcppExports.R'
     'utils.R'
