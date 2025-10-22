@@ -58,3 +58,5 @@ revdep/
 
 # Miscellaneous
 *.RDataTmp
+/doc/
+/Meta/
