@@ -1,5 +1,61 @@
+# R session and IDE files
 .Rproj.user
 .Rhistory
-.Rdata
-.httr-oauth
+.RData
+.Ruserdata
 .DS_Store
+.Rapp.history
+
+# RStudio project files (keep the .Rproj if you want it tracked)
+*.Rproj
+
+# Package build outputs
+.Rcheck/
+*.tar.gz
+*.zip
+*.tgz
+*.log
+
+# Temporary files
+*.swp
+*.tmp
+*.bak
+*.old
+
+# Compiled code
+src/*.o
+src/*.so
+src/*.dll
+src/*.a
+src/*.lib
+
+# Local or system-specific Makevars
+src/Makevars.local
+src/Makevars.win.local
+
+# Windows external libs
+windows/
+inst/extlibs/
+tools/winlibs.R
+
+# Documentation and site builds
+docs/
+pkgdown/
+inst/doc/
+vignettes/*.html
+vignettes/*.pdf
+
+# Test outputs and coverage
+tests/testthat/_snaps/
+tests/testthat.Rout*
+.Rcov
+covr/
+
+# GitHub or CI/CD metadata
+.github/
+cran-comments.md
+CRAN-RELEASE
+revdep/
+
+# Miscellaneous
+*.RDataTmp
