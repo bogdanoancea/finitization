@@ -10,7 +10,7 @@ Maintainer: Bogdan Oancea <bogdan.oancea@gmail.com>
 License: GPL (>= 2)
 Encoding: UTF-8
 NeedsCompilation: yes
-SystemRequirements: gmp, cln, ginac; pkg-config; make; C++14
+SystemRequirements: libgmp-dev, libcln-dev, libginac-dev; pkg-config; make; C++14
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 URL: https://github.com/bogdanoancea/finitization
@@ -36,4 +36,3 @@ Collate:
     'negbinom.R'
     'pois.R'
     'zzz.R'
-
