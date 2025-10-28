@@ -64,7 +64,7 @@ EOM
     else
         if [ -f "${PKG_ROOT}/tools/extlibs.R" ]; then
             Rscript "${PKG_ROOT}/tools/extlibs.R"
-            PKG_CPPFLAGS= "-I${PKG_ROOT}/linux/x86_64/include -g0 -ffunction-sections -fdata-sections -fPIC -DNDEBUG"
+            PKG_CPPFLAGS="-I${PKG_ROOT}/linux/x86_64/include -g0 -ffunction-sections -fdata-sections -fPIC -DNDEBUG"
             PKG_LIBS="-L${PKG_ROOT}/linux/x86_64/lib -lginac -lcln -lgmp"
         else
             echo "GiNaC/CLN/GMP not found. See README.md for setup." >&2
