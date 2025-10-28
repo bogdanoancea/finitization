@@ -16,15 +16,31 @@ if [ -n "$PKGCFG" ] && $PKGCFG --exists gmp cln ginac; then
   PKG_CPPFLAGS=$($PKGCFG --cflags gmp cln ginac)
   PKG_LIBS=$($PKGCFG --libs   gmp cln ginac)
 else
-  # Optionally fetch prebuilt libs for CRAN’s Windows build:
-  if [ -f "${PKG_ROOT}/tools/extlibs.R" ]; then
-    Rscript "${PKG_ROOT}/tools/extlibs.R"
-    PKG_CPPFLAGS="-I${PKG_ROOT}/windows/ucrt64/include -g0 -ffunction-sections -fdata-sections -DNDEBUG"
-    PKG_LIBS="-L${PKG_ROOT}/windows/ucrt64/lib -lginac -lcln -lgmp"
+  # Optionally fetch prebuilt libs for Windows build:
+  BUNDLE_URL="https://github.com/bogdanoancea/finitization-winlibs/releases/download/v1.0.0/finitization-ucrt64-gmp+cln+ginac-static.zip"
+  VENDOR_TMP="${PKG_ROOT}/extlibs"
+  mkdir -p "${VENDOR_TMP}"
+  echo "DEBUG[configure]: fetching bundle from ${BUNDLE_URL}"
+  if command -v curl >/dev/null 2>&1; then
+    curl -L -o "${VENDOR_TMP}/finitization-ucrt64-gmp+cln+ginac-static.zip" "${BUNDLE_URL}"
+  elif command -v wget >/dev/null 2>&1; then
+    wget -O "${VENDOR_TMP}/finitization-x86_64-gmp+cln+ginac-static.zip" "${BUNDLE_URL}"
   else
-    echo "GiNaC/CLN/GMP not found. See README.md for Windows setup." >&2
+    cat >&2 <<'EOM'
+ERROR: Neither curl nor wget found to download external libraries.
+Please install curl or wget.
+EOM
     exit 1
   fi
+  echo "DEBUG[configure]: extracting bundle"
+  if command -v unzip >/dev/null 2>&1; then
+    unzip -o "${VENDOR_TMP}/finitization-ucrt64-gmp+cln+ginac-static.zip" -d "${VENDOR_TMP}"
+  else
+    echo "DEBUG: using PowerShell Expand-Archive fallback"
+    pwsh -NoProfile -Command "Expand-Archive -Path '${VENDOR_TMP}/finitization-ucrt64-gmp+cln+ginac-static.zip' -DestinationPath '${VENDOR_TMP}' -Force"
+  fi
+  PKG_CPPFLAGS="-I${PKG_ROOT}/extlibs/windows/ucrt64/include -g0 -ffunction-sections -fdata-sections -DNDEBUG"
+  PKG_LIBS="-L${PKG_ROOT}/extlibs/windows/ucrt64/lib -lginac -lcln -lgmp"
 fi
 
 mkdir -p src
