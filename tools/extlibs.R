@@ -34,7 +34,7 @@ write_pc_if_missing <- function(name, prefix, libdir, includedir, version, libs)
 
 if (.Platform$OS.type == "windows") {
 
-    message("tools/winlibs.R: fetching Windows libraries for finitization …")
+    message("tools/extlibs.R: fetching Windows libraries for finitization …")
 
     # ---- Configuration --------------------------------------------------------
     base_url <- Sys.getenv(
@@ -51,7 +51,7 @@ if (.Platform$OS.type == "windows") {
 
     dest_dir <- normalizePath(file.path("windows", plat), mustWork = FALSE)
 } else if (identical( Sys.info()[["sysname"]], "Linux")) {
-    message("tools/winlibs.R: fetching Linux libraries for finitization …")
+    message("tools/extlibs.R: fetching Linux libraries for finitization …")
     sha256_expected <- as.character("1d7dee1f5e487e4c802cdf626424f9422ad3a7e73a740e86dad3b7b186bebe76")
 
     # ---- Configuration --------------------------------------------------------

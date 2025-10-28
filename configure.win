@@ -17,7 +17,7 @@ if [ -n "$PKGCFG" ] && $PKGCFG --exists gmp cln ginac; then
   PKG_LIBS=$($PKGCFG --libs   gmp cln ginac)
 else
   # Optionally fetch prebuilt libs for CRAN’s Windows build:
-  if [ -f "${PKG_ROOT}tools/extlibs.R" ]; then
+  if [ -f "${PKG_ROOT}/tools/extlibs.R" ]; then
     Rscript "${PKG_ROOT}/tools/extlibs.R"
     PKG_CPPFLAGS="-I${PKG_ROOT}/windows/ucrt64/include -g0 -ffunction-sections -fdata-sections -DNDEBUG"
     PKG_LIBS="-L${PKG_ROOT}/windows/ucrt64/lib -lginac -lcln -lgmp"
