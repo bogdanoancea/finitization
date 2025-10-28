@@ -1,5 +1,9 @@
 #!/bin/sh
 set -e
+echo "DEBUG: configure running in $(pwd)"
+echo "DEBUG: listing top-level directory:"
+ls -R .
+
 
 # Detect OS (only to set -mmacosx-version-min)
 UNAME_S=$(uname -s)
