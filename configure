@@ -63,7 +63,7 @@ EOM
         exit 1
     else
     # Optionally fetch prebuilt libs for Windows build:
-        BUNDLE_URL="https://github.com/bogdanoancea/finitization-winlibs/releases/download/v1.0.0/finitization-x86_64-gmp+cln+ginac-static.zip"
+        BUNDLE_URL="https://github.com/bogdanoancea/finitization-linuxlibs/releases/download/v1.0.0/finitization-x86_64-gmp+cln+ginac-static.zip"
         VENDOR_TMP="${PKG_ROOT}/extlibs"
         mkdir -p "${VENDOR_TMP}"
         echo "DEBUG[configure]: fetching bundle from ${BUNDLE_URL}"
