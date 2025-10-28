@@ -1,8 +1,9 @@
 #!/bin/sh
 set -e
-echo "DEBUG: configure running in $(pwd)"
-echo "DEBUG: listing top-level directory:"
-ls -R .
+PKG_ROOT=$(dirname "$0")
+# Normalize to absolute path
+PKG_ROOT=$(cd "$PKG_ROOT" && pwd)
+echo $PKG_ROOT
 
 case "$(uname -s)" in MINGW*|MSYS*|CYGWIN*) ;; *) exit 1 ;; esac
 
@@ -16,10 +17,10 @@ if [ -n "$PKGCFG" ] && $PKGCFG --exists gmp cln ginac; then
   PKG_LIBS=$($PKGCFG --libs   gmp cln ginac)
 else
   # Optionally fetch prebuilt libs for CRAN’s Windows build:
-  if [ -f "${srcdir}tools/extlibs.R" ]; then
-    Rscript "${srcdir}tools/extlibs.R"
-    PKG_CPPFLAGS="-I${srcdir}/windows/ucrt64/include -g0 -ffunction-sections -fdata-sections -DNDEBUG"
-    PKG_LIBS="-L${srcdir}/windows/ucrt64/lib -lginac -lcln -lgmp"
+  if [ -f "${PKG_ROOT}tools/extlibs.R" ]; then
+    Rscript "${PKG_ROOT}tools/extlibs.R"
+    PKG_CPPFLAGS="-I${PKG_ROOT}/windows/ucrt64/include -g0 -ffunction-sections -fdata-sections -DNDEBUG"
+    PKG_LIBS="-L${PKG_ROOT}/windows/ucrt64/lib -lginac -lcln -lgmp"
   else
     echo "GiNaC/CLN/GMP not found. See README.md for Windows setup." >&2
     exit 1

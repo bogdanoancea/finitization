@@ -1,9 +1,9 @@
 #!/bin/sh
 set -e
-echo "DEBUG: configure running in $(pwd)"
-echo "DEBUG: listing top-level directory:"
-ls -R .
-
+PKG_ROOT=$(dirname "$0")
+# Normalize to absolute path
+PKG_ROOT=$(cd "$PKG_ROOT" && pwd)
+echo $PKG_ROOT
 
 # Detect OS (only to set -mmacosx-version-min)
 UNAME_S=$(uname -s)
@@ -62,10 +62,10 @@ Please install the development packages and ensure pkg-config can find them.
 EOM
         exit 1
     else
-        if [ -f "${srcdir}/tools/extlibs.R" ]; then
-            Rscript "${srcdir}/tools/extlibs.R"
-            PKG_CPPFLAGS= "-I${srcdir}/linux/x86_64/include -g0 -ffunction-sections -fdata-sections -fPIC -DNDEBUG"
-            PKG_LIBS="-L${srcdir}/linux/x86_64/lib -lginac -lcln -lgmp"
+        if [ -f "${PKG_ROOT}/tools/extlibs.R" ]; then
+            Rscript "${PKG_ROOT}/tools/extlibs.R"
+            PKG_CPPFLAGS= "-I${PKG_ROOT}/linux/x86_64/include -g0 -ffunction-sections -fdata-sections -fPIC -DNDEBUG"
+            PKG_LIBS="-L${PKG_ROOT}/linux/x86_64/lib -lginac -lcln -lgmp"
         else
             echo "GiNaC/CLN/GMP not found. See README.md for setup." >&2
             exit 1
