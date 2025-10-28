@@ -121,6 +121,6 @@ write_pc_if_missing(
     libs = "-L${libdir} -lginac -lcln -lgmp"
 )
 
-message("tools/winlibs.R: done. Installed headers/libs under ", dest_dir)
+message("tools/extlibs.R: done. Installed headers/libs under ", dest_dir)
 message("  pkgconfig: ", normalizePath(pc_dir, winslash = "/"))
 
