@@ -42,11 +42,13 @@ Please install pkg-config and the development packages for GMP, CLN, and GiNaC.
 EOM
   exit 1
 fi
+
 if "$PKG_CONFIG" --exists gmp cln ginac; then
-  PKG_CPPFLAGS=$("$PKG_CONFIG" --cflags gmp cln ginac)
-  PKG_LIBS=$("$PKG_CONFIG" --libs   gmp cln ginac)
+    PKG_CPPFLAGS=$("$PKG_CONFIG" --cflags gmp cln ginac)
+    PKG_LIBS=$("$PKG_CONFIG" --libs   gmp cln ginac)
 else
-  cat >&2 <<'EOM'
+    if [ "$_R_CHECK_CRAN_INCOMING_" = "TRUE" ]; then
+        cat >&2 <<'EOM'
 ERROR: Could not find GMP/CLN/GiNaC via pkg-config.
 Please install the development packages and ensure pkg-config can find them.
   - Debian/Ubuntu: sudo apt-get install -y libgmp-dev libcln-dev libginac-dev
@@ -54,7 +56,17 @@ Please install the development packages and ensure pkg-config can find them.
   - openSUSE:      sudo zypper install gmp-devel cln-devel ginac-devel
   - macOS (Homebrew): brew install gmp cln ginac
 EOM
-  exit 1
+        exit 1
+    else
+        if [ -f tools/winlibs.R ]; then
+            Rscript tools/winlibs.R
+            PKG_CPPFLAGS="-I../linux/x86_64/include -g0 -ffunction-sections -fdata-sections -fPIC -DNDEBUG"
+            PKG_LIBS="-L../linux/x86_64/lib -lginac -lcln -lgmp"
+        else
+            echo "GiNaC/CLN/GMP not found. See README.md for setup." >&2
+            exit 1
+        fi
+    fi
 fi
 
 # Decide which C++ standard to ask R to use
@@ -73,15 +85,17 @@ CPPFLAGS="$CPPFLAGS $STD_FLAG"
 LDFLAGS=$(printf "%s\n" $LDFLAGS | awk '!seen[$0]++' | tr '\n' ' ')
 
 # Safe optimization flags for CRAN
-PKG_CXXFLAGS="-g0 -DNDEBUG"
-PKG_CFLAGS="-g0"
+PKG_CPPFLAGS=$PKG_CPPFLAGS
+PKG_CXXFLAGS=$PKG_CXXFLAGS
+PKG_LIBS=$PKG_LIBS
+
 # Write src/Makevars
 cat > src/Makevars <<EOF
-CXX_STD = $CXXSTD
-PKG_CPPFLAGS = $PKG_CPPFLAGS
-PKG_CXXFLAGS = $PKG_CXXFLAGS
+CXX_STD=$CXXSTD
+PKG_CPPFLAGS=$PKG_CPPFLAGS
+PKG_CXXFLAGS=$PKG_CXXFLAGS
 PKG_CFLAGS=$PKG_CFLAGS
-PKG_LIBS = $PKG_LIBS
+PKG_LIBS=$PKG_LIBS
 EOF
 
 
