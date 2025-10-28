@@ -58,8 +58,8 @@ Please install the development packages and ensure pkg-config can find them.
 EOM
         exit 1
     else
-        if [ -f tools/winlibs.R ]; then
-            Rscript tools/winlibs.R
+        if [ -f tools/extlibs.R ]; then
+            Rscript tools/extlibs.R
             PKG_CPPFLAGS="-I../linux/x86_64/include -g0 -ffunction-sections -fdata-sections -fPIC -DNDEBUG"
             PKG_LIBS="-L../linux/x86_64/lib -lginac -lcln -lgmp"
         else
