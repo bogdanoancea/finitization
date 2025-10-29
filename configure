@@ -1,5 +1,6 @@
 #!/bin/sh
 set -e
+
 PKG_ROOT=$(dirname "$0")
 # Normalize to absolute path
 PKG_ROOT=$(cd "$PKG_ROOT" && pwd)
@@ -45,7 +46,7 @@ if [ "$OS" = "macos" ]; then
   export CPPFLAGS LDFLAGS
 fi
 
-: "${PKG_CONFIG:=pkg-config}"
+PKG_CONFIG=${PKG_CONFIG:-pkg-config}
 
 # Detect architecture
 if [ "$OS" = "windows" ]; then
@@ -87,31 +88,88 @@ Please install the development packages and ensure pkg-config can find them.
 EOM
         exit 1
     else
-    # Optionally fetch prebuilt libs for linux build:
-        BUNDLE_URL="https://github.com/bogdanoancea/finitization-linuxlibs/releases/download/v1.0.0/finitization-x86_64-gmp+cln+ginac-static.zip"
-        VENDOR_TMP="${PKG_ROOT}/extlibs"
-        mkdir -p "${VENDOR_TMP}"
-        echo "DEBUG[configure]: fetching bundle from ${BUNDLE_URL}"
-        if command -v curl >/dev/null 2>&1; then
-            curl -L -o "${VENDOR_TMP}/finitization-x86_64-gmp+cln+ginac-static.zip" "${BUNDLE_URL}"
-        elif command -v wget >/dev/null 2>&1; then
-            wget -O "${VENDOR_TMP}/finitization-x86_64-gmp+cln+ginac-static.zip" "${BUNDLE_URL}"
-        else
-            cat >&2 <<'EOM'
+        if [ "$UNAME_S" = "Linux" ] && [ "$UNAME_M" = "x86_64" ]; then
+            # Optionally fetch prebuilt libs for linux build:
+            BUNDLE_URL="https://github.com/bogdanoancea/finitization-linuxlibs/releases/download/v1.0.0/finitization-x86_64-gmp+cln+ginac-static.zip"
+            VENDOR_TMP="${PKG_ROOT}/extlibs"
+            mkdir -p "${VENDOR_TMP}"
+            echo "DEBUG[configure]: fetching bundle from ${BUNDLE_URL}"
+            if command -v curl >/dev/null 2>&1; then
+                curl -L -o "${VENDOR_TMP}/finitization-x86_64-gmp+cln+ginac-static.zip" "${BUNDLE_URL}"
+            elif command -v wget >/dev/null 2>&1; then
+                wget -O "${VENDOR_TMP}/finitization-x86_64-gmp+cln+ginac-static.zip" "${BUNDLE_URL}"
+            else
+                cat >&2 <<'EOM'
 ERROR: Neither curl nor wget found to download external libraries.
 Please install curl or wget.
 EOM
-            exit 1
+                exit 1
+            fi
+            echo "DEBUG[configure]: extracting bundle"
+            if command -v unzip >/dev/null 2>&1; then
+                unzip -o "${VENDOR_TMP}/finitization-x86_64-gmp+cln+ginac-static.zip" -d "${VENDOR_TMP}"
+            else
+                echo "ERROR: unzip  isn't available on this system." >&2
+                exit 1
+            fi
+            PKG_CPPFLAGS="-I${PKG_ROOT}/extlibs/linux/x86_64/include -DNDEBUG"
+            PKG_LIBS="-L${PKG_ROOT}/extlibs/linux/x86_64/lib -lginac -lcln -lgmp"
         fi
-        echo "DEBUG[configure]: extracting bundle"
-        if command -v unzip >/dev/null 2>&1; then
-            unzip -o "${VENDOR_TMP}/finitization-x86_64-gmp+cln+ginac-static.zip" -d "${VENDOR_TMP}"
-        else
-            echo "ERROR: unzip  isn't available on this system." >&2
-            exit 1
+
+        if [ "$UNAME_S" = "Darwin" ] && [ "$UNAME_M" = "x86_64" ]; then
+            # Optionally fetch prebuilt libs for linux build:
+            BUNDLE_URL="https://github.com/bogdanoancea/finitization-macoslibs/releases/download/v1.0.0/finitization-x86_64-gmp+cln+ginac-static.zip"
+            VENDOR_TMP="${PKG_ROOT}/extlibs"
+            mkdir -p "${VENDOR_TMP}"
+            echo "DEBUG[configure]: fetching bundle from ${BUNDLE_URL}"
+            if command -v curl >/dev/null 2>&1; then
+                curl -L -o "${VENDOR_TMP}/finitization-x86_64-gmp+cln+ginac-static.zip" "${BUNDLE_URL}"
+            elif command -v wget >/dev/null 2>&1; then
+                wget -O "${VENDOR_TMP}/finitization-x86_64-gmp+cln+ginac-static.zip" "${BUNDLE_URL}"
+            else
+                cat >&2 <<'EOM'
+ERROR: Neither curl nor wget found to download external libraries.
+Please install curl or wget.
+EOM
+                exit 1
+            fi
+            echo "DEBUG[configure]: extracting bundle"
+            if command -v unzip >/dev/null 2>&1; then
+                unzip -o "${VENDOR_TMP}/finitization-x86_64-gmp+cln+ginac-static.zip" -d "${VENDOR_TMP}"
+            else
+                echo "ERROR: unzip  isn't available on this system." >&2
+                exit 1
+            fi
+            PKG_CPPFLAGS="-I${PKG_ROOT}/extlibs/macos/x86_64/include -DNDEBUG"
+            PKG_LIBS="-L${PKG_ROOT}/extlibs/macos/x86_64/lib -lginac -lcln -lgmp"
         fi
-        PKG_CPPFLAGS="-I${PKG_ROOT}/extlibs/linux/x86_64/include -DNDEBUG"
-        PKG_LIBS="-L${PKG_ROOT}/extlibs/linux/x86_64/lib -lginac -lcln -lgmp"
+        if [ "$UNAME_S" = "Darwin" ] && [ "$UNAME_M" = "arm64" ]; then
+            # Optionally fetch prebuilt libs for linux build:
+            BUNDLE_URL="https://github.com/bogdanoancea/finitization-macoslibs/releases/download/v1.0.0/finitization-arm64-gmp+cln+ginac-static.zip"
+            VENDOR_TMP="${PKG_ROOT}/extlibs"
+            mkdir -p "${VENDOR_TMP}"
+            echo "DEBUG[configure]: fetching bundle from ${BUNDLE_URL}"
+            if command -v curl >/dev/null 2>&1; then
+                curl -L -o "${VENDOR_TMP}/finitization-arm64-gmp+cln+ginac-static.zip" "${BUNDLE_URL}"
+            elif command -v wget >/dev/null 2>&1; then
+                wget -O "${VENDOR_TMP}/finitization-arm64-gmp+cln+ginac-static.zip" "${BUNDLE_URL}"
+            else
+                cat >&2 <<'EOM'
+ERROR: Neither curl nor wget found to download external libraries.
+Please install curl or wget.
+EOM
+                exit 1
+            fi
+            echo "DEBUG[configure]: extracting bundle"
+            if command -v unzip >/dev/null 2>&1; then
+                unzip -o "${VENDOR_TMP}/finitization-arm64-gmp+cln+ginac-static.zip" -d "${VENDOR_TMP}"
+            else
+                echo "ERROR: unzip  isn't available on this system." >&2
+                exit 1
+            fi
+            PKG_CPPFLAGS="-I${PKG_ROOT}/extlibs/macos/arm64/include -DNDEBUG"
+            PKG_LIBS="-L${PKG_ROOT}/extlibs/macos/arm64/lib -lginac -lcln -lgmp"
+        fi
     fi
 fi
 
