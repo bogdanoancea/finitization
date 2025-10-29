@@ -5,15 +5,41 @@ PKG_ROOT=$(dirname "$0")
 PKG_ROOT=$(cd "$PKG_ROOT" && pwd)
 echo $PKG_ROOT
 
-# Detect OS (only to set -mmacosx-version-min)
+# Detect OS
 UNAME_S=$(uname -s)
 case "$UNAME_S" in
   Darwin) OS=macos ;;
   Linux)  OS=linux ;;
   *)      OS=other ;;
 esac
+)
+UNAME_M=$(uname -m)
 
-# macOS minimum deployment target (safe to keep)
+if [ "$UNAME_S" = "Linux" ] && [ "$UNAME_M" = "aarch64" ]; then
+  cat >&2 <<'EOM'
+ERROR: finitization is not yet supported on Linux ARM64 (aarch64).
+Reason: the package depends on CLN/GiNaC/GMP, and we currently do not
+provide compatible prebuilt libraries for Linux/aarch64, and the upstream
+distros are not reliably installed by the builder on this architecture.
+
+This is intentional. Other platforms (x86_64 Linux, Windows, macOS incl. Apple Silicon)
+are supported.
+EOM
+  exit 1
+fi
+
+
+# Block WebAssembly/webR early (emcc toolchain)
+if ${CC:-cc} --version 2>/dev/null | grep -qi emscripten; then
+  cat >&2 <<'EOM'
+ERROR: finitization is not currently supported on WebAssembly / webR.
+CLN/GiNaC rely on native CPU integer semantics that are not yet available in WASM.
+EOM
+  exit 1
+fi
+
+
+# macOS minimum deployment target
 if [ "$OS" = "macos" ]; then
   CPPFLAGS="-mmacosx-version-min=11.0 $CPPFLAGS"
   LDFLAGS="-mmacosx-version-min=11.0 $LDFLAGS"
