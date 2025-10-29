@@ -16,6 +16,7 @@ esac
 
 UNAME_M=$(uname -m)
 
+
 if [ "$UNAME_S" = "Linux" ] && [ "$UNAME_M" = "aarch64" ]; then
   cat >&2 <<'EOM'
 ERROR: finitization is not yet supported on Linux ARM64 (aarch64).
