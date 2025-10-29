@@ -38,7 +38,6 @@ EOM
   exit 1
 fi
 
-
 # macOS minimum deployment target
 if [ "$OS" = "macos" ]; then
   CPPFLAGS="-mmacosx-version-min=11.0 $CPPFLAGS"
