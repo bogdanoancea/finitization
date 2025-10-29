@@ -12,7 +12,7 @@ case "$UNAME_S" in
   Linux)  OS=linux ;;
   *)      OS=other ;;
 esac
-)
+
 UNAME_M=$(uname -m)
 
 if [ "$UNAME_S" = "Linux" ] && [ "$UNAME_M" = "aarch64" ]; then
@@ -37,7 +37,6 @@ CLN/GiNaC rely on native CPU integer semantics that are not yet available in WAS
 EOM
   exit 1
 fi
-
 
 # macOS minimum deployment target
 if [ "$OS" = "macos" ]; then
