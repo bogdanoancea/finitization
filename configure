@@ -117,7 +117,7 @@ EOM
         fi
 
         if [ "$UNAME_S" = "Darwin" ] && [ "$UNAME_M" = "x86_64" ]; then
-            # Optionally fetch prebuilt libs for linux build:
+            # Optionally fetch prebuilt libs for macos build:
             BUNDLE_URL="https://github.com/bogdanoancea/finitization-macoslibs/releases/download/v1.0.0/finitization-x86_64-gmp+cln+ginac-static.zip"
             VENDOR_TMP="${PKG_ROOT}/extlibs"
             mkdir -p "${VENDOR_TMP}"
@@ -144,7 +144,7 @@ EOM
             PKG_LIBS="-L${PKG_ROOT}/extlibs/macos/x86_64/lib -lginac -lcln -lgmp"
         fi
         if [ "$UNAME_S" = "Darwin" ] && [ "$UNAME_M" = "arm64" ]; then
-            # Optionally fetch prebuilt libs for linux build:
+            # Optionally fetch prebuilt libs for macos arm64 build:
             BUNDLE_URL="https://github.com/bogdanoancea/finitization-macoslibs/releases/download/v1.0.0/finitization-arm64-gmp+cln+ginac-static.zip"
             VENDOR_TMP="${PKG_ROOT}/extlibs"
             mkdir -p "${VENDOR_TMP}"
