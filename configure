@@ -12,7 +12,7 @@ case "$UNAME_S" in
   Linux)  OS=linux ;;
   *)      OS=other ;;
 esac
-)
+
 UNAME_M=$(uname -m)
 
 if [ "$UNAME_S" = "Linux" ] && [ "$UNAME_M" = "aarch64" ]; then
