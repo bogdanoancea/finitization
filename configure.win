@@ -39,7 +39,7 @@ EOM
     echo "DEBUG: using PowerShell Expand-Archive fallback"
     pwsh -NoProfile -Command "Expand-Archive -Path '${VENDOR_TMP}/finitization-ucrt64-gmp+cln+ginac-static.zip' -DestinationPath '${VENDOR_TMP}' -Force"
   fi
-  PKG_CPPFLAGS="-I${PKG_ROOT}/extlibs/windows/ucrt64/include -g0 -ffunction-sections -fdata-sections -DNDEBUG"
+  PKG_CPPFLAGS="-I${PKG_ROOT}/extlibs/windows/ucrt64/include -DNDEBUG"
   PKG_LIBS="-L${PKG_ROOT}/extlibs/windows/ucrt64/lib -lginac -lcln -lgmp"
 fi
 
@@ -47,7 +47,7 @@ mkdir -p src
 cat > src/Makevars.win <<EOF
 CXX_STD = CXX14
 PKG_CPPFLAGS = $PKG_CPPFLAGS
-PKG_CXXFLAGS = -g0 -ffunction-sections -fdata-sections -DNDEBUG
+PKG_CXXFLAGS = -DNDEBUG
 PKG_LIBS     = $PKG_LIBS
 PKGLIBS +=-Wl, --gc-sections
 EOF

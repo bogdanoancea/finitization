@@ -62,7 +62,7 @@ Please install the development packages and ensure pkg-config can find them.
 EOM
         exit 1
     else
-    # Optionally fetch prebuilt libs for Windows build:
+    # Optionally fetch prebuilt libs for linux build:
         BUNDLE_URL="https://github.com/bogdanoancea/finitization-linuxlibs/releases/download/v1.0.0/finitization-x86_64-gmp+cln+ginac-static.zip"
         VENDOR_TMP="${PKG_ROOT}/extlibs"
         mkdir -p "${VENDOR_TMP}"
@@ -85,7 +85,7 @@ EOM
             echo "ERROR: unzip  isn't available on this system." >&2
             exit 1
         fi
-        PKG_CPPFLAGS="-I${PKG_ROOT}/extlibs/linux/x86_64/include -g0 -ffunction-sections -fdata-sections -DNDEBUG"
+        PKG_CPPFLAGS="-I${PKG_ROOT}/extlibs/linux/x86_64/include -DNDEBUG"
         PKG_LIBS="-L${PKG_ROOT}/extlibs/linux/x86_64/lib -lginac -lcln -lgmp"
     fi
 fi
@@ -96,7 +96,7 @@ if [ "$OS" = "macos" ] && [ "$ARCHDIR" = "x86_64" ]; then
   echo "  Will request C++11 on macOS Intel"
 else
   CXXSTD="CXX14"
-  echo "  Will request C++14 elsewhere"
+  echo "  Will request C++14"
 fi
 
 # Append C++ standard flag
