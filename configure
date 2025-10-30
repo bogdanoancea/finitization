@@ -17,18 +17,18 @@ esac
 UNAME_M=$(uname -m)
 
 
-if [ "$UNAME_S" = "Linux" ] && [ "$UNAME_M" = "aarch64" ]; then
-  cat >&2 <<'EOM'
-ERROR: finitization is not yet supported on Linux ARM64 (aarch64).
-Reason: the package depends on CLN/GiNaC/GMP, and we currently do not
-provide compatible prebuilt libraries for Linux/aarch64, and the upstream
-distros are not reliably installed by the builder on this architecture.
+#if [ "$UNAME_S" = "Linux" ] && [ "$UNAME_M" = "aaarch64" ]; then
+#  cat >&2 <<'EOM'
+#ERROR: finitization is not yet supported on Linux ARM64 (aarch64).
+#Reason: the package depends on CLN/GiNaC/GMP, and we currently do not
+#provide compatible prebuilt libraries for Linux/aarch64, and the upstream
+#distros are not reliably installed by the builder on this architecture.
 
-This is intentional. Other platforms (x86_64 Linux, Windows, macOS incl. Apple Silicon)
-are supported.
-EOM
-  exit 1
-fi
+#This is intentional. Other platforms (x86_64 Linux, Windows, macOS incl. Apple Silicon)
+#are supported.
+#EOM
+#  exit 1
+#fi
 
 
 # Block WebAssembly/webR early (emcc toolchain)
@@ -53,7 +53,7 @@ PKG_CONFIG=${PKG_CONFIG:-pkg-config}
 if [ "$OS" = "windows" ]; then
   ARCHDIR=${R_ARCH:-x64}
 else
-  ARCHDIR=$(uname -m)  # arm64 or x86_64
+  ARCHDIR=$(uname -m)  # arm64 or x86_64 or aarch64
 fi
 
 echo "Configuring for $OS / $ARCHDIR"
@@ -115,6 +115,33 @@ EOM
             fi
             PKG_CPPFLAGS="-I${PKG_ROOT}/extlibs/linux/x86_64/include -DNDEBUG"
             PKG_LIBS="-L${PKG_ROOT}/extlibs/linux/x86_64/lib -lginac -lcln -lgmp"
+        fi
+        if [ "$UNAME_S" = "Linux" ] && [ "$UNAME_M" = "aarch64" ]; then
+            # Optionally fetch prebuilt libs for linux build:
+            BUNDLE_URL="https://github.com/bogdanoancea/finitization-linuxlibs/releases/download/v1.0.0/finitization-aarch64-gmp+cln+ginac-static.zip"
+            VENDOR_TMP="${PKG_ROOT}/extlibs"
+            mkdir -p "${VENDOR_TMP}"
+            echo "DEBUG[configure]: fetching bundle from ${BUNDLE_URL}"
+            if command -v curl >/dev/null 2>&1; then
+                curl -L -o "${VENDOR_TMP}/finitization-aarch64-gmp+cln+ginac-static.zip" "${BUNDLE_URL}"
+            elif command -v wget >/dev/null 2>&1; then
+                wget -O "${VENDOR_TMP}/finitization-aarch64-gmp+cln+ginac-static.zip" "${BUNDLE_URL}"
+            else
+                cat >&2 <<'EOM'
+ERROR: Neither curl nor wget found to download external libraries.
+Please install curl or wget.
+EOM
+                exit 1
+            fi
+            echo "DEBUG[configure]: extracting bundle"
+            if command -v unzip >/dev/null 2>&1; then
+                unzip -o "${VENDOR_TMP}/finitization-aarch64-gmp+cln+ginac-static.zip" -d "${VENDOR_TMP}"
+            else
+                echo "ERROR: unzip  isn't available on this system." >&2
+                exit 1
+            fi
+            PKG_CPPFLAGS="-I${PKG_ROOT}/extlibs/linux/aarch64/include -DNDEBUG"
+            PKG_LIBS="-L${PKG_ROOT}/extlibs/linux/aarch64/lib -lginac -lcln -lgmp"
         fi
 
         if [ "$UNAME_S" = "Darwin" ] && [ "$UNAME_M" = "x86_64" ]; then
