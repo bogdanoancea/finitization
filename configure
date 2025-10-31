@@ -34,17 +34,9 @@ fi
 PKG_CONFIG="${PKG_CONFIG:-pkg-config}"
 
 # Flags to enable dead-code elimination
-PKG_CFLAGS_SECTIONS="-DNDEBUG"
-PKG_CXXFLAGS_SECTIONS="-DNDEBUG"
-if [ "$OS" = "linux" ]; then
-  # Needed to link static archives into a shared object on Linux
-  PKG_CFLAGS_SECTIONS="$PKG_CFLAGS_SECTIONS -fPIC"
-  PKG_CXXFLAGS_SECTIONS="$PKG_CXXFLAGS_SECTIONS -fPIC"
-fi
-
+PKG_CFLAGS="-DNDEBUG"
+PKG_CXXFLAGS="-DNDEBUG"
 PKG_CPPFLAGS=""
-PKG_CFLAGS="$PKG_CFLAGS_SECTIONS"
-PKG_CXXFLAGS="$PKG_CXXFLAGS_SECTIONS"
 PKG_LIBS=""
 
 
