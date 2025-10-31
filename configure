@@ -58,8 +58,8 @@ fi
 # --- Preferred: system libs via pkg-config -------------------------------
 if "$PKG_CONFIG" --exists gmp cln2 ginac3; then
     echo "configure: Found GMP/CLN/GiNaC via pkg-config."
-    PKG_CPPFLAGS=$("$PKG_CONFIG" --cflags gmp cln ginac)
-    PKG_LIBS=$("$PKG_CONFIG" --libs   gmp cln ginac)
+    PKG_CPPFLAGS=$("$PKG_CONFIG" --cflags ginac cln gmp)
+    PKG_LIBS=$("$PKG_CONFIG" --libs ginac cln gmp)
     echo "  PKG_CPPFLAGS: $PKG_CPPFLAGS"
     echo "  PKG_LIBS: $PKG_LIBS"
 # --- Fallback policy ------------------------------------------------------

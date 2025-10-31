@@ -36,9 +36,9 @@ PKG_LIBS=""
 # Try system libraries via pkg-config
 if [ -n "$PKGCFG" ] && "$PKGCFG" --exists gmp cln ginac; then
   echo "configure.win: Found GMP/CLN/GiNaC via $PKGCFG"
-  PKG_CPPFLAGS=$("$PKGCFG" --cflags gmp cln ginac)
+  PKG_CPPFLAGS=$("$PKGCFG" --cflags ginac cln gmp)
   # Use the libs as reported; linker GC flag added below
-  PKG_LIBS=$("$PKGCFG" --libs gmp cln ginac)
+  PKG_LIBS=$("$PKGCFG" --libs ginac cln gmp)
 else
   # Fallback: fetch and use your **static** bundle for ucrt64
   BUNDLE_URL="https://github.com/bogdanoancea/finitization-winlibs/releases/download/v1.0.0/finitization-ucrt64-gmp+cln+ginac-static.zip"
