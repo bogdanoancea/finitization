@@ -56,7 +56,7 @@ EOM
 fi
 
 # --- Preferred: system libs via pkg-config -------------------------------
-if "$PKG_CONFIG" --exists gmp cln2 ginac3; then
+if "$PKG_CONFIG" --exists gmp cln ginac; then
     echo "configure: Found GMP/CLN/GiNaC via pkg-config."
     PKG_CPPFLAGS=$("$PKG_CONFIG" --cflags ginac cln gmp)
     PKG_LIBS=$("$PKG_CONFIG" --libs ginac cln gmp)

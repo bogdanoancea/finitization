@@ -36,7 +36,7 @@ PKG_LIBS=""
 # Try system libraries via pkg-config
 if [ -n "$PKGCFG" ] && "$PKGCFG" --exists gmp cln ginac; then
   echo "configure.win: Found GMP/CLN/GiNaC via $PKGCFG"
-  PKG_CPPFLAGS=$("$PKGCFG" --cflags ginac cln gmp)
+  PKG_CPPFLAGS=$("$PKGCFG" --cflags gmp cln ginac)
   # Use the libs as reported; linker GC flag added below
   PKG_LIBS=$("$PKGCFG" --libs ginac cln gmp)
 else
