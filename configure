@@ -87,15 +87,15 @@ EOM
     # Off CRAN: unconditionally fetch bundled **shared** libs for this OS/arch
     case "$OS:$UNAME_M" in
         linux:x86_64)
-            BURL="https://github.com/bogdanoancea/finitization-linuxlibs/releases/download/v1.0.0/finitization-x86_64-gmp+cln+ginac-shared.zip"
+            BURL="https://github.com/bogdanoancea/finitization-linuxlibs/releases/download/v1.0.0/finitization-x86_64-gmp+cln+ginac-static.zip"
             BDIR="$PKG_ROOT/extlibs/linux/x86_64"
             ;;
         linux:aarch64|linux:arm64)
-            BURL="https://github.com/bogdanoancea/finitization-linuxlibs/releases/download/v1.0.0/finitization-aarch64-gmp+cln+ginac-shared.zip"
+            BURL="https://github.com/bogdanoancea/finitization-linuxlibs/releases/download/v1.0.0/finitization-aarch64-gmp+cln+ginac-static.zip"
             BDIR="$PKG_ROOT/extlibs/linux/aarch64"
             ;;
         macos:x86_64)
-            BURL="https://github.com/bogdanoancea/finitization-macoslibs/releases/download/v1.0.0/finitization-x86_64-gmp+cln+ginac-shared.zip"
+            BURL="https://github.com/bogdanoancea/finitization-macoslibs/releases/download/v1.0.0/finitization-x86_64-gmp+cln+ginac-static.zip"
             BDIR="$PKG_ROOT/extlibs/macos/x86_64"
             ;;
         macos:arm64)
