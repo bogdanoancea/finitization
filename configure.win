@@ -1,30 +1,58 @@
 #!/bin/sh
 set -e
-PKG_ROOT=$(dirname "$0")
-# Normalize to absolute path
-PKG_ROOT=$(cd "$PKG_ROOT" && pwd)
-echo $PKG_ROOT
 
-case "$(uname -s)" in MINGW*|MSYS*|CYGWIN*) ;; *) exit 1 ;; esac
+# Absolute package root (where this script lives)
+PKG_ROOT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+echo "configure.win: PKG_ROOT=$PKG_ROOT"
 
-# Try pkgconf/pkg-config first
-if command -v pkgconf >/dev/null 2>&1; then PKGCFG=pkgconf
-elif command -v pkg-config >/dev/null 2>&1; then PKGCFG=pkg-config
-else PKGCFG=""; fi
+# Ensure we are on Windows/MSYS
+case "$(uname -s)" in
+  MINGW*|MSYS*|CYGWIN*) : ;;
+  *) exit 1 ;;
+esac
 
-if [ -n "$PKGCFG" ] && $PKGCFG --exists gmp cln ginac; then
-  PKG_CPPFLAGS=$($PKGCFG --cflags gmp cln ginac)
-  PKG_LIBS=$($PKGCFG --libs   gmp cln ginac)
+# Prefer ucrt64 toolchain
+: "${MINGW_PREFIX:=/ucrt64}"
+
+# Make sure pkg-config can see ucrt64 pc files
+if [ -d "$MINGW_PREFIX/lib/pkgconfig" ]; then
+  export PKG_CONFIG_PATH="${PKG_CONFIG_PATH:+$PKG_CONFIG_PATH:}$MINGW_PREFIX/lib/pkgconfig"
+fi
+
+# Pick pkgconf first (often default in MSYS2), else pkg-config
+if command -v pkgconf >/dev/null 2>&1; then
+  PKGCFG=pkgconf
+elif command -v pkg-config >/dev/null 2>&1; then
+  PKGCFG=pkg-config
 else
-  # Optionally fetch prebuilt libs for Windows build:
+  PKGCFG=""
+fi
+
+PKG_CPPFLAGS=""
+PKG_CFLAGS="-DNDEBUG"
+PKG_CXXFLAGS="-DNDEBUG"
+PKG_LIBS=""
+
+# Try system libraries via pkg-config
+if [ -n "$PKGCFG" ] && "$PKGCFG" --exists gmp cln ginac; then
+  echo "configure.win: Found GMP/CLN/GiNaC via $PKGCFG"
+  PKG_CPPFLAGS=$("$PKGCFG" --cflags gmp cln ginac)
+  # Use the libs as reported; linker GC flag added below
+  PKG_LIBS=$("$PKGCFG" --libs gmp cln ginac)
+else
+  # Fallback: fetch and use your **static** bundle for ucrt64
   BUNDLE_URL="https://github.com/bogdanoancea/finitization-winlibs/releases/download/v1.0.0/finitization-ucrt64-gmp+cln+ginac-static.zip"
-  VENDOR_TMP="${PKG_ROOT}/extlibs"
-  mkdir -p "${VENDOR_TMP}"
-  echo "DEBUG[configure]: fetching bundle from ${BUNDLE_URL}"
+  VENDOR_DIR="${PKG_ROOT}/extlibs/windows/ucrt64"
+  ZIPFILE="${PKG_ROOT}/extlibs/$(basename "$BUNDLE_URL")"
+
+  mkdir -p "$(dirname "$ZIPFILE")" "$VENDOR_DIR"
+
+  echo "configure.win: fetching static bundle:"
+  echo "  $BUNDLE_URL"
   if command -v curl >/dev/null 2>&1; then
-    curl -L -o "${VENDOR_TMP}/finitization-ucrt64-gmp+cln+ginac-static.zip" "${BUNDLE_URL}"
+    curl -L -o "$ZIPFILE" "$BUNDLE_URL"
   elif command -v wget >/dev/null 2>&1; then
-    wget -O "${VENDOR_TMP}/finitization-x86_64-gmp+cln+ginac-static.zip" "${BUNDLE_URL}"
+    wget -q -O "$ZIPFILE" "$BUNDLE_URL"
   else
     cat >&2 <<'EOM'
 ERROR: Neither curl nor wget found to download external libraries.
@@ -32,22 +60,45 @@ Please install curl or wget.
 EOM
     exit 1
   fi
-  echo "DEBUG[configure]: extracting bundle"
+
+  echo "configure.win: extracting bundle -> $VENDOR_DIR"
   if command -v unzip >/dev/null 2>&1; then
-    unzip -o "${VENDOR_TMP}/finitization-ucrt64-gmp+cln+ginac-static.zip" -d "${VENDOR_TMP}"
+    unzip -oq "$ZIPFILE" -d "${PKG_ROOT}/extlibs"
   else
-    echo "DEBUG: using PowerShell Expand-Archive fallback"
-    pwsh -NoProfile -Command "Expand-Archive -Path '${VENDOR_TMP}/finitization-ucrt64-gmp+cln+ginac-static.zip' -DestinationPath '${VENDOR_TMP}' -Force"
+    # PowerShell fallback
+    powershell -NoProfile -Command "Expand-Archive -Path '$ZIPFILE' -DestinationPath '$(cygpath -w "${PKG_ROOT}/extlibs")' -Force"
   fi
-  PKG_CPPFLAGS="-I${PKG_ROOT}/extlibs/windows/ucrt64/include -DNDEBUG"
-  PKG_LIBS="-L${PKG_ROOT}/extlibs/windows/ucrt64/lib -lginac -lcln -lgmp"
+
+  # Headers and static archives
+  PKG_CPPFLAGS="-I${VENDOR_DIR}/include -DNDEBUG"
+
+  GINAC_A="${VENDOR_DIR}/lib/libginac.a"
+  CLN_A="${VENDOR_DIR}/lib/libcln.a"
+  GMP_A="${VENDOR_DIR}/lib/libgmp.a"
+
+  for f in "$GINAC_A" "$CLN_A" "$GMP_A"; do
+    [ -f "$f" ] || { echo "ERROR: Missing static archive: $f" >&2; exit 1; }
+  done
+
+  # Explicit archives enforce static link order (GiNaC depends on CLN → GMP)
+  PKG_LIBS="$GINAC_A $CLN_A $GMP_A"
 fi
 
+# Enable dead-code elimination at link step
+PKG_LIBS="$PKG_LIBS -Wl,--gc-sections"
+
+# Emit Makevars.win using only PKG_* vars (CRAN-safe)
 mkdir -p src
 cat > src/Makevars.win <<EOF
-CXX_STD = CXX14
+CXX_STD      = CXX14
 PKG_CPPFLAGS = $PKG_CPPFLAGS
-PKG_CXXFLAGS = -DNDEBUG
+PKG_CFLAGS   = $PKG_CFLAGS
+PKG_CXXFLAGS = $PKG_CXXFLAGS
 PKG_LIBS     = $PKG_LIBS
-PKGLIBS +=-Wl, --gc-sections
 EOF
+
+echo "configure.win: done."
+echo "  PKG_CPPFLAGS: $PKG_CPPFLAGS"
+echo "  PKG_CFLAGS:   $PKG_CFLAGS"
+echo "  PKG_CXXFLAGS: $PKG_CXXFLAGS"
+echo "  PKG_LIBS:     $PKG_LIBS"
