@@ -75,8 +75,11 @@ EOM
 fi
 
 if "$PKG_CONFIG" --exists gmp cln ginac; then
+    echo "configure: Found GMP/CLN/GiNaC via pkg-config."
     PKG_CPPFLAGS=$("$PKG_CONFIG" --cflags gmp cln ginac)
     PKG_LIBS=$("$PKG_CONFIG" --libs   gmp cln ginac)
+    echo "  PKG_CPPFLAGS: $PKG_CPPFLAGS"
+    echo "  PKG_LIBS: $PKG_LIBS"
 else
     if [ "$_R_CHECK_CRAN_INCOMING_" = "TRUE" ]; then
         cat >&2 <<'EOM'
@@ -94,7 +97,7 @@ EOM
             BUNDLE_URL="https://github.com/bogdanoancea/finitization-linuxlibs/releases/download/v1.0.0/finitization-x86_64-gmp+cln+ginac-static.zip"
             VENDOR_TMP="${PKG_ROOT}/extlibs"
             mkdir -p "${VENDOR_TMP}"
-            echo "DEBUG[configure]: fetching bundle from ${BUNDLE_URL}"
+            echo "configure: ${UNAME_S}  ${UNAME_M}   fetching bundle from ${BUNDLE_URL}"
             if command -v curl >/dev/null 2>&1; then
                 curl -L -o "${VENDOR_TMP}/finitization-x86_64-gmp+cln+ginac-static.zip" "${BUNDLE_URL}"
             elif command -v wget >/dev/null 2>&1; then
@@ -106,7 +109,7 @@ Please install curl or wget.
 EOM
                 exit 1
             fi
-            echo "DEBUG[configure]: extracting bundle"
+            echo "configure: extracting bundle"
             if command -v unzip >/dev/null 2>&1; then
                 unzip -o "${VENDOR_TMP}/finitization-x86_64-gmp+cln+ginac-static.zip" -d "${VENDOR_TMP}"
             else
@@ -121,7 +124,7 @@ EOM
             BUNDLE_URL="https://github.com/bogdanoancea/finitization-linuxlibs/releases/download/v1.0.0/finitization-aarch64-gmp+cln+ginac-static.zip"
             VENDOR_TMP="${PKG_ROOT}/extlibs"
             mkdir -p "${VENDOR_TMP}"
-            echo "DEBUG[configure]: fetching bundle from ${BUNDLE_URL}"
+            echo "configure: ${UNAME_S}  ${UNAME_M}   fetching bundle from ${BUNDLE_URL}"
             if command -v curl >/dev/null 2>&1; then
                 curl -L -o "${VENDOR_TMP}/finitization-aarch64-gmp+cln+ginac-static.zip" "${BUNDLE_URL}"
             elif command -v wget >/dev/null 2>&1; then
@@ -133,7 +136,7 @@ Please install curl or wget.
 EOM
                 exit 1
             fi
-            echo "DEBUG[configure]: extracting bundle"
+            echo "configure: extracting bundle"
             if command -v unzip >/dev/null 2>&1; then
                 unzip -o "${VENDOR_TMP}/finitization-aarch64-gmp+cln+ginac-static.zip" -d "${VENDOR_TMP}"
             else
@@ -149,7 +152,7 @@ EOM
             BUNDLE_URL="https://github.com/bogdanoancea/finitization-macoslibs/releases/download/v1.0.0/finitization-x86_64-gmp+cln+ginac-static.zip"
             VENDOR_TMP="${PKG_ROOT}/extlibs"
             mkdir -p "${VENDOR_TMP}"
-            echo "DEBUG[configure]: fetching bundle from ${BUNDLE_URL}"
+            echo "configure: ${UNAME_S}  ${UNAME_M}   fetching bundle from ${BUNDLE_URL}"
             if command -v curl >/dev/null 2>&1; then
                 curl -L -o "${VENDOR_TMP}/finitization-x86_64-gmp+cln+ginac-static.zip" "${BUNDLE_URL}"
             elif command -v wget >/dev/null 2>&1; then
@@ -161,7 +164,7 @@ Please install curl or wget.
 EOM
                 exit 1
             fi
-            echo "DEBUG[configure]: extracting bundle"
+            echo "configure: extracting bundle"
             if command -v unzip >/dev/null 2>&1; then
                 unzip -o "${VENDOR_TMP}/finitization-x86_64-gmp+cln+ginac-static.zip" -d "${VENDOR_TMP}"
             else
@@ -176,7 +179,7 @@ EOM
             BUNDLE_URL="https://github.com/bogdanoancea/finitization-macoslibs/releases/download/v1.0.0/finitization-arm64-gmp+cln+ginac-static.zip"
             VENDOR_TMP="${PKG_ROOT}/extlibs"
             mkdir -p "${VENDOR_TMP}"
-            echo "DEBUG[configure]: fetching bundle from ${BUNDLE_URL}"
+            echo "configure: ${UNAME_S}  ${UNAME_M}   fetching bundle from ${BUNDLE_URL}"
             if command -v curl >/dev/null 2>&1; then
                 curl -L -o "${VENDOR_TMP}/finitization-arm64-gmp+cln+ginac-static.zip" "${BUNDLE_URL}"
             elif command -v wget >/dev/null 2>&1; then
@@ -188,7 +191,7 @@ Please install curl or wget.
 EOM
                 exit 1
             fi
-            echo "DEBUG[configure]: extracting bundle"
+            echo "configure: extracting bundle"
             if command -v unzip >/dev/null 2>&1; then
                 unzip -o "${VENDOR_TMP}/finitization-arm64-gmp+cln+ginac-static.zip" -d "${VENDOR_TMP}"
             else
