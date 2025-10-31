@@ -1,65 +1,54 @@
 #!/bin/sh
 set -e
 
-PKG_ROOT=$(dirname "$0")
-# Normalize to absolute path
-PKG_ROOT=$(cd "$PKG_ROOT" && pwd)
-echo $PKG_ROOT
-
-# Detect OS
+# --- Basics ---------------------------------------------------------------
+PKG_ROOT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 UNAME_S=$(uname -s)
+UNAME_M=$(uname -m)
 case "$UNAME_S" in
   Darwin) OS=macos ;;
   Linux)  OS=linux ;;
   *)      OS=other ;;
 esac
 
-UNAME_M=$(uname -m)
 
-
-#if [ "$UNAME_S" = "Linux" ] && [ "$UNAME_M" = "aaarch64" ]; then
-#  cat >&2 <<'EOM'
-#ERROR: finitization is not yet supported on Linux ARM64 (aarch64).
-#Reason: the package depends on CLN/GiNaC/GMP, and we currently do not
-#provide compatible prebuilt libraries for Linux/aarch64, and the upstream
-#distros are not reliably installed by the builder on this architecture.
-
-#This is intentional. Other platforms (x86_64 Linux, Windows, macOS incl. Apple Silicon)
-#are supported.
-#EOM
-#  exit 1
-#fi
-
-
-# Block WebAssembly/webR early (emcc toolchain)
+# Block webR / WASM
 if ${CC:-cc} --version 2>/dev/null | grep -qi emscripten; then
-  cat >&2 <<'EOM'
-ERROR: finitization is not currently supported on WebAssembly / webR.
-CLN/GiNaC rely on native CPU integer semantics that are not yet available in WASM.
-EOM
+  echo "ERROR: webR/WASM not supported." >&2
   exit 1
 fi
 
-# macOS minimum deployment target
+# macOS deployment target
 if [ "$OS" = "macos" ]; then
-  CPPFLAGS="-mmacosx-version-min=11.0 $CPPFLAGS"
-  LDFLAGS="-mmacosx-version-min=11.0 $LDFLAGS"
+  CPPFLAGS="-mmacosx-version-min=11.0 ${CPPFLAGS:-}"
+  LDFLAGS="-mmacosx-version-min=11.0 ${LDFLAGS:-}"
   export CPPFLAGS LDFLAGS
 fi
 
-PKG_CONFIG=${PKG_CONFIG:-pkg-config}
-
-# Detect architecture
-if [ "$OS" = "windows" ]; then
-  ARCHDIR=${R_ARCH:-x64}
-else
-  ARCHDIR=$(uname -m)  # arm64 or x86_64 or aarch64
+# Detect CRAN build
+ON_CRAN=0
+if [ "${_R_CHECK_CRAN_INCOMING_:-}" = "TRUE" ] || [ "${CRAN_BUILD:-}" = "true" ]; then
+  ON_CRAN=1
 fi
 
-echo "Configuring for $OS / $ARCHDIR"
+PKG_CONFIG="${PKG_CONFIG:-pkg-config}"
 
-CPPFLAGS=""
-LDFLAGS=""
+# Flags to enable dead-code elimination
+PKG_CFLAGS_SECTIONS="-DNDEBUG"
+PKG_CXXFLAGS_SECTIONS="-DNDEBUG"
+if [ "$OS" = "linux" ]; then
+  # Needed to link static archives into a shared object on Linux
+  PKG_CFLAGS_SECTIONS="$PKG_CFLAGS_SECTIONS -fPIC"
+  PKG_CXXFLAGS_SECTIONS="$PKG_CXXFLAGS_SECTIONS -fPIC"
+fi
+
+PKG_CPPFLAGS=""
+PKG_CFLAGS="$PKG_CFLAGS_SECTIONS"
+PKG_CXXFLAGS="$PKG_CXXFLAGS_SECTIONS"
+PKG_LIBS=""
+
+
+echo "configure: OS=$OS ARCH=$UNAME_M CRAN=$ON_CRAN"
 
 # Try pkg-config
 if ! command -v "$PKG_CONFIG" >/dev/null 2>&1; then
@@ -74,176 +63,125 @@ EOM
   exit 1
 fi
 
-if "$PKG_CONFIG" --exists gmp cln ginac; then
+# --- Preferred: system libs via pkg-config -------------------------------
+if "$PKG_CONFIG" --exists gmp cln2 ginac3; then
     echo "configure: Found GMP/CLN/GiNaC via pkg-config."
     PKG_CPPFLAGS=$("$PKG_CONFIG" --cflags gmp cln ginac)
     PKG_LIBS=$("$PKG_CONFIG" --libs   gmp cln ginac)
     echo "  PKG_CPPFLAGS: $PKG_CPPFLAGS"
     echo "  PKG_LIBS: $PKG_LIBS"
+# --- Fallback policy ------------------------------------------------------
 else
-    if [ "$_R_CHECK_CRAN_INCOMING_" = "TRUE" ]; then
+    if [ "$ON_CRAN" -eq 1 ]; then
         cat >&2 <<'EOM'
-ERROR: Could not find GMP/CLN/GiNaC via pkg-config.
-Please install the development packages and ensure pkg-config can find them.
-  - Debian/Ubuntu: sudo apt-get install -y libgmp-dev libcln-dev libginac-dev
-  - Fedora:        sudo dnf install gmp-devel cln-devel ginac-devel
-  - openSUSE:      sudo zypper install gmp-devel cln-devel ginac-devel
-  - macOS (Homebrew): brew install gmp cln ginac
+ERROR: pkg-config could not locate GMP/CLN/GiNaC on CRAN.
+Please ensure these dev packages are installed and visible to pkg-config:
+ - Debian/Ubuntu: sudo apt-get install -y pkg-config libgmp-dev libcln-dev libginac-dev
+ - Fedora:        sudo dnf install      pkgconf-pkg-config gmp-devel cln-devel ginac-devel
+ - openSUSE:      sudo zypper install   pkgconf-pkg-config gmp-devel cln-devel ginac-devel
+ - macOS:         brew install pkg-config gmp cln ginac
 EOM
         exit 1
-    else
-        if [ "$UNAME_S" = "Linux" ] && [ "$UNAME_M" = "x86_64" ]; then
-            # Optionally fetch prebuilt libs for linux build:
-            BUNDLE_URL="https://github.com/bogdanoancea/finitization-linuxlibs/releases/download/v1.0.0/finitization-x86_64-gmp+cln+ginac-static.zip"
-            VENDOR_TMP="${PKG_ROOT}/extlibs"
-            mkdir -p "${VENDOR_TMP}"
-            echo "configure: ${UNAME_S}  ${UNAME_M}   fetching bundle from ${BUNDLE_URL}"
-            if command -v curl >/dev/null 2>&1; then
-                curl -L -o "${VENDOR_TMP}/finitization-x86_64-gmp+cln+ginac-static.zip" "${BUNDLE_URL}"
-            elif command -v wget >/dev/null 2>&1; then
-                wget -O "${VENDOR_TMP}/finitization-x86_64-gmp+cln+ginac-static.zip" "${BUNDLE_URL}"
-            else
-                cat >&2 <<'EOM'
-ERROR: Neither curl nor wget found to download external libraries.
-Please install curl or wget.
-EOM
-                exit 1
-            fi
-            echo "configure: extracting bundle"
-            if command -v unzip >/dev/null 2>&1; then
-                unzip -o "${VENDOR_TMP}/finitization-x86_64-gmp+cln+ginac-static.zip" -d "${VENDOR_TMP}"
-            else
-                echo "ERROR: unzip  isn't available on this system." >&2
-                exit 1
-            fi
-            PKG_CPPFLAGS="-I${PKG_ROOT}/extlibs/linux/x86_64/include -DNDEBUG"
-            PKG_LIBS="-L${PKG_ROOT}/extlibs/linux/x86_64/lib -lginac -lcln -lgmp"
-        fi
-        if [ "$UNAME_S" = "Linux" ] && [ "$UNAME_M" = "aarch64" ]; then
-            # Optionally fetch prebuilt libs for linux build:
-            BUNDLE_URL="https://github.com/bogdanoancea/finitization-linuxlibs/releases/download/v1.0.0/finitization-aarch64-gmp+cln+ginac-static.zip"
-            VENDOR_TMP="${PKG_ROOT}/extlibs"
-            mkdir -p "${VENDOR_TMP}"
-            echo "configure: ${UNAME_S}  ${UNAME_M}   fetching bundle from ${BUNDLE_URL}"
-            if command -v curl >/dev/null 2>&1; then
-                curl -L -o "${VENDOR_TMP}/finitization-aarch64-gmp+cln+ginac-static.zip" "${BUNDLE_URL}"
-            elif command -v wget >/dev/null 2>&1; then
-                wget -O "${VENDOR_TMP}/finitization-aarch64-gmp+cln+ginac-static.zip" "${BUNDLE_URL}"
-            else
-                cat >&2 <<'EOM'
-ERROR: Neither curl nor wget found to download external libraries.
-Please install curl or wget.
-EOM
-                exit 1
-            fi
-            echo "configure: extracting bundle"
-            if command -v unzip >/dev/null 2>&1; then
-                unzip -o "${VENDOR_TMP}/finitization-aarch64-gmp+cln+ginac-static.zip" -d "${VENDOR_TMP}"
-            else
-                echo "ERROR: unzip  isn't available on this system." >&2
-                exit 1
-            fi
-            PKG_CPPFLAGS="-I${PKG_ROOT}/extlibs/linux/aarch64/include -DNDEBUG"
-            PKG_LIBS="-L${PKG_ROOT}/extlibs/linux/aarch64/lib -lginac -lcln -lgmp"
-        fi
-
-        if [ "$UNAME_S" = "Darwin" ] && [ "$UNAME_M" = "x86_64" ]; then
-            # Optionally fetch prebuilt libs for macos build:
-            BUNDLE_URL="https://github.com/bogdanoancea/finitization-macoslibs/releases/download/v1.0.0/finitization-x86_64-gmp+cln+ginac-static.zip"
-            VENDOR_TMP="${PKG_ROOT}/extlibs"
-            mkdir -p "${VENDOR_TMP}"
-            echo "configure: ${UNAME_S}  ${UNAME_M}   fetching bundle from ${BUNDLE_URL}"
-            if command -v curl >/dev/null 2>&1; then
-                curl -L -o "${VENDOR_TMP}/finitization-x86_64-gmp+cln+ginac-static.zip" "${BUNDLE_URL}"
-            elif command -v wget >/dev/null 2>&1; then
-                wget -O "${VENDOR_TMP}/finitization-x86_64-gmp+cln+ginac-static.zip" "${BUNDLE_URL}"
-            else
-                cat >&2 <<'EOM'
-ERROR: Neither curl nor wget found to download external libraries.
-Please install curl or wget.
-EOM
-                exit 1
-            fi
-            echo "configure: extracting bundle"
-            if command -v unzip >/dev/null 2>&1; then
-                unzip -o "${VENDOR_TMP}/finitization-x86_64-gmp+cln+ginac-static.zip" -d "${VENDOR_TMP}"
-            else
-                echo "ERROR: unzip  isn't available on this system." >&2
-                exit 1
-            fi
-            PKG_CPPFLAGS="-I${PKG_ROOT}/extlibs/macos/x86_64/include -DNDEBUG"
-            PKG_LIBS="-L${PKG_ROOT}/extlibs/macos/x86_64/lib -lginac -lcln -lgmp"
-        fi
-        if [ "$UNAME_S" = "Darwin" ] && [ "$UNAME_M" = "arm64" ]; then
-            # Optionally fetch prebuilt libs for macos arm64 build:
-            BUNDLE_URL="https://github.com/bogdanoancea/finitization-macoslibs/releases/download/v1.0.0/finitization-arm64-gmp+cln+ginac-static.zip"
-            VENDOR_TMP="${PKG_ROOT}/extlibs"
-            mkdir -p "${VENDOR_TMP}"
-            echo "configure: ${UNAME_S}  ${UNAME_M}   fetching bundle from ${BUNDLE_URL}"
-            if command -v curl >/dev/null 2>&1; then
-                curl -L -o "${VENDOR_TMP}/finitization-arm64-gmp+cln+ginac-static.zip" "${BUNDLE_URL}"
-            elif command -v wget >/dev/null 2>&1; then
-                wget -O "${VENDOR_TMP}/finitization-arm64-gmp+cln+ginac-static.zip" "${BUNDLE_URL}"
-            else
-                cat >&2 <<'EOM'
-ERROR: Neither curl nor wget found to download external libraries.
-Please install curl or wget.
-EOM
-                exit 1
-            fi
-            echo "configure: extracting bundle"
-            if command -v unzip >/dev/null 2>&1; then
-                unzip -o "${VENDOR_TMP}/finitization-arm64-gmp+cln+ginac-static.zip" -d "${VENDOR_TMP}"
-            else
-                echo "ERROR: unzip  isn't available on this system." >&2
-                exit 1
-            fi
-            PKG_CPPFLAGS="-I${PKG_ROOT}/extlibs/macos/arm64/include -DNDEBUG"
-            PKG_LIBS="-L${PKG_ROOT}/extlibs/macos/arm64/lib -lginac -lcln -lgmp"
-        fi
     fi
+
+    # Off CRAN: unconditionally fetch bundled **shared** libs for this OS/arch
+    case "$OS:$UNAME_M" in
+        linux:x86_64)
+            BURL="https://github.com/bogdanoancea/finitization-linuxlibs/releases/download/v1.0.0/finitization-x86_64-gmp+cln+ginac-shared.zip"
+            BDIR="$PKG_ROOT/extlibs/linux/x86_64"
+            ;;
+        linux:aarch64|linux:arm64)
+            BURL="https://github.com/bogdanoancea/finitization-linuxlibs/releases/download/v1.0.0/finitization-aarch64-gmp+cln+ginac-shared.zip"
+            BDIR="$PKG_ROOT/extlibs/linux/aarch64"
+            ;;
+        macos:x86_64)
+            BURL="https://github.com/bogdanoancea/finitization-macoslibs/releases/download/v1.0.0/finitization-x86_64-gmp+cln+ginac-shared.zip"
+            BDIR="$PKG_ROOT/extlibs/macos/x86_64"
+            ;;
+        macos:arm64)
+            BURL="https://github.com/bogdanoancea/finitization-macoslibs/releases/download/v1.0.0/finitization-arm64-gmp+cln+ginac-static.zip"
+            BDIR="$PKG_ROOT/extlibs/macos/arm64"
+            ;;
+        *)
+            echo "ERROR: No bundle available for $OS/$UNAME_M." >&2
+            exit 1
+            ;;
+    esac
+
+    mkdir -p "$PKG_ROOT/extlibs" "$BDIR" "$PKG_ROOT/inst/include"
+    ZIP="$PKG_ROOT/extlibs/$(basename "$BURL")"
+    echo "configure: Falling back to static bundles: $BURL"
+
+
+
+    if command -v curl >/dev/null 2>&1; then
+        curl -L -o "$ZIP" "$BURL"
+    elif command -v wget >/dev/null 2>&1; then
+        wget -q -O "$ZIP" "$BURL"
+    else
+        echo "ERROR: need curl or wget to download bundles." >&2
+        exit 1
+    fi
+
+    unzip -oq "$ZIP" -d "$PKG_ROOT/extlibs"
+
+    # Link statically by naming the archives explicitly
+    PKG_CPPFLAGS="-I$BDIR/include -DNDEBUG"
+
+    GINAC_A="$BDIR/lib/libginac.a"
+    CLN_A="$BDIR/lib/libcln.a"
+    GMP_A="$BDIR/lib/libgmp.a"
+
+    for f in "$GINAC_A" "$CLN_A" "$GMP_A"; do
+    [ -f "$f" ] || { echo "ERROR: Missing static archive: $f" >&2; exit 1; }
+    done
+
+    PKG_LIBS="$GINAC_A $CLN_A $GMP_A"
+    # Dead code stripping (platform-specific)
+
 fi
 
-# Decide which C++ standard to ask R to use
-if [ "$OS" = "macos" ] && [ "$ARCHDIR" = "x86_64" ]; then
+
+
+# --- C++ standard (no -O flags in PKG_*FLAGS for CRAN) -------------------
+if [ "$OS" = "macos" ] && [ "$UNAME_M" = "x86_64" ]; then
   CXXSTD="CXX11"
-  echo "  Will request C++11 on macOS Intel"
 else
   CXXSTD="CXX14"
-  echo "  Will request C++14"
 fi
+PKG_CXXFLAGS="-DNDEBUG"
 
-# Append C++ standard flag
-CPPFLAGS="$CPPFLAGS $STD_FLAG"
 
 # Dedupe linker flags
 LDFLAGS=$(printf "%s\n" $LDFLAGS | awk '!seen[$0]++' | tr '\n' ' ')
 
-# Safe optimization flags for CRAN
-PKG_CPPFLAGS=$PKG_CPPFLAGS
-PKG_CXXFLAGS=$PKG_CXXFLAGS
-PKG_LIBS=$PKG_LIBS
+# DCE at final link step (platform specific)
+case "$UNAME_S" in
+  Linux)  PKG_LIBS="$PKG_LIBS -Wl,--gc-sections" ;;
+  Darwin) PKG_LIBS="$PKG_LIBS -Wl,-dead_strip" ;;
+  MINGW*|MSYS*) PKG_LIBS="$PKG_LIBS -Wl,--gc-sections" ;;
+esac
 
-# Write src/Makevars
+# Write src/Makevars (avoid LDFLAGS here; CRAN prefers PKG_* vars only)
+mkdir -p src
 cat > src/Makevars <<EOF
-CXX_STD=$CXXSTD
-PKG_CPPFLAGS=$PKG_CPPFLAGS
-PKG_CXXFLAGS=$PKG_CXXFLAGS
-PKG_CFLAGS=$PKG_CFLAGS
-PKG_LIBS=$PKG_LIBS
-EOF
-
-
-# Write src/Makevars.win
-cat > src/Makevars.win <<EOF
 CXX_STD      = $CXXSTD
 PKG_CPPFLAGS = $PKG_CPPFLAGS
+PKG_CFLAGS   = $PKG_CFLAGS
 PKG_CXXFLAGS = $PKG_CXXFLAGS
-PKG_CFLAGS=$PKG_CFLAGS
 PKG_LIBS     = $PKG_LIBS
 EOF
 
-echo "configure: Found GMP/CLN/GiNaC via pkg-config."
-echo "Configuration complete."
-echo "  CPPFLAGS: $CPPFLAGS"
-echo "  LDFLAGS:  $LDFLAGS"
+cat > src/Makevars.win <<EOF
+CXX_STD      = $CXXSTD
+PKG_CPPFLAGS = $PKG_CPPFLAGS
+PKG_CFLAGS   = $PKG_CFLAGS
+PKG_CXXFLAGS = $PKG_CXXFLAGS
+PKG_LIBS     = $PKG_LIBS
+EOF
+
+echo "configure: done."
+echo "  PKG_CPPFLAGS: $PKG_CPPFLAGS"
+echo "  PKG_CFLAGS:   $PKG_CFLAGS"
+echo "  PKG_CXXFLAGS: $PKG_CXXFLAGS"
+echo "  PKG_LIBS:     $PKG_LIBS"
