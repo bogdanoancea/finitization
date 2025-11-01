@@ -165,12 +165,6 @@ override LOCAL_SOFT :=
 override LOCAL_LIBS  :=
 override LOCAL_CPPFLAGS :=
 
-## wipe inherited flags, we’ll set our own
-override CPPFLAGS :=
-override CXXFLAGS :=
-override CFLAGS   :=
-override LDFLAGS  :=
-
 
 ## optional: avoid runtime dep on libstdc++/libgcc DLLs
 override SHLIB_LDFLAGS += -static-libstdc++ -static-libgcc -s
