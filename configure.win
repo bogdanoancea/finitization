@@ -148,7 +148,7 @@ EOM
   done
 
   # Explicit archives enforce static link order (GiNaC depends on CLN → GMP)
-  PKG_LIBS="$[GINAC_A} ${CLN_A} ${GMP_A} -Wl, Bdynamic -Wl --gc-sections -Wl, --exclude-libs,ALL"
+  PKG_LIBS="${GINAC_A} ${CLN_A} ${GMP_A} -Wl, Bdynamic -Wl --gc-sections -Wl, --exclude-libs,ALL"
 fi
 
 echo $PKG_LIBS
@@ -171,9 +171,6 @@ override CXXFLAGS :=
 override CFLAGS   :=
 override LDFLAGS  :=
 
-## compile flags
-#override PKG_CXXFLAGS += -O2 -Wall -ffunction-sections -fdata-sections -DNDEBUG
-#override PKG_CFLAGS   += -O2 -Wall -ffunction-sections -fdata-sections -DNDEBUG
 
 ## optional: avoid runtime dep on libstdc++/libgcc DLLs
 override SHLIB_LDFLAGS += -static-libstdc++ -static-libgcc -s
