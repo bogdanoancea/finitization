@@ -35,9 +35,9 @@ if ! gcc -v 2>&1 | grep -qi 'ucrt'; then
   echo "ERROR: Active GCC is not the UCRT64 toolchain."
   echo "       Current gcc is: $(which gcc)"
   echo "       Please ensure /ucrt64/bin is first in PATH or install ucrt toolchain if not installed by running:"
-  echo "       pacman -Syu        # if it asks to close/reopen, do it, then run again:""
+  echo "       pacman -Syu        # if it asks to close/reopen, do it, then run again:"
   echo "       pacman -Syu"
-  echo "       pacman -S --needed mingw-w64-ucrt-x86_64-toolchain mingw-w64-ucrt-x86_64-pkgconf""
+  echo "       pacman -S --needed mingw-w64-ucrt-x86_64-toolchain mingw-w64-ucrt-x86_64-pkgconf"
   exit 1
 fi
 
