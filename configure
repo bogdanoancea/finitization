@@ -18,12 +18,6 @@ if ${CC:-cc} --version 2>/dev/null | grep -qi emscripten; then
   exit 1
 fi
 
-# macOS deployment target
-if [ "$OS" = "macos" ]; then
-  CPPFLAGS="-mmacosx-version-min=11.0 ${CPPFLAGS:-}"
-  LDFLAGS="-mmacosx-version-min=11.0 ${LDFLAGS:-}"
-  export CPPFLAGS LDFLAGS
-fi
 
 # Detect CRAN build
 ON_CRAN=0
@@ -36,7 +30,7 @@ PKG_CONFIG="${PKG_CONFIG:-pkg-config}"
 # Flags to enable dead-code elimination
 PKG_CFLAGS="-DNDEBUG"
 PKG_CXXFLAGS="-DNDEBUG"
-PKG_CPPFLAGS=""
+PKG_CPPFLAGS="-DNDEBUG"
 PKG_LIBS=""
 
 
@@ -89,6 +83,10 @@ EOM
         macos:x86_64)
             BURL="https://github.com/bogdanoancea/finitization-macoslibs/releases/download/v1.0.0/finitization-x86_64-gmp+cln+ginac-static.zip"
             BDIR="$PKG_ROOT/extlibs/macos/x86_64"
+            PKG_CXXFLAGS="${PKG_CXXFLAGS} -mmacosx-version-min=12.0"
+            PKG_LIBS="${PKG_LIBS} -mmacosx-version-min=12.0"
+            #CPPFLAGS="${CPPFLAGS} -mmacosx-version-min=12.0"
+            PKG_CFLAGS="${PKG_CFLAGS}  -mmacosx-version-min=12.0"
             ;;
         macos:arm64)
             BURL="https://github.com/bogdanoancea/finitization-macoslibs/releases/download/v1.0.0/finitization-arm64-gmp+cln+ginac-static.zip"
@@ -118,7 +116,7 @@ EOM
     unzip -oq "$ZIP" -d "$PKG_ROOT/extlibs"
 
     # Link statically by naming the archives explicitly
-    PKG_CPPFLAGS="-I$BDIR/include -DNDEBUG"
+    PKG_CPPFLAGS="${PKG_CPPFLAGS} -I$BDIR/include -DNDEBUG"
 
     GINAC_A="$BDIR/lib/libginac.a"
     CLN_A="$BDIR/lib/libcln.a"
@@ -128,7 +126,7 @@ EOM
     [ -f "$f" ] || { echo "ERROR: Missing static archive: $f" >&2; exit 1; }
     done
 
-    PKG_LIBS="$GINAC_A $CLN_A $GMP_A"
+    PKG_LIBS="${PKG_LIBS} ${GINAC_A} ${CLN_A} ${GMP_A}"
     # Dead code stripping (platform-specific)
 
 fi
@@ -141,7 +139,6 @@ if [ "$OS" = "macos" ] && [ "$UNAME_M" = "x86_64" ]; then
 else
   CXXSTD="CXX14"
 fi
-PKG_CXXFLAGS="-DNDEBUG"
 
 
 # Dedupe linker flags
