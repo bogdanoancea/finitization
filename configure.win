@@ -26,7 +26,7 @@ unset CPPFLAGS CXXFLAGS CFLAGS LDFLAGS CXX11FLAGS CXX14FLAGS CXX17FLAGS
 # Force UCRT and kill any static.posix injection from Makeconf
 export PATH="/ucrt64/bin:/usr/bin:${PATH}"
 
-# Sanity-check toolchain: must be UCRT64 gcc
+# Sanity-check toolchain: reocmmended to be UCRT64 gcc
 echo "-> toolchain check:"
 which gcc || true
 gcc -v 2>&1 | sed -n '1,12p' || true
@@ -34,10 +34,11 @@ gcc -v 2>&1 | sed -n '1,12p' || true
 if ! gcc -v 2>&1 | grep -qi 'ucrt'; then
   echo "ERROR: Active GCC is not the UCRT64 toolchain."
   echo "       Current gcc is: $(which gcc)"
-  echo "       Please ensure /ucrt64/bin is first in PATH or install ucrt toolchain if not installed by running:"
+  echo "       It is recommended to use UCTR64 toolchain"
   echo "       pacman -Syu        # if it asks to close/reopen, do it, then run again:"
   echo "       pacman -Syu"
   echo "       pacman -S --needed mingw-w64-ucrt-x86_64-toolchain mingw-w64-ucrt-x86_64-pkgconf"
+  echo "       Please ensure /ucrt64/bin is first in PATH"
 #  exit 1
 fi
 
@@ -148,7 +149,7 @@ EOM
   done
 
   # Explicit archives enforce static link order (GiNaC depends on CLN → GMP)
-  PKG_LIBS="${GINAC_A} ${CLN_A} ${GMP_A} -Wl, Bdynamic -Wl --gc-sections -Wl, --exclude-libs,ALL"
+  PKG_LIBS="${GINAC_A} ${CLN_A} ${GMP_A} -Wl, Bdynamic -Wl, --gc-sections -Wl, --exclude-libs,ALL"
 fi
 
 echo $PKG_LIBS
