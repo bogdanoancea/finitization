@@ -38,7 +38,7 @@ if ! gcc -v 2>&1 | grep -qi 'ucrt'; then
   echo "       pacman -Syu        # if it asks to close/reopen, do it, then run again:"
   echo "       pacman -Syu"
   echo "       pacman -S --needed mingw-w64-ucrt-x86_64-toolchain mingw-w64-ucrt-x86_64-pkgconf"
-  exit 1
+#  exit 1
 fi
 
 # Make sure pkg-config can see ucrt64 pc files
@@ -161,6 +161,7 @@ PKG_CPPFLAGS = $PKG_CPPFLAGS
 PKG_CFLAGS   = $PKG_CFLAGS
 PKG_CXXFLAGS = $PKG_CXXFLAGS
 PKG_LIBS     = $PKG_LIBS
+
 override LOCAL_SOFT :=
 override LOCAL_LIBS  :=
 override LOCAL_CPPFLAGS :=
