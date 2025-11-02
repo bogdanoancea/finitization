@@ -14,6 +14,33 @@ esac
 # Prefer ucrt64 toolchain
 : "${MINGW_PREFIX:=/ucrt64}"
 
+echo "==> configure.win (UCRT-only)"
+
+# Ignore user/site Makevars & scrub env flags that could re-add -I/-L
+empty_mv="$(mktemp -u)"; : > "${empty_mv}"
+export R_MAKEVARS_USER="${empty_mv}"
+export R_MAKEVARS_SITE="${empty_mv}"
+unset CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH LIBRARY_PATH INCLUDE LIB
+unset CPPFLAGS CXXFLAGS CFLAGS LDFLAGS CXX11FLAGS CXX14FLAGS CXX17FLAGS
+
+# Force UCRT and kill any static.posix injection from Makeconf
+export PATH="/ucrt64/bin:/usr/bin:${PATH}"
+
+# Sanity-check toolchain: must be UCRT64 gcc
+echo "-> toolchain check:"
+which gcc || true
+gcc -v 2>&1 | sed -n '1,12p' || true
+
+if ! gcc -v 2>&1 | grep -qi 'ucrt'; then
+  echo "ERROR: Active GCC is not the UCRT64 toolchain."
+  echo "       Current gcc is: $(which gcc)"
+  echo "       Please ensure /ucrt64/bin is first in PATH or install ucrt toolchain if not installed by running:"
+  echo "       pacman -Syu        # if it asks to close/reopen, do it, then run again:"
+  echo "       pacman -Syu"
+  echo "       pacman -S --needed mingw-w64-ucrt-x86_64-toolchain mingw-w64-ucrt-x86_64-pkgconf"
+#  exit 1
+fi
+
 # Make sure pkg-config can see ucrt64 pc files
 if [ -d "$MINGW_PREFIX/lib/pkgconfig" ]; then
   export PKG_CONFIG_PATH="${PKG_CONFIG_PATH:+$PKG_CONFIG_PATH:}$MINGW_PREFIX/lib/pkgconfig"
@@ -33,12 +60,52 @@ PKG_CFLAGS="-DNDEBUG"
 PKG_CXXFLAGS="-DNDEBUG"
 PKG_LIBS=""
 
+
+# Tell Makeconf to NOT add -I/-L from static.posix
+export LOCAL_SOFT=
+export R_CUSTOM_TOOLS_SOFT=
+export LOCAL_SOFT=
+export R_CUSTOM_TOOLS_SOFT=
+
+# Derive the Windows-style base dir for Rtools (e.g., C:\rtools44)
+RTOOLS_BASE_WIN=""
+if command -v cygpath >/dev/null 2>&1; then
+  UCRT_WIN="$(cygpath -m /ucrt64 || true)"                # e.g. C:\rtools44\ucrt64
+  RTOOLS_BASE_WIN="$(printf "%s" "$UCRT_WIN" | sed -E 's:[/\\]ucrt64$::')"  # C:\rtools44
+fi
+
+# Export only the matching RTOOLSXX_HOME (version-agnostic)
+if [ -n "$RTOOLS_BASE_WIN" ]; then
+  # Normalize to forward slashes for safety
+  RTOOLS_BASE_NORM="$(printf "%s" "$RTOOLS_BASE_WIN" | sed 's|\\|/|g')"
+  # Extract trailing digits from 'rtoolsNN' directory name
+  RTDIR_NAME="$(basename "$RTOOLS_BASE_NORM" | tr '[:upper:]' '[:lower:]')"    # rtools44
+  RTVER="$(printf "%s" "$RTDIR_NAME" | sed -n 's/^rtools\([0-9][0-9]*\)$/\1/p')"
+
+  if [ -n "$RTVER" ]; then
+    VAR="RTOOLS${RTVER}_HOME"
+    # shellcheck disable=SC2163  # we deliberately export a computed var name
+    eval "export ${VAR}=\"${RTOOLS_BASE_WIN}\""
+    echo "-> Detected Rtools ${RTVER}; exported ${VAR}=${RTOOLS_BASE_WIN}"
+  else
+    echo "WARN: Could not parse Rtools version from '$RTOOLS_BASE_WIN'."
+    echo "      Continuing without RTOOLSXX_HOME export."
+  fi
+fi
+
 # Try system libraries via pkg-config
 if [ -n "$PKGCFG" ] && "$PKGCFG" --exists gmp cln ginac; then
   echo "configure.win: Found GMP/CLN/GiNaC via $PKGCFG"
-  PKG_CPPFLAGS=$("$PKGCFG" --cflags gmp cln ginac)
+  PKG_CPPFLAGS=$("$PKGCFG" --cflags ginac cln gmp)
   # Use the libs as reported; linker GC flag added below
-  PKG_LIBS=$("$PKGCFG" --libs ginac cln gmp)
+  PKG_CPPFLAGS="-I/ucrt64/include"
+  PKG_LIBS="-L/ucrt64/lib \
+  -Wl,-Bstatic -Wl,--start-group -lginac -lcln -lgmp -Wl,--end-group \
+  -Wl,-Bdynamic -Wl,--gc-sections -Wl,--exclude-libs,ALL"
+
+  ## Avoid runtime deps on libstdc++/libgcc (ok for CRAN)
+  SHLIB_LDFLAGS+="-static-libstdc++ -static-libgcc -s"
+  echo $PKG_LIBS
 else
   # Fallback: fetch and use your **static** bundle for ucrt64
   BUNDLE_URL="https://github.com/bogdanoancea/finitization-winlibs/releases/download/v1.0.0/finitization-ucrt64-gmp+cln+ginac-static.zip"
@@ -81,11 +148,10 @@ EOM
   done
 
   # Explicit archives enforce static link order (GiNaC depends on CLN → GMP)
-  PKG_LIBS="$GINAC_A $CLN_A $GMP_A"
+  PKG_LIBS="${GINAC_A} ${CLN_A} ${GMP_A} -Wl, Bdynamic -Wl --gc-sections -Wl, --exclude-libs,ALL"
 fi
 
-# Enable dead-code elimination at link step
-PKG_LIBS="$PKG_LIBS -Wl,--gc-sections"
+echo $PKG_LIBS
 
 # Emit Makevars.win using only PKG_* vars (CRAN-safe)
 mkdir -p src
@@ -95,6 +161,14 @@ PKG_CPPFLAGS = $PKG_CPPFLAGS
 PKG_CFLAGS   = $PKG_CFLAGS
 PKG_CXXFLAGS = $PKG_CXXFLAGS
 PKG_LIBS     = $PKG_LIBS
+
+override LOCAL_SOFT :=
+override LOCAL_LIBS  :=
+override LOCAL_CPPFLAGS :=
+
+
+## optional: avoid runtime dep on libstdc++/libgcc DLLs
+override SHLIB_LDFLAGS += -static-libstdc++ -static-libgcc -s
 EOF
 
 echo "configure.win: done."
