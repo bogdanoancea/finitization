@@ -11,8 +11,6 @@ case "$(uname -s)" in
   *) exit 1 ;;
 esac
 
-# Prefer ucrt64 toolchain
-: "${MINGW_PREFIX:=/ucrt64}"
 
 echo "==> configure.win (UCRT-only)"
 
@@ -26,21 +24,40 @@ unset CPPFLAGS CXXFLAGS CFLAGS LDFLAGS CXX11FLAGS CXX14FLAGS CXX17FLAGS
 # Force UCRT and kill any static.posix injection from Makeconf
 export PATH="/ucrt64/bin:/usr/bin:${PATH}"
 
+MINGW64=0
+UCRT64=0
+STATIC.POSIX=0
+
 # Sanity-check toolchain: recommended to be UCRT64 gcc
 echo "-> toolchain check:"
 which gcc || true
 gcc -v 2>&1 | sed -n '1,12p' || true
 
-if ! gcc -v 2>&1 | grep -qi 'ucrt'; then
-  echo "       Active GCC is not the UCRT64 toolchain."
+echo "       It is recommended to use UCTR64 toolchain"
+echo "       pacman -Syu        # if it asks to close/reopen, do it, then run again:"
+echo "       pacman -Syu"
+echo "       pacman -S --needed mingw-w64-ucrt-x86_64-toolchain mingw-w64-ucrt-x86_64-pkgconf"
+echo "       Ensure /ucrt64/bin is first in PATH"
+
+if gcc -v 2>&1 | grep -qi 'ucrt'; then
   echo "       Current gcc is: $(which gcc)"
-  echo "       It is recommended to use UCTR64 toolchain"
-  echo "       pacman -Syu        # if it asks to close/reopen, do it, then run again:"
-  echo "       pacman -Syu"
-  echo "       pacman -S --needed mingw-w64-ucrt-x86_64-toolchain mingw-w64-ucrt-x86_64-pkgconf"
-  echo "       Please ensure /ucrt64/bin is first in PATH"
-#  exit 1
+    UCRT64=1
+    : "${MINGW_PREFIX:=/ucrt64}"
 fi
+
+if gcc -v 2>&1 | grep -qi 'mingw64'; then
+    MINGW64=1
+    : "${MINGW_PREFIX:=/mingw64}"
+if
+
+if gcc -v 2>&1 | grep -qi 'x86_64-w64-mingw32.static.posix'; then
+    MINGW64=1
+    : "${MINGW_PREFIX:=/x86_64-w64-mingw32.static.posix}"
+if
+
+# Prefer ucrt64 toolchain
+
+
 
 # Make sure pkg-config can see ucrt64 pc files
 if [ -d "$MINGW_PREFIX/lib/pkgconfig" ]; then
@@ -149,7 +166,7 @@ EOM
   done
 
   # Explicit archives enforce static link order (GiNaC depends on CLN → GMP)
-  PKG_LIBS="${GINAC_A} ${CLN_A} ${GMP_A} -Wl, Bdynamic -Wl,--gc-sections -Wl,--exclude-libs,ALL"
+  PKG_LIBS="${GINAC_A} ${CLN_A} ${GMP_A} -Wl,Bdynamic -Wl,--gc-sections -Wl,--exclude-libs,ALL"
 fi
 
 echo $PKG_LIBS
