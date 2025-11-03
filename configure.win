@@ -208,6 +208,24 @@ override LOCAL_SOFT :=
 override LOCAL_LIBS  :=
 override LOCAL_CPPFLAGS :=
 
+
+override BINPREF :=
+override CC      := $(shell cygpath -m "${MINGW_PREFIX}")/bin/gcc
+override CXX     := $(shell cygpath -m "${MINGW_PREFIX}")/bin/g++
+override SHLIB_LD    := $(shell cygpath -m "${MINGW_PREFIX}")/bin/g++
+override SHLIB_CXXLD := $(shell cygpath -m "${MINGW_PREFIX}")/bin/g++
+override SHLIB_LINK   := $(shell cygpath -m "${MINGW_PREFIX}")/bin/g++
+override AR      := $(shell cygpath -m "${MINGW_PREFIX}")/bin/ar
+override NM      := $(shell cygpath -m "${MINGW_PREFIX}")/bin/nm
+override RANLIB  := $(shell cygpath -m "${MINGW_PREFIX}")/bin/ranlib
+override STRIP   := $(shell cygpath -m "${MINGW_PREFIX}")/bin/strip
+
+%.dll:
+	@echo EXPORTS > $*.def
+	@$(NM) $^ | $(SED) -n $(SYMPAT) >> $*.def
+	$(CXX) $(SHLIB_LDFLAGS) $(DLLFLAGS) -o $@ $*.def $^ $(ALL_LIBS)
+	@$(RM) $*.def
+
 ## optional: avoid runtime dep on libstdc++/libgcc DLLs
 override SHLIB_LDFLAGS += ${SHLIB_LDFLAGS_ADD}
 EOF
@@ -219,3 +237,4 @@ echo "  PKG_CPPFLAGS:  ${PKG_CPPFLAGS}"
 echo "  PKG_CFLAGS:    ${PKG_CFLAGS}"
 echo "  PKG_CXXFLAGS:  ${PKG_CXXFLAGS}"
 echo "  PKG_LIBS:      ${PKG_LIBS}"
+echo $PATH
