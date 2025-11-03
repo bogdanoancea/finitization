@@ -208,6 +208,7 @@ override LOCAL_SOFT :=
 override LOCAL_LIBS  :=
 override LOCAL_CPPFLAGS :=
 
+override SHLIB_LD  :=$(shell cygpath -m "${MINGW_PREFIX}")/bin/g++
 
 ## optional: avoid runtime dep on libstdc++/libgcc DLLs
 override SHLIB_LDFLAGS += ${SHLIB_LDFLAGS_ADD}
