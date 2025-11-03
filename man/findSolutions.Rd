@@ -93,7 +93,7 @@ findSolutions <- getFromNamespace("findSolutions", "finitization")
 findSolutions(f3, lower = 0, upper = 1, max_upper = 2,
               initial_n = 2e5, coarse_pts = 128L, fine_pts = 1024L)
 
-## Example 4 (MFPS flavor): A PSD-style series truncated to n−1
+## Example 4 (MFPS flavor): A PSD-style series truncated to n-1
 ## Suppose pdf(n-1) reduces to a low-degree polynomial in theta:
 f4 <- function(theta) 1 - 4*theta + 10*theta^2 - 20*theta^3 + 35*theta^4
 findSolutions <- getFromNamespace("findSolutions", "finitization")

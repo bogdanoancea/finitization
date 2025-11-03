@@ -1,70 +1,82 @@
 #!/bin/sh
-set -e
+set -euxo pipefail
 
-# Absolute package root (where this script lives)
+# Lock MSYS mode to UCRT toolchain and keep our PATH
+export MSYSTEM=UCRT64
+export MSYS2_PATH_TYPE=inherit
+
+# ------------------------------------------------------------
+# configure.win for finitization
+# Toolchain preference: ucrt64 -> mingw64 -> static.posix
+# Distinct vendor bundles per toolchain when downloading.
+# ------------------------------------------------------------
+
 PKG_ROOT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 echo "configure.win: PKG_ROOT=$PKG_ROOT"
 
-# Ensure we are on Windows/MSYS
 case "$(uname -s)" in
   MINGW*|MSYS*|CYGWIN*) : ;;
-  *) exit 1 ;;
+  *) echo "This script is for Windows/MSYS only."; exit 1 ;;
 esac
 
+echo "==> configure.win starting ..."
 
-echo "==> configure.win (UCRT-only)"
-
-# Ignore user/site Makevars & scrub env flags that could re-add -I/-L
+# 0) Sanitize env: ignore user/site Makevars; scrub flags that might inject -I/-L
 empty_mv="$(mktemp -u)"; : > "${empty_mv}"
 export R_MAKEVARS_USER="${empty_mv}"
 export R_MAKEVARS_SITE="${empty_mv}"
 unset CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH LIBRARY_PATH INCLUDE LIB
 unset CPPFLAGS CXXFLAGS CFLAGS LDFLAGS CXX11FLAGS CXX14FLAGS CXX17FLAGS
 
-# Force UCRT and kill any static.posix injection from Makeconf
-export PATH="/ucrt64/bin:/usr/bin:${PATH}"
+# 1) Detect toolchain by presence, in order ucrt64 -> mingw64 -> static.posix
+UCRT_PREFIX="/ucrt64"
+MINGW_PREFIX_CAND="/mingw64"
+STATIC_POSIX_PREFIX="/x86_64-w64-mingw32.static.posix"
 
-MINGW64=0
-UCRT64=0
-STATIC.POSIX=0
+TOOLCHAIN=""
+MINGW_PREFIX=""
 
-# Sanity-check toolchain: recommended to be UCRT64 gcc
-echo "-> toolchain check:"
-which gcc || true
+if [ -x "${UCRT_PREFIX}/bin/gcc" ]; then
+  TOOLCHAIN="ucrt64"
+  MINGW_PREFIX="${UCRT_PREFIX}"
+elif [ -x "${MINGW_PREFIX_CAND}/bin/gcc" ]; then
+  TOOLCHAIN="mingw64"
+  MINGW_PREFIX="${MINGW_PREFIX_CAND}"
+elif [ -x "${STATIC_POSIX_PREFIX}/bin/gcc" ]; then
+  TOOLCHAIN="static.posix"
+  MINGW_PREFIX="${STATIC_POSIX_PREFIX}"
+else
+  # Fallback: inspect current gcc -v (last resort)
+  if command -v gcc >/dev/null 2>&1 && gcc -v 2>&1 | grep -qi 'ucrt'; then
+    TOOLCHAIN="ucrt64"; MINGW_PREFIX="${UCRT_PREFIX}"
+  elif command -v gcc >/dev/null 2>&1 && gcc -v 2>&1 | grep -qi 'mingw'; then
+    TOOLCHAIN="mingw64"; MINGW_PREFIX="${MINGW_PREFIX_CAND}"
+  else
+    # Final fallback to static.posix layout
+    TOOLCHAIN="static.posix"; MINGW_PREFIX="${STATIC_POSIX_PREFIX}"
+  fi
+fi
+
+echo "-> Selected toolchain: ${TOOLCHAIN}"
+echo "-> MINGW_PREFIX:       ${MINGW_PREFIX}"
+
+# 2) Rewrite PATH to ensure only the chosen toolchain bin is first (avoid mixing)
+#    Keep /usr/bin for MSYS tools as usual.
+export PATH="${MINGW_PREFIX}/bin:/usr/bin"
+echo "-> PATH (head): $(printf '%s' "$PATH" | sed 's/;/\n/g' | sed 's/:/\n/g' | head -n 4)"
+# (optional, extra safety) explicitly bind binutils so gcc never calls the wrong ones
+export AR="${MINGW_PREFIX}/bin/ar"
+export RANLIB="${MINGW_PREFIX}/bin/ranlib"
+export STRIP="${MINGW_PREFIX}/bin/strip"
+export NM="${MINGW_PREFIX}/bin/nm"
+export LD="${MINGW_PREFIX}/bin/ld"   # rarely needed, but forces the right ld.exe
+
+
+# 3) Toolchain sanity trace
+echo "-> gcc location: $(command -v gcc || true)"
 gcc -v 2>&1 | sed -n '1,12p' || true
 
-echo "       It is recommended to use UCTR64 toolchain"
-echo "       pacman -Syu        # if it asks to close/reopen, do it, then run again:"
-echo "       pacman -Syu"
-echo "       pacman -S --needed mingw-w64-ucrt-x86_64-toolchain mingw-w64-ucrt-x86_64-pkgconf"
-echo "       Ensure /ucrt64/bin is first in PATH"
-
-if gcc -v 2>&1 | grep -qi 'ucrt'; then
-  echo "       Current gcc is: $(which gcc)"
-    UCRT64=1
-    : "${MINGW_PREFIX:=/ucrt64}"
-fi
-
-if gcc -v 2>&1 | grep -qi 'mingw64'; then
-    MINGW64=1
-    : "${MINGW_PREFIX:=/mingw64}"
-if
-
-if gcc -v 2>&1 | grep -qi 'x86_64-w64-mingw32.static.posix'; then
-    MINGW64=1
-    : "${MINGW_PREFIX:=/x86_64-w64-mingw32.static.posix}"
-if
-
-# Prefer ucrt64 toolchain
-
-
-
-# Make sure pkg-config can see ucrt64 pc files
-if [ -d "$MINGW_PREFIX/lib/pkgconfig" ]; then
-  export PKG_CONFIG_PATH="${PKG_CONFIG_PATH:+$PKG_CONFIG_PATH:}$MINGW_PREFIX/lib/pkgconfig"
-fi
-
-# Pick pkgconf first (often default in MSYS2), else pkg-config
+# 4) pkg-config discovery (prefer pkgconf, else pkg-config)
 if command -v pkgconf >/dev/null 2>&1; then
   PKGCFG=pkgconf
 elif command -v pkg-config >/dev/null 2>&1; then
@@ -73,90 +85,84 @@ else
   PKGCFG=""
 fi
 
+# 5) Ensure pkg-config can see *.pc files from chosen toolchain
+if [ -d "${MINGW_PREFIX}/lib/pkgconfig" ]; then
+  export PKG_CONFIG_PATH="${MINGW_PREFIX}/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
+fi
+
+# 6) Base flags
 PKG_CPPFLAGS=""
 PKG_CFLAGS="-DNDEBUG"
 PKG_CXXFLAGS="-DNDEBUG"
 PKG_LIBS=""
 
+# 7) Try system libs via pkg-config (preferred when available)
+FOUND_VIA_PKGCFG=0
+if [ -n "$PKGCFG" ] && "$PKGCFG" --exists gmp cln ginac 2>/dev/null; then
+  FOUND_VIA_PKGCFG=1
+  echo "configure.win: Found GMP/CLN/GiNaC via $PKGCFG in ${MINGW_PREFIX}"
 
-# Tell Makeconf to NOT add -I/-L from static.posix
-export LOCAL_SOFT=
-export R_CUSTOM_TOOLS_SOFT=
-export LOCAL_SOFT=
-export R_CUSTOM_TOOLS_SOFT=
-
-# Derive the Windows-style base dir for Rtools (e.g., C:\rtools44)
-RTOOLS_BASE_WIN=""
-if command -v cygpath >/dev/null 2>&1; then
-  UCRT_WIN="$(cygpath -m /ucrt64 || true)"                # e.g. C:\rtools44\ucrt64
-  RTOOLS_BASE_WIN="$(printf "%s" "$UCRT_WIN" | sed -E 's:[/\\]ucrt64$::')"  # C:\rtools44
-fi
-
-# Export only the matching RTOOLSXX_HOME (version-agnostic)
-if [ -n "$RTOOLS_BASE_WIN" ]; then
-  # Normalize to forward slashes for safety
-  RTOOLS_BASE_NORM="$(printf "%s" "$RTOOLS_BASE_WIN" | sed 's|\\|/|g')"
-  # Extract trailing digits from 'rtoolsNN' directory name
-  RTDIR_NAME="$(basename "$RTOOLS_BASE_NORM" | tr '[:upper:]' '[:lower:]')"    # rtools44
-  RTVER="$(printf "%s" "$RTDIR_NAME" | sed -n 's/^rtools\([0-9][0-9]*\)$/\1/p')"
-
-  if [ -n "$RTVER" ]; then
-    VAR="RTOOLS${RTVER}_HOME"
-    # shellcheck disable=SC2163  # we deliberately export a computed var name
-    eval "export ${VAR}=\"${RTOOLS_BASE_WIN}\""
-    echo "-> Detected Rtools ${RTVER}; exported ${VAR}=${RTOOLS_BASE_WIN}"
-  else
-    echo "WARN: Could not parse Rtools version from '$RTOOLS_BASE_WIN'."
-    echo "      Continuing without RTOOLSXX_HOME export."
-  fi
-fi
-
-# Try system libraries via pkg-config
-if [ -n "$PKGCFG" ] && "$PKGCFG" --exists gmp cln ginac; then
-  echo "configure.win: Found GMP/CLN/GiNaC via $PKGCFG"
+  # Use cflags from the three packages (order doesn’t matter for headers)
   PKG_CPPFLAGS=$("$PKGCFG" --cflags ginac cln gmp)
-  # Use the libs as reported; linker GC flag added below
-  PKG_CPPFLAGS="-I/ucrt64/include"
-  PKG_LIBS="-L/ucrt64/lib \
-  -Wl,-Bstatic -Wl,--start-group -lginac -lcln -lgmp -Wl,--end-group \
-  -Wl,-Bdynamic -Wl,--gc-sections -Wl,--exclude-libs,ALL"
+  # Enforce static preference for the three libs (grouped), then back to dynamic
+  # Add GC/strip/exclude-libs for smaller DLL
+  PKG_LIBS="$("$PKGCFG" --libs --static ginac cln gmp) -Wl,--gc-sections -Wl,--exclude-libs,ALL"
 
-  ## Avoid runtime deps on libstdc++/libgcc (ok for CRAN)
-  SHLIB_LDFLAGS+="-static-libstdc++ -static-libgcc -s"
-  echo $PKG_LIBS
-else
-  # Fallback: fetch and use your **static** bundle for ucrt64
-  BUNDLE_URL="https://github.com/bogdanoancea/finitization-winlibs/releases/download/v1.0.0/finitization-ucrt64-gmp+cln+ginac-static.zip"
-  VENDOR_DIR="${PKG_ROOT}/extlibs/windows/ucrt64"
-  ZIPFILE="${PKG_ROOT}/extlibs/$(basename "$BUNDLE_URL")"
+  # Be explicit about search root to avoid cross-pollination
+  PKG_CPPFLAGS="${PKG_CPPFLAGS} -I${MINGW_PREFIX}/include"
+  PKG_LIBS="-L${MINGW_PREFIX}/lib ${PKG_LIBS}"
+
+  # Prefer no runtime dep on libstdc++/libgcc DLLs for CRAN friendliness
+  SHLIB_LDFLAGS_ADD="-static-libstdc++ -static-libgcc -s"
+fi
+
+# 8) If not found, download a toolchain-specific static bundle
+if [ "$FOUND_VIA_PKGCFG" -eq 0 ]; then
+  echo "configure.win: pkg-config did not find ginac/cln/gmp; using vendor bundle."
+
+  BUNDLE_TAG="v1.0.0"
+  BUNDLE_BASE="https://github.com/bogdanoancea/finitization-winlibs/releases/download/${BUNDLE_TAG}"
+
+  case "$TOOLCHAIN" in
+    ucrt64)       BUNDLE_FILE="finitization-ucrt64-gmp+cln+ginac-static.zip" ;;
+    mingw64)      BUNDLE_FILE="finitization-mingw64-gmp+cln+ginac-static.zip" ;;
+    static.posix) BUNDLE_FILE="finitization-static.posix-gmp+cln+ginac-static.zip" ;;
+  esac
+
+  BUNDLE_URL="${BUNDLE_BASE}/${BUNDLE_FILE}"
+  VENDOR_DIR="${PKG_ROOT}/extlibs/windows/${TOOLCHAIN}"
+  ZIPFILE="${PKG_ROOT}/extlibs/${BUNDLE_FILE}"
 
   mkdir -p "$(dirname "$ZIPFILE")" "$VENDOR_DIR"
 
-  echo "configure.win: fetching static bundle:"
-  echo "  $BUNDLE_URL"
+  echo "configure.win: fetching ${BUNDLE_URL}"
   if command -v curl >/dev/null 2>&1; then
-    curl -L -o "$ZIPFILE" "$BUNDLE_URL"
+    curl -fsSL -o "$ZIPFILE" "$BUNDLE_URL"
   elif command -v wget >/dev/null 2>&1; then
     wget -q -O "$ZIPFILE" "$BUNDLE_URL"
   else
     cat >&2 <<'EOM'
 ERROR: Neither curl nor wget found to download external libraries.
-Please install curl or wget.
+Please install curl or wget (e.g., pacman -S curl).
 EOM
     exit 1
   fi
 
-  echo "configure.win: extracting bundle -> $VENDOR_DIR"
+  echo "configure.win: extracting bundle -> ${PKG_ROOT}/extlibs"
   if command -v unzip >/dev/null 2>&1; then
     unzip -oq "$ZIPFILE" -d "${PKG_ROOT}/extlibs"
   else
-    # PowerShell fallback
-    powershell -NoProfile -Command "Expand-Archive -Path '$ZIPFILE' -DestinationPath '$(cygpath -w "${PKG_ROOT}/extlibs")' -Force"
+    # PowerShell fallback for unzip
+    if command -v powershell >/dev/null 2>&1; then
+      powershell -NoProfile -Command "Expand-Archive -Path '$(cygpath -w "$ZIPFILE")' -DestinationPath '$(cygpath -w "${PKG_ROOT}/extlibs")' -Force"
+    else
+      echo "ERROR: No unzip or PowerShell available to extract vendor bundle." >&2
+      exit 1
+    fi
   fi
 
-  # Headers and static archives
+  # Headers and static archives from the vendor bundle
   PKG_CPPFLAGS="-I${VENDOR_DIR}/include -DNDEBUG"
-
   GINAC_A="${VENDOR_DIR}/lib/libginac.a"
   CLN_A="${VENDOR_DIR}/lib/libcln.a"
   GMP_A="${VENDOR_DIR}/lib/libgmp.a"
@@ -165,32 +171,51 @@ EOM
     [ -f "$f" ] || { echo "ERROR: Missing static archive: $f" >&2; exit 1; }
   done
 
-  # Explicit archives enforce static link order (GiNaC depends on CLN → GMP)
-  PKG_LIBS="${GINAC_A} ${CLN_A} ${GMP_A} -Wl,Bdynamic -Wl,--gc-sections -Wl,--exclude-libs,ALL"
+  # Link in correct order: GiNaC -> CLN -> GMP; then allow dynamic again
+  PKG_LIBS="${GINAC_A} ${CLN_A} ${GMP_A} -Wl,-Bdynamic -Wl,--gc-sections -Wl,--exclude-libs,ALL"
+
+  SHLIB_LDFLAGS_ADD="-static-libstdc++ -static-libgcc -s"
 fi
 
-echo $PKG_LIBS
+# 9) Export RTOOLSxx_HOME (nice-to-have) based on cygpath of /ucrt64 if present
+if command -v cygpath >/dev/null 2>&1; then
+  UCRT_WIN="$(cygpath -m "${UCRT_PREFIX}" 2>/dev/null || true)"   # e.g., C:\rtools43\ucrt64
+  if [ -n "$UCRT_WIN" ]; then
+    RTOOLS_BASE_WIN="$(printf "%s" "$UCRT_WIN" | sed -E 's:[/\\]ucrt64$::')"
+    if [ -n "$RTOOLS_BASE_WIN" ]; then
+      RTOOLS_BASE_NORM="$(printf "%s" "$RTOOLS_BASE_WIN" | sed 's|\\|/|g')"
+      RTDIR_NAME="$(basename "$RTOOLS_BASE_NORM" | tr '[:upper:]' '[:lower:]')"    # rtools43/44
+      RTVER="$(printf "%s" "$RTDIR_NAME" | sed -n 's/^rtools\([0-9][0-9]*\)$/\1/p')"
+      if [ -n "$RTVER" ]; then
+        VAR="RTOOLS${RTVER}_HOME"
+        eval "export ${VAR}=\"${RTOOLS_BASE_WIN}\""
+        echo "-> Detected Rtools ${RTVER}; exported ${VAR}=${RTOOLS_BASE_WIN}"
+      fi
+    fi
+  fi
+fi
 
-# Emit Makevars.win using only PKG_* vars (CRAN-safe)
+# 10) Emit src/Makevars.win (only PKG_* + LDFLAGS additions; CRAN-safe)
 mkdir -p src
 cat > src/Makevars.win <<EOF
 CXX_STD      = CXX14
-PKG_CPPFLAGS = $PKG_CPPFLAGS
-PKG_CFLAGS   = $PKG_CFLAGS
-PKG_CXXFLAGS = $PKG_CXXFLAGS
-PKG_LIBS     = $PKG_LIBS
+PKG_CPPFLAGS = ${PKG_CPPFLAGS}
+PKG_CFLAGS   = ${PKG_CFLAGS}
+PKG_CXXFLAGS = ${PKG_CXXFLAGS}
+PKG_LIBS     = ${PKG_LIBS}
 
 override LOCAL_SOFT :=
 override LOCAL_LIBS  :=
 override LOCAL_CPPFLAGS :=
 
-
 ## optional: avoid runtime dep on libstdc++/libgcc DLLs
-override SHLIB_LDFLAGS += -static-libstdc++ -static-libgcc -s
+override SHLIB_LDFLAGS += ${SHLIB_LDFLAGS_ADD}
 EOF
 
 echo "configure.win: done."
-echo "  PKG_CPPFLAGS: $PKG_CPPFLAGS"
-echo "  PKG_CFLAGS:   $PKG_CFLAGS"
-echo "  PKG_CXXFLAGS: $PKG_CXXFLAGS"
-echo "  PKG_LIBS:     $PKG_LIBS"
+echo "  TOOLCHAIN:     ${TOOLCHAIN}"
+echo "  MINGW_PREFIX:  ${MINGW_PREFIX}"
+echo "  PKG_CPPFLAGS:  ${PKG_CPPFLAGS}"
+echo "  PKG_CFLAGS:    ${PKG_CFLAGS}"
+echo "  PKG_CXXFLAGS:  ${PKG_CXXFLAGS}"
+echo "  PKG_LIBS:      ${PKG_LIBS}"
