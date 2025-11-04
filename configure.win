@@ -19,7 +19,6 @@ case "$(uname -s)" in
   *) echo "This script is for Windows/MSYS only."; exit 1 ;;
 esac
 
-echo "==> configure.win starting ..."
 
 # 0) Sanitize env: ignore user/site Makevars; scrub flags that might inject -I/-L
 empty_mv="$(mktemp -u)"; : > "${empty_mv}"
