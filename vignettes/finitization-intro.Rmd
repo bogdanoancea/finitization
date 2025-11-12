@@ -430,10 +430,15 @@ In summary, MFPS is a central concept in finitization: it specifies the paramete
 
 # Installing the `finitization` Package
 
-The `finitization` package is available on CRAN and can be installed with a single command:
+The `finitization` package is available through the `R-universe repository`, which provides precompiled binaries for all major operating systems — Windows, Linux, and macOS (both x86_64 and arm64 architectures).
+
+To install the package, simply run:
 
 ```{r, eval=FALSE}
-install.packages("finitization")
+install.packages(
+  "finitization",
+  repos = c("https://bogdanoancea.r-universe.dev", "https://cloud.r-project.org")
+)
 ```
 
 After installation, the package can be loaded as usual:

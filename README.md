@@ -2,6 +2,12 @@
 
 <!-- badges: start -->
 [![](https://github.com/bogdanoancea/finitization/actions/workflows/R-CMD-check.yml/badge.svg)](https://github.com/bogdanoancea/finitization/actions/workflows/R-CMD-check.yml)
+[![finitization build status](https://bogdanoancea.r-universe.dev/badges/finitization)](https://bogdanoancea.r-universe.dev/finitization)
+[![R-universe](https://bogdanoancea.r-universe.dev/badges/latest)](https://bogdanoancea.r-universe.dev)
+[![License: GPL v3](https://img.shields.io/badge/license-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![R ≥ 4.2](https://img.shields.io/badge/R-%3E%3D%204.2-276DC3?logo=r&logoColor=white)](https://cran.r-project.org/)
+[![Docs](https://img.shields.io/badge/docs-online-success)](https://bogdanoancea.r-universe.dev/finitization/doc)
+
 <!-- badges: end -->
 
 The goal of this package is to implement the concept of probability distribution finitization.
@@ -33,7 +39,8 @@ brew install gmp cln ginac pkg-config
    https://cran.r-project.org/bin/windows/Rtools/
 
 2. **Open the “MSYS2 UCRT 64‑bit” shell** 
-   Supposing that RTools44 is intalled in "C:\rtools44" then double click on "C:\rtools44\ucrt64.exe". 
+   Supposing that RTools44 is installed in "C:\rtools44" then double click on "C:\rtools44\ucrt64.exe". 
+   If other version of the RTools is used, update the paths accordingly.
    
 3. **Fully update MSYS2, update the package database and install the toolchain + pkgconf**  
    ```bash
@@ -123,6 +130,8 @@ This is a basic example which shows you how to solve a common problem:
 ```r
 library(finitization)
 ## basic example code
+dpois(4, 0.5, c(0,1,3))
+dpois(4, 0.5, c(0,1,3), log = TRUE)
 ```
 
 ---
