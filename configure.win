@@ -62,7 +62,7 @@ echo "-> MINGW_PREFIX:       ${MINGW_PREFIX}"
 # 2) Rewrite PATH to ensure only the chosen toolchain bin is first (avoid mixing)
 #    Keep /usr/bin for MSYS tools as usual.
 export PATH="${MINGW_PREFIX}/bin:/usr/bin"
-echo "-> PATH (head): $(printf '%s' "$PATH" | sed 's/;/\n/g' | sed 's/:/\n/g' | head -n 4)"
+# echo "-> PATH (head): $(printf '%s' "$PATH" | sed 's/;/\n/g' | sed 's/:/\n/g' | head -n 4)"
 # (optional, extra safety) explicitly bind binutils so gcc never calls the wrong ones
 export AR="${MINGW_PREFIX}/bin/ar"
 export RANLIB="${MINGW_PREFIX}/bin/ranlib"
