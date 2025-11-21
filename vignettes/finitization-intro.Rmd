@@ -18,6 +18,9 @@ vignette: >
   %\VignetteIndexEntry{Introduction to finitization}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
 ```{r setup, include = FALSE}
@@ -30,50 +33,99 @@ knitr::opts_chunk$set(
 )
 try(knitr::knit_cache$clear(), silent = TRUE)
 ```
+
 # Introduction
 
+The **finitization** package provides tools for computing finitized
+versions of several well-known members of the *power series family*
+(PSDs), including the Poisson, binomial, negative binomial, and
+logarithmic distributions. Finitization is a probabilistic method that
+transforms a discrete distribution - often one with infinite
+support-into a new distribution with finite support of specified order
+*n*. Unlike truncation, which conditions the original distribution,
+finitization constructs a new distribution that (under parameter
+restrictions) preserves the first *n* moments of the parent distribution
+[@golnabi2009finitizing; @levy2012moment].
 
-The **finitization** package provides tools for computing finitized versions of several well-known members of the *power series family* (PSDs), including the Poisson, binomial, negative binomial, and logarithmic distributions. Finitization is a probabilistic method that transforms a discrete distribution - often one with infinite support-into a new distribution with finite support of specified order *n*. Unlike truncation, which conditions the original distribution, finitization constructs a new distribution that (under parameter restrictions) preserves the first *n* moments of the parent distribution [@golnabi2009finitizing; @levy2012moment].  
-
-This vignette is organized into two main parts. First, we provide a **theoretical review** of the finitization concept, describing the underlying families of distributions, the main methods of finitization (PSF and NTSF), and key results such as the maximum feasible parameter space (MFPS). Second, we present a **tutorial** on using the package, including installation, functions for computing finitized probability mass functions and random variates, and practical guidance for choosing the finitization order *n*. This structure allows the reader to both understand the mathematical background and apply the package effectively in practice.
-
+This vignette is organized into two main parts. First, we provide a
+**theoretical review** of the finitization concept, describing the
+underlying families of distributions, the main methods of finitization
+(PSF and NTSF), and key results such as the maximum feasible parameter
+space (MFPS). Second, we present a **tutorial** on using the package,
+including installation, functions for computing finitized probability
+mass functions and random variates, and practical guidance for choosing
+the finitization order *n*. This structure allows the reader to both
+understand the mathematical background and apply the package effectively
+in practice.
 
 # Finitization of Power Series Family of Probability Distributions
 
 ## What is finitization?
 
-This vignette offers a concise theoretical overview of finitization, highlighting its central
-ideas and main applications. Readers interested in the full mathematical development,
-comprehensive proofs, and extended examples are encouraged to consult the core references in
-the literature [@golnabi2009finitizing; @levy2012moment; @levy2019application;
+This vignette offers a concise theoretical overview of finitization,
+highlighting its central ideas and main applications. Readers interested
+in the full mathematical development, comprehensive proofs, and extended
+examples are encouraged to consult the core references in the literature
+[@golnabi2009finitizing; @levy2012moment; @levy2019application;
 @cochran2013matching; @kirtland2018application].
 
-Finitization is a probabilistic method that transforms a discrete distribution - most often a member of the power series family such as Poisson, negative binomial, binomial, or logarithmic - into a new distribution with finite support of a specified size. Unlike simple truncation, which conditions the original distribution on a restricted domain, finitization constructs an alternative distribution whose first *n* moments coincide with those of the parent distribution (a property known as *moment preservation*) [@levy2012moment; @golnabi2009finitizing]. This makes finitization particularly attractive when one wishes to model real-world situations where the assumption of infinite support is unrealistic but maintaining the original distribution’s moment structure is essential. By doing so, finitization not only provides a mathematically principled way to approximate infinite-support models but also enables more efficient random variate generation in simulation studies [@levy2019application].
-
+Finitization is a probabilistic method that transforms a discrete
+distribution - most often a member of the power series family such as
+Poisson, negative binomial, binomial, or logarithmic - into a new
+distribution with finite support of a specified size. Unlike simple
+truncation, which conditions the original distribution on a restricted
+domain, finitization constructs an alternative distribution whose first
+*n* moments coincide with those of the parent distribution (a property
+known as *moment preservation*) [@levy2012moment;
+@golnabi2009finitizing]. This makes finitization particularly attractive
+when one wishes to model real-world situations where the assumption of
+infinite support is unrealistic but maintaining the original
+distribution’s moment structure is essential. By doing so, finitization
+not only provides a mathematically principled way to approximate
+infinite-support models but also enables more efficient random variate
+generation in simulation studies [@levy2019application].
 
 ## Usage of finitized probability distributions
-Finitized distributions are especially useful in contexts where the phenomenon being modeled has a natural upper bound. Examples include[@levy2012moment]:
 
-- **Airplane seating:**  
-  Suppose an airplane has \(n\) seats, all prepurchased. The number of passengers arriving at
-  the gate cannot exceed \(n\). A standard Poisson distribution allows for arbitrarily large
-  counts, which is unrealistic. An order-\(n\) finitized Poisson correctly restricts the support
-  to \(\{0,1,\dots,n\}\).
-  
-- **Book publisher:**  
-  Consider a publisher producing textbooks with roughly \(n\) words per page. Traditionally,
-  the number of misprints per page is modeled as Poisson with a small mean. However, the
-  number of errors cannot exceed the number of words per page. A finitized Poisson of order \(n\)
-  better reflects this bounded nature.
-  
+Finitized distributions are especially useful in contexts where the
+phenomenon being modeled has a natural upper bound. Examples
+include[@levy2012moment]:
 
-In each case, the standard Poisson or other infinite-support distributions would assign positive probability to impossible outcomes, while a *finitized* counterpart avoids this problem without distorting key moment properties.
+-   **Airplane seating:**\
+    Suppose an airplane has $n$ seats, all prepurchased. The number of
+    passengers arriving at the gate cannot exceed $n$. A standard
+    Poisson distribution allows for arbitrarily large counts, which is
+    unrealistic. An order-$n$ finitized Poisson correctly restricts the
+    support to $\{0,1,\dots,n\}$.
 
+-   **Book publisher:**\
+    Consider a publisher producing textbooks with roughly $n$ words per
+    page. Traditionally, the number of misprints per page is modeled as
+    Poisson with a small mean. However, the number of errors cannot
+    exceed the number of words per page. A finitized Poisson of order
+    $n$ better reflects this bounded nature.
 
-Another area where finitization can be used is in **random variate generation**. Simulation methods such as *aliasing* (efficient for discrete distributions with finite support) become applicable once the distribution is finitized. This can substantially accelerate random variate generation whil preserving a close fit to the parent distribution.
- 
+In each case, the standard Poisson or other infinite-support
+distributions would assign positive probability to impossible outcomes,
+while a *finitized* counterpart avoids this problem without distorting
+key moment properties.
 
-The critical distinction from truncation is that truncation conditions on the event \( X \leq n \), which alters all the moments in unpredictable ways and can misrepresent the underlying process [@golnabi2009finitizing]. Finitization, by contrast, produces a new distribution defined on \(\{0,1,\ldots,n\}\) that preserves the first *n* moments of the original model. This moment-preserving property makes finitization superior when both realistic bounded support and fidelity to the original statistical structure are required [@levy2019application].
+Another area where finitization can be used is in **random variate
+generation**. Simulation methods such as *aliasing* (efficient for
+discrete distributions with finite support) become applicable once the
+distribution is finitized. This can substantially accelerate random
+variate generation whil preserving a close fit to the parent
+distribution.
+
+The critical distinction from truncation is that truncation conditions
+on the event $X \leq n$, which alters all the moments in unpredictable
+ways and can misrepresent the underlying process
+[@golnabi2009finitizing]. Finitization, by contrast, produces a new
+distribution defined on $\{0,1,\ldots,n\}$ that preserves the first *n*
+moments of the original model. This moment-preserving property makes
+finitization superior when both realistic bounded support and fidelity
+to the original statistical structure are required
+[@levy2019application].
 
 It is important to distinguish finitization from truncation:
 
@@ -104,83 +156,94 @@ kable(comparison, format = "markdown", align = "l")
 
 ### Power Series Distributions (PSDs)
 
-A random variable \(X\) has a *power series distribution* (PSD) if its pmf can be written
-\[
+A random variable $X$ has a *power series distribution* (PSD) if its pmf
+can be written $$
 f(x\mid\theta)=\Pr(X=x\mid\theta)=\frac{a_x\,\theta^x}{\eta(\theta)},\quad x=0,1,\ldots,\ \theta>0,
 \tag{1}
-\]
-with \(a_x\ge 0\) and normalizing function \(\eta(\theta)=\sum_{x=0}^{\infty} a_x\,\theta^x\). Equivalently,
-\[
+$$ with $a_x\ge 0$ and normalizing function
+$\eta(\theta)=\sum_{x=0}^{\infty} a_x\,\theta^x$. Equivalently, $$
 f(x\mid\theta)=a_x\,\theta^x\,\tau(\theta),\qquad \tau(\theta)=\eta(\theta)^{-1}.
 \tag{2}
-\]
-Canonical examples include the Poisson, binomial, negative binomial, and logarithmic distributions [@golnabi2009finitizing].
+$$ Canonical examples include the Poisson, binomial, negative binomial,
+and logarithmic distributions [@golnabi2009finitizing].
 
-The unit sum for \(f_n\) is stated by the following theorem:
+The unit sum for $f_n$ is stated by the following theorem:
 
 *Theorem 1 (unit-sum)*
 
-Let \(\theta\) be such that \(f_n(x\mid \theta)>0\) for all \(x=0,\ldots,n\). Then \(\sum_{x=0}^n f_n(x\mid \theta)=1\).
+Let $\theta$ be such that $f_n(x\mid \theta)>0$ for all $x=0,\ldots,n$.
+Then $\sum_{x=0}^n f_n(x\mid \theta)=1$.
 
-*Sketch.* Write \(\tau(\theta)=\sum_{j=0}^{\infty} b_j \theta^j\). Since \(\eta(\theta)\tau(\theta)\equiv 1\), equating coefficients yields
-\(c_0=1\) and \(c_k=0\) for \(k\ge 1\), where \(c_k=\sum_{j=0}^{k} a_j b_{k-j}\). Hence
-\[
+*Sketch.* Write $\tau(\theta)=\sum_{j=0}^{\infty} b_j \theta^j$. Since
+$\eta(\theta)\tau(\theta)\equiv 1$, equating coefficients yields $c_0=1$
+and $c_k=0$ for $k\ge 1$, where $c_k=\sum_{j=0}^{k} a_j b_{k-j}$. Hence
+$$
 \sum_{x=0}^{n} f_n(x\mid \theta)
 =\sum_{x=0}^{n} a_x \theta^x \sum_{j=0}^{n-x} b_j \theta^j
 =\sum_{k=0}^{n} c_k \theta^k
 = c_0 = 1.
-\]
+$$
 
-For details and the full proof see Golnabi, Levy, and Cochran (2009) [@golnabi2009finitizing].
+For details and the full proof see Golnabi, Levy, and Cochran (2009)
+[@golnabi2009finitizing].
 
-This means that with some restrictions on the parameter \(\theta\) we can ensure that \(f_n(x\mid \theta)>0\) for all \(x=0,\ldots,n\) and it sums to 1 which makes \(f_n\) a pdf.
+This means that with some restrictions on the parameter $\theta$ we can
+ensure that $f_n(x\mid \theta)>0$ for all $x=0,\ldots,n$ and it sums to
+1 which makes $f_n$ a pdf.
 
-If the parent PSD has infinite support, finitization creates a new distribution supported only on  
-\(\{0,1,\dots,n\}\). The **partial sum finitization (PSF)** of order \(n\) is defined as
+If the parent PSD has infinite support, finitization creates a new
+distribution supported only on\
+$\{0,1,\dots,n\}$. The **partial sum finitization (PSF)** of order $n$
+is defined as
 
-\[
+$$
 f_n(x \mid \theta) \;=\; a_x \theta^x \, \tau_n(\theta, x), 
 \quad x = 0, 1, \dots, n,
-\]
+$$
 
-where  
+where
 
-\[
+$$
 \tau_n(\theta, x) = \sum_{j=0}^{n-x} b_j \theta^j
-\]
+$$
 
-is the **partial sum** of the power series expansion of \(\tau(\theta)\) up to the \((n-x)\)-th term.  
+is the **partial sum** of the power series expansion of $\tau(\theta)$
+up to the $(n-x)$-th term.
 
 By construction,
 
-\[
+$$
 \sum_{x=0}^n f_n(x \mid \theta) = 1,
-\]
+$$
 
-so \(f_n(x \mid \theta)\) is a valid probability mass function under mild parameter restrictions
-(which ensure nonnegativity of the finitized probabilities).  
+so $f_n(x \mid \theta)$ is a valid probability mass function under mild
+parameter restrictions (which ensure nonnegativity of the finitized
+probabilities).
 
-
-For a PSD random variable \(X\) with pmf in (1)–(2), the **moment generating function** (mgf)  is
-\[
+For a PSD random variable $X$ with pmf in (1)–(2), the **moment
+generating function** (mgf) is $$
 M_X(t)=\frac{\eta(\theta e^t)}{\eta(\theta)}=\eta(\theta e^t)\,\tau(\theta)=\frac{\tau(\theta)}{\tau(\theta e^t)},
-\] [@golnabi2009finitizing].
+$$ [@golnabi2009finitizing].
 
-Expanding \(\eta(\theta e^t)\tau(\theta)\) gives
-\[
+Expanding $\eta(\theta e^t)\tau(\theta)$ gives $$
 m_X(t)=\sum_{k=0}^{\infty} \theta^k \sum_{x=0}^{k} a_x\, b_{k-x}\, e^{t x}.
-\]
-For the order-\(n\) finitized variable \(X^{*}\) (with pmf \(f_n\) above), the mgf can be written the partial sum
-\[
+$$ For the order-$n$ finitized variable $X^{*}$ (with pmf $f_n$ above),
+the mgf can be written the partial sum $$
 m_{X^{*}}(t)=\sum_{k=0}^{n} \theta^k \sum_{x=0}^{k} a_x\, b_{k-x}\, e^{t x},
-\]
-i.e., the first \(n\!+\!1\) terms of \(m_X(t)\) from which we can compute the first \(n\) moments of \(X^{*}\). [@golnabi2009finitizing]. 
-With the exception of the Poisson case - where the finitization coincides with the parent
-distribution up to the first \(n\) moments - the finitization obtained by the PSD (partial sum)
-method generally does **not** preserve the first \(n\) moments of other distributions.
-In contrast, the NTSF (Negative Taylor Series Finitization) method which we will introduce in the next sections, guarantees that the first \(n\) moments of the finitized distribution match those of the parent distribution for all members of the power series family.
+$$ i.e., the first $n\!+\!1$ terms of $m_X(t)$ from which we can compute
+the first $n$ moments of $X^{*}$. [@golnabi2009finitizing]. With the
+exception of the Poisson case - where the finitization coincides with
+the parent distribution up to the first $n$ moments - the finitization
+obtained by the PSD (partial sum) method generally does **not** preserve
+the first $n$ moments of other distributions. In contrast, the NTSF
+(Negative Taylor Series Finitization) method which we will introduce in
+the next sections, guarantees that the first $n$ moments of the
+finitized distribution match those of the parent distribution for all
+members of the power series family.
 
-Table 1 presents 4 distributions and their 2nd order finitized distributions using the partial sum finitization method.
+Table 1 presents 4 distributions and their 2nd order finitized
+distributions using the partial sum finitization method.
+
 ```{r, echo=FALSE, results="asis"}
 library(knitr)
 
@@ -224,124 +287,138 @@ kable(tab1, escape = FALSE,
       caption = "Table 1. Common PSDs and their finitized pdfs of order 2 (after Golnabi, Levy & Cochran, 2009).")
 ```
 
-
-**Note:** The logarithmic distribution shown in Table 1 (see also [@golnabi2009finitizing]) is a slightly modified version of the standard logarithmic distribution: its support is shifted back to start at \(x=0\), whereas the standard log-series distribution has support \(x=1,2,\ldots\). 
-
+**Note:** The logarithmic distribution shown in Table 1 (see also
+[@golnabi2009finitizing]) is a slightly modified version of the standard
+logarithmic distribution: its support is shifted back to start at $x=0$,
+whereas the standard log-series distribution has support $x=1,2,\ldots$.
 
 ### Finitization via the Negative Taylor Series Method (NTSF)
 
-The **Negative Taylor Series Method** (NTSF) provides an alternative to the partial sum
-finitization (PSF). Both aim to transform a distribution from the **power series family** (PSD)
-into a finitized version with finite support \(\{0,1,\dots,n\}\).  
-The difference is that the NTSF starts from a **Negative Taylor Series Distribution (NTSD)**
-representation, which has advantageous moment-preserving properties.
+The **Negative Taylor Series Method** (NTSF) provides an alternative to
+the partial sum finitization (PSF). Both aim to transform a distribution
+from the **power series family** (PSD) into a finitized version with
+finite support $\{0,1,\dots,n\}$.\
+The difference is that the NTSF starts from a **Negative Taylor Series
+Distribution (NTSD)** representation, which has advantageous
+moment-preserving properties.
 
----
+------------------------------------------------------------------------
 
 #### From Taylor expansion to a discrete distribution
 
-Let \(\delta(x)\) be a smooth function (continuous at 0 and infinitely differentiable on
-\((-c, c)\) for some \(c > 0\)). For constants \(a\) and \(b\) such that \(a+b \in (-c,c)\), we have
-the Taylor expansion
+Let $\delta(x)$ be a smooth function (continuous at 0 and infinitely
+differentiable on $(-c, c)$ for some $c > 0$). For constants $a$ and $b$
+such that $a+b \in (-c,c)$, we have the Taylor expansion
 
-\[
+$$
 \delta(a+b) = \delta(a) + \frac{\delta'(a)}{1!}b
 + \frac{\delta^{(2)}(a)}{2!}b^2
 + \cdots + \frac{\delta^{(k)}(a)}{k!}b^k + \cdots.
-\]
+$$
 
-Now set \(a = -\lambda\) and \(b = \lambda\), with \(\lambda > 0\).
-If \(\delta^{(k)}(-\lambda) \geq 0\) for all \(k\), t
+Now set $a = -\lambda$ and $b = \lambda$, with $\lambda > 0$. If
+$\delta^{(k)}(-\lambda) \geq 0$ for all $k$, t
 
-\[
+$$
 \delta(0) = \delta(-\lambda) 
 + \delta'(-\lambda)\lambda 
 + \frac{\delta^{(2)}(-\lambda)}{2!}\lambda^2 
 + \cdots
-\]
+$$
 
-which gives a distribution with support over the nonnegative integers and a pdf / pmf
+which gives a distribution with support over the nonnegative integers
+and a pdf / pmf
 
-\[
+$$
 g(k) = \frac{\delta^{(k)}(-\lambda)}{k!}\,\lambda^k, \quad k = 0,1,2,\dots
-\]
+$$
 
-which satisfies \(\sum_{k=0}^\infty g(k) = \delta(0) = 1\).  
-The random variable \(X\) with pmf \(g(k)\) is called a **Negative Taylor Series Distribution (NTSD)**.
+which satisfies $\sum_{k=0}^\infty g(k) = \delta(0) = 1$.\
+The random variable $X$ with pmf $g(k)$ is called a **Negative Taylor
+Series Distribution (NTSD)**.
 
 Its **moment generating function (mgf)** is
 
-\[
+$$
 m_X(t) = \sum_{k=0}^\infty \frac{\delta^{(k)}(-\lambda)}{k!}\,(\lambda e^t)^k
 = \delta\!\left(\lambda(e^t - 1)\right).
-\]
+$$
 
----
+------------------------------------------------------------------------
 
 #### Finitizing the NTSD
 
 To finitize, truncate the Maclaurin expansion of the NTSD base function:
 
-\[
+$$
 \delta(x) = \sum_{k=0}^\infty d_k x^k, \quad d_k = \frac{\delta^{(k)}(0)}{k!}, \; d_k \geq 0.
-\]
+$$
 
-The **order \(n\) finitized base function** is
+The **order** $n$ finitized base function is
 
-\[
+$$
 \delta_n(x) = \sum_{k=0}^n d_k x^k.
-\]
+$$
 
-Using this finitized base function, we define the **NTSF(n) distribution**:
+Using this finitized base function, we define the **NTSF(n)
+distribution**:
 
-\[
+$$
 g_n(k) = \frac{\delta_n^{(k)}(-\lambda)}{k!}\,\lambda^k, 
 \quad k = 0,1,\dots,n.
-\]
+$$
 
-Here, \(\delta_n^{(k)}(-\lambda)\) denotes the \(k\)-th derivative of \(\delta_n(x)\) evaluated at \(-\lambda\).
-By construction, \(\sum_{k=0}^n g_n(k) = 1\), so \(g_n\) is a valid pmf under suitable parameter
-restrictions.
+Here, $\delta_n^{(k)}(-\lambda)$ denotes the $k$-th derivative of
+$\delta_n(x)$ evaluated at $-\lambda$. By construction,
+$\sum_{k=0}^n g_n(k) = 1$, so $g_n$ is a valid pmf under suitable
+parameter restrictions.
 
----
+------------------------------------------------------------------------
 
 #### Moment preservation property
 
 The mgf of the NTSD is
 
-\[
+$$
 m_X(t) = \delta\!\left(\lambda(e^t - 1)\right)
 = d_0 + d_1\lambda(e^t-1) + d_2[\lambda(e^t-1)]^2 + \cdots.
-\]
+$$
 
-The mgf of the finitized version is obtained by truncating after the \(n\)-th term:
+The mgf of the finitized version is obtained by truncating after the
+$n$-th term:
 
-\[
+$$
 m_{X^{(n)}}(t) = d_0 + d_1\lambda(e^t-1) + d_2[\lambda(e^t-1)]^2 + \cdots + d_n[\lambda(e^t-1)]^n.
-\]
+$$
 
-Thus, \(m_{X^{(n)}}(t)\) matches the first \(n\) terms of \(m_X(t)\).  
-By differentiation, it follows that **the first \(n\) moments of the finitized distribution equal
-those of the parent distribution**:
+Thus, $m_{X^{(n)}}(t)$ matches the first $n$ terms of $m_X(t)$.\
+By differentiation, it follows that **the first** $n$ moments of the
+finitized distribution equal those of the parent distribution:
 
-\[
+$$
 E\!\left[(X^{(n)})^r\right] = E\!\left[X^r\right], \quad r=1,2,\dots,n.
-\]
+$$
 
----
+------------------------------------------------------------------------
 
 #### Comparison with PSF
 
-- In **PSF**, finitization preserves moments only in special cases (notably the Poisson).  
-- In **NTSF**, the moment preservation result is **general**: for any PSD, the first \(n\) moments
-of the NTSF(n) match those of the parent distribution.  
-- For the Poisson distribution, PSF and NTSF give the same finitized distribution.  
-- For other PSDs (e.g., negative binomial, logarithmic), the two methods differ.
+-   In **PSF**, finitization preserves moments only in special cases
+    (notably the Poisson).\
+-   In **NTSF**, the moment preservation result is **general**: for any
+    PSD, the first $n$ moments of the NTSF(n) match those of the parent
+    distribution.\
+-   For the Poisson distribution, PSF and NTSF give the same finitized
+    distribution.\
+-   For other PSDs (e.g., negative binomial, logarithmic), the two
+    methods differ.
 
+This makes NTSF a powerful and general finitization approach with strong
+theoretical guarantees.
 
-This makes NTSF a powerful and general finitization approach with strong theoretical guarantees.
-
-Table 2 show the finitization of the same distributions as those presented in Table 1 but this time using the NTFS method. One can easily note that only the finitization of the Poisson distribution is the same.
+Table 2 show the finitization of the same distributions as those
+presented in Table 1 but this time using the NTFS method. One can easily
+note that only the finitization of the Poisson distribution is the same.
 
 ```{r, echo=FALSE, results="asis"}
 library(knitr)
@@ -392,45 +469,91 @@ kable(tab2, format = "markdown", align = "l", caption = "Table 2. Common PSDs an
 
 ## Maximum Feasible Parameter Space (MFPS)
 
-When constructing finitized distributions, not every parameter value from the parent distribution leads to a valid probability distribution. For a finitization of order \(n\), the probabilities must remain nonnegative and sum to one. This naturally restricts the parameter space of the parent power series distribution (PSD). The largest subset of the parameter space that yields a valid finitized distribution is called the *Maximum Feasible Parameter Space* (MFPS) [@golnabi2009finitizing; @levy2012moment; @levy2019application].
+When constructing finitized distributions, not every parameter value
+from the parent distribution leads to a valid probability distribution.
+For a finitization of order $n$, the probabilities must remain
+nonnegative and sum to one. This naturally restricts the parameter space
+of the parent power series distribution (PSD). The largest subset of the
+parameter space that yields a valid finitized distribution is called the
+*Maximum Feasible Parameter Space* (MFPS) [@golnabi2009finitizing;
+@levy2012moment; @levy2019application].
 
 ### Why MFPS is Necessary
 
-Without enforcing MFPS constraints, the finitized pmf may assign negative probabilities, violating the axioms of probability. For example, while the classical Poisson distribution admits any \(\lambda > 0\), its finitized counterpart only produces a valid pmf when \(0 < \lambda \leq 1\), regardless of the finitization order [@golnabi2009finitizing]. For other PSDs, the admissible range is more complex and depends explicitly on the finitization order \(n\).
+Without enforcing MFPS constraints, the finitized pmf may assign
+negative probabilities, violating the axioms of probability. For
+example, while the classical Poisson distribution admits any
+$\lambda > 0$, its finitized counterpart only produces a valid pmf when
+$0 < \lambda \leq 1$, regardless of the finitization order
+[@golnabi2009finitizing]. For other PSDs, the admissible range is more
+complex and depends explicitly on the finitization order $n$.
 
 ### How to Compute MFPS
 
-Formally, the MFPS of a finitized distribution of order \(n\) is the largest interval \((\theta_{\min}, \theta_{\max}]\) such that all finitized probabilities are nonnegative and sum to one [@levy2019application].
+Formally, the MFPS of a finitized distribution of order $n$ is the
+largest interval $(\theta_{\min}, \theta_{\max}]$ such that all
+finitized probabilities are nonnegative and sum to one
+[@levy2019application].
 
-- The **upper bound** \(\theta_{\max}\) is obtained by solving  
-  \[
-  g_n(n-1 \mid \theta) = 0,
-  \]  
-  where \(g_n\) is the finitized pmf. The largest positive root gives the admissible upper bound.  
+-   The **upper bound** $\theta_{\max}$ is obtained by solving\
+    $$
+    g_n(n-1 \mid \theta) = 0,
+    $$\
+    where $g_n$ is the finitized pmf. The largest positive root gives
+    the admissible upper bound.
 
-- The **lower bound** \(\theta_{\min}\) is determined by examining when finitized probabilities near the lower edge of the support first reach zero. In many PSDs (Poisson, Binomial, Negative Binomial) this bound is simply 0, since probabilities remain valid for arbitrarily small positive parameters. For the logarithmic distribution, however, the lower bound can be strictly positive and depends on the finitization order (see [@levy2019application] for proofs and demonstrations).
+-   The **lower bound** $\theta_{\min}$ is determined by examining when
+    finitized probabilities near the lower edge of the support first
+    reach zero. In many PSDs (Poisson, Binomial, Negative Binomial) this
+    bound is simply 0, since probabilities remain valid for arbitrarily
+    small positive parameters. For the logarithmic distribution,
+    however, the lower bound can be strictly positive and depends on the
+    finitization order (see [@levy2019application] for proofs and
+    demonstrations).
 
 ### Properties of MFPS
 
-- **Feasibility guarantee:** MFPS ensures that the finitized distribution is a proper pdf (all probabilities are nonnegative, summing to 1).
-- **Order dependence:** For distributions such as the negative binomial or logarithmic, the MFPS upper bound decreases as the finitization order \(n\) increases.
-- **Monotonicity:** For most PSDs, the MFPS shrinks as \(n\) increases. The exception is the Poisson distribution, whose MFPS remains constant across all orders.
-- **Stability for Poisson:** The Poisson case is simple and stable, since the MFPS remains fixed at \([0,1]\).
-- **Impact on modeling:** When selecting finitization order \(n\), one must ensure that the parameter values of interest lie within the MFPS.
+-   **Feasibility guarantee:** MFPS ensures that the finitized
+    distribution is a proper pdf (all probabilities are nonnegative,
+    summing to 1).
+-   **Order dependence:** For distributions such as the negative
+    binomial or logarithmic, the MFPS upper bound decreases as the
+    finitization order $n$ increases.
+-   **Monotonicity:** For most PSDs, the MFPS shrinks as $n$ increases.
+    The exception is the Poisson distribution, whose MFPS remains
+    constant across all orders.
+-   **Stability for Poisson:** The Poisson case is simple and stable,
+    since the MFPS remains fixed at $[0,1]$.
+-   **Impact on modeling:** When selecting finitization order $n$, one
+    must ensure that the parameter values of interest lie within the
+    MFPS.
 
 ### Example: Poisson and Logarithmic Distributions
 
-- **Poisson:** For all orders \(n\), the MFPS is \(\lambda \in (0,1]\). This restriction is often natural in applications: if the mean count exceeds 1, one can rescale to a smaller time unit (e.g., accidents per day instead of accidents per week) to satisfy the condition [@golnabi2009finitizing].  
-- **Logarithmic:** The MFPS depends on the finitization order. For instance, with order \(n=4\), the admissible range for \(\theta\) is approximately \((0.00012,\,0.2397)\), with the upper bound decreasing as \(n\) increases [@levy2019application].
+-   **Poisson:** For all orders $n$, the MFPS is $\lambda \in (0,1]$.
+    This restriction is often natural in applications: if the mean count
+    exceeds 1, one can rescale to a smaller time unit (e.g., accidents
+    per day instead of accidents per week) to satisfy the condition
+    [@golnabi2009finitizing].\
+-   **Logarithmic:** The MFPS depends on the finitization order. For
+    instance, with order $n=4$, the admissible range for $\theta$ is
+    approximately $(0.00012,\,0.2397)$, with the upper bound decreasing
+    as $n$ increases [@levy2019application].
 
----
+------------------------------------------------------------------------
 
-In summary, MFPS is a central concept in finitization: it specifies the parameter values for which finitized distributions are mathematically valid. For rigorous proofs, derivations, and additional examples across the PSD family, the reader is referred to [@golnabi2009finitizing], [@levy2012moment], and [@levy2019application].
-
+In summary, MFPS is a central concept in finitization: it specifies the
+parameter values for which finitized distributions are mathematically
+valid. For rigorous proofs, derivations, and additional examples across
+the PSD family, the reader is referred to [@golnabi2009finitizing],
+[@levy2012moment], and [@levy2019application].
 
 # Installing the `finitization` Package
 
-The `finitization` package is available through the `R-universe repository`, which provides precompiled binaries for all major operating systems — Windows, Linux, and macOS (both x86_64 and arm64 architectures).
+The `finitization` package is available through the
+`R-universe repository`, which provides precompiled binaries for all
+major operating systems — Windows, Linux, and macOS (both x86_64 and
+arm64 architectures).
 
 To install the package, simply run:
 
@@ -447,22 +570,24 @@ After installation, the package can be loaded as usual:
 library(finitization)
 ```
 
----
+------------------------------------------------------------------------
 
 ## External Dependencies
 
 The package relies on three external C++ libraries:
 
-- **CLN (Class Library for Numbers):** <https://www.ginac.de/CLN/>  
-- **GiNaC (GiNaC is Not a CAS):** <https://www.ginac.de/>  
-- **GMP (GNU Multiple Precision Arithmetic Library):** <https://gmplib.org/>  
+-   **CLN (Class Library for Numbers):** <https://www.ginac.de/CLN/>\
+-   **GiNaC (GiNaC is Not a CAS):** <https://www.ginac.de/>\
+-   **GMP (GNU Multiple Precision Arithmetic Library):**
+    <https://gmplib.org/>
 
-These libraries are required because finitization involves symbolic series expansions and
-moment-preserving transformations that need **arbitrary-precision arithmetic** (CLN, GMP) and
-**symbolic computation** (GiNaC). Without them, the numerical accuracy and algebraic
-manipulations required by finitization would not be feasible.
+These libraries are required because finitization involves symbolic
+series expansions and moment-preserving transformations that need
+**arbitrary-precision arithmetic** (CLN, GMP) and **symbolic
+computation** (GiNaC). Without them, the numerical accuracy and
+algebraic manipulations required by finitization would not be feasible.
 
----
+------------------------------------------------------------------------
 
 ## Platform Notes
 
@@ -483,54 +608,63 @@ brew install gmp cln ginac pkg-config
 
 ### Windows
 
-When building from source with **RTools** and **MSYS2**, CLN and GiNaC must be compiled manually from their official websites. 
-1. **Install RTools44**  
-   Download and run the installer from  
-   https://cran.r-project.org/bin/windows/Rtools/
+When building from source with **RTools** and **MSYS2**, CLN and GiNaC
+must be compiled manually from their official websites. 1. **Install
+RTools44**\
+Download and run the installer from\
+<https://cran.r-project.org/bin/windows/Rtools/>
 
-2. **Open the “MSYS2 UCRT 64‑bit” shell** 
-   Supposing that RTools44 is installed in "C:/rtools44" then double click on "C:/rtools44/ucrt64.exe". 
-   
-3. **Fully update MSYS2, update the package database and install the toolchain + pkgconf**  
-```bash
+2.  **Open the “MSYS2 UCRT 64‑bit” shell** Supposing that RTools44 is
+    installed in "C:/rtools44" then double click on
+    "C:/rtools44/ucrt64.exe".
+
+3.  **Fully update MSYS2, update the package database and install the
+    toolchain + pkgconf**\
+
+``` bash
     pacman -Syu        # if it asks to close/reopen, do it, then run again:
     pacman -Syu
     pacman -S --needed mingw-w64-ucrt-x86_64-toolchain mingw-w64-ucrt-x86_64-pkgconf
 ```
 
-4. **Install GMP**  
-```bash
+4.  **Install GMP**\
+
+``` bash
    pacman -S --needed mingw-w64-ucrt-x86_64-gmp
 ```
 
-5. **Download, compile and install CLN and GiNaC**  
-   CLN and GiNaC are not available via pacman; follow the instructions on their websites:  
-   - **CLN (Class Library for Numbers):** https://www.ginac.de/cln  
-   - **GiNaC (GiNaC is Not a CAS):** https://www.ginac.de  
+5.  **Download, compile and install CLN and GiNaC**\
+    CLN and GiNaC are not available via pacman; follow the instructions
+    on their websites:
 
-   Example (adjust versions as needed):  
-```bash
-   # CLN
-   pacman -S --needed wget
-   wget https://www.ginac.de/CLN/cln-1.3.7.tar.bz2
-   tar xf cln-1.3.7.tar.bz2
-   cd cln-1.3.7
-   ./configure --prefix=/ucrt64
-   make
-   make install
-   cd ..
+    -   **CLN (Class Library for Numbers):** <https://www.ginac.de/cln>\
+    -   **GiNaC (GiNaC is Not a CAS):** <https://www.ginac.de>
 
-   # GiNaC
-   wget https://www.ginac.de/ginac-1.8.9.tar.bz2
-   tar xf ginac-1.8.9.tar.bz2
-   cd ginac-1.8.9
-   ./configure --prefix=/ucrt64
-   make
-   make install
- ```
+    Example (adjust versions as needed):
 
-6. **Make sure R sees the compilers**  
-   In your R session (or add to your `~/.Renviron`):
+    ``` bash
+    # CLN
+    pacman -S --needed wget
+    wget https://www.ginac.de/CLN/cln-1.3.7.tar.bz2
+    tar xf cln-1.3.7.tar.bz2
+    cd cln-1.3.7
+    ./configure --prefix=/ucrt64
+    make
+    make install
+    cd ..
+
+    # GiNaC
+    wget https://www.ginac.de/ginac-1.8.9.tar.bz2
+    tar xf ginac-1.8.9.tar.bz2
+    cd ginac-1.8.9
+    ./configure --prefix=/ucrt64
+    make
+    make install
+    ```
+
+6.  **Make sure R sees the compilers**\
+    In your R session (or add to your `~/.Renviron`):
+
 ```{r, eval=FALSE}
    Sys.setenv(PATH = paste(
      "C:/rtools44/ucrt64/bin",
@@ -539,7 +673,7 @@ When building from source with **RTools** and **MSYS2**, CLN and GiNaC must be c
    ))
 ```
 
----
+------------------------------------------------------------------------
 
 ## Building from Source
 
@@ -561,34 +695,45 @@ devtools::install_github("bogdanoancea/finitization")
 
 ## Hints for Successful Installation
 
-- The **pkg-config** utility must be present and available to the compiler.
-- Header files and libraries for CLN and GiNaC (e.g., under `/usr/include`, `/usr/lib`, or `/ucrt64/include`, `/ucrt64/lib`) must be accessible on the compiler’s search path.
-- On Windows, potential errors such as “missing header” or “unresolved symbol” typically indicate that the build process is not detecting the static libraries.
-- In general, manual configuration is required only on Windows, since macOS and Linux distributions handle dependencies through system package managers.
+-   The **pkg-config** utility must be present and available to the
+    compiler.
+-   Header files and libraries for CLN and GiNaC (e.g., under
+    `/usr/include`, `/usr/lib`, or `/ucrt64/include`, `/ucrt64/lib`)
+    must be accessible on the compiler’s search path.
+-   On Windows, potential errors such as “missing header” or “unresolved
+    symbol” typically indicate that the build process is not detecting
+    the static libraries.
+-   In general, manual configuration is required only on Windows, since
+    macOS and Linux distributions handle dependencies through system
+    package managers.
 
----
+------------------------------------------------------------------------
 
-In summary, CRAN installation should work out of the box on all platforms. Manual configuration
-is required only when compiling from source on Linux or when building custom versions of CLN and
-GiNaC on Windows.
+In summary, CRAN installation should work out of the box on all
+platforms. Manual configuration is required only when compiling from
+source on Linux or when building custom versions of CLN and GiNaC on
+Windows.
 
 # Finitized Negative Binomial distribution
 
-This section illustrates the finitization of the negative binomial (NB) distribution and
-its implementation in the `finitization` package. The finitized NB restricts the support of
-the classical NB distribution to \(\{0,1,\dots,n\}\) while preserving the first \(n\) moments
-of the parent distribution [@levy2012moment; @kirtland2018application]. This construction is
-particularly relevant in applied contexts where unbounded support is unrealistic, such as in
-epidemiological models of infection counts, bounded population studies, or simulation
-experiments requiring efficient random variate generation [@golnabi2009finitizing].
+This section illustrates the finitization of the negative binomial (NB)
+distribution and its implementation in the `finitization` package. The
+finitized NB restricts the support of the classical NB distribution to
+$\{0,1,\dots,n\}$ while preserving the first $n$ moments of the parent
+distribution [@levy2012moment; @kirtland2018application]. This
+construction is particularly relevant in applied contexts where
+unbounded support is unrealistic, such as in epidemiological models of
+infection counts, bounded population studies, or simulation experiments
+requiring efficient random variate generation [@golnabi2009finitizing].
 
-The finitized NB distribution is parameterized by three values:  
-- **finitization order** \(n\), which determines the finite support \(\{0,\dots,n\}\);  
-- **success probability** \(q\) per trial;  
-- **number of failures until stopping** \(k > 0\).  
+The finitized NB distribution is parameterized by three values:\
+- **finitization order** $n$, which determines the finite support
+$\{0,\dots,n\}$;\
+- **success probability** $q$ per trial;\
+- **number of failures until stopping** $k > 0$.
 
-The subsections below present the main functions provided in the package together with
-executable examples.
+The subsections below present the main functions provided in the package
+together with executable examples.
 
 ```{r}
 library(finitization)
@@ -602,14 +747,14 @@ x <- 0:n
 
 ## PMF - `dnegbinom()`
 
-
-The function `dnegbinom()` returns the probability mass function (PMF) of the finitized
-negative binomial distribution. When the argument `val` is set to `NULL`, the function
-produces the complete PMF over the finite support \(\{0,1,\dots,n\}\). Alternatively,
-specific probability values can be obtained by supplying a vector of evaluation points
-through `val`. For numerical stability and applications requiring likelihood calculations,
-logarithmic probabilities can be returned by specifying `log = TRUE`.
-
+The function `dnegbinom()` returns the probability mass function (PMF)
+of the finitized negative binomial distribution. When the argument `val`
+is set to `NULL`, the function produces the complete PMF over the finite
+support $\{0,1,\dots,n\}$. Alternatively, specific probability values
+can be obtained by supplying a vector of evaluation points through
+`val`. For numerical stability and applications requiring likelihood
+calculations, logarithmic probabilities can be returned by specifying
+`log = TRUE`.
 
 ```{r}
 # Full PMF table over 0:n
@@ -625,15 +770,15 @@ d_log <- dnegbinom(n, q, k, val = 0:3, log = TRUE)
 d_log
 ```
 
-
 ## CDF - `pnegbinom()`
 
-The function `pnegbinom()` evaluates the cumulative distribution function (CDF) of the
-finitized negative binomial distribution. By default, it returns lower-tail probabilities
-\(\Pr(X \leq x)\) for values in \(\{0,1,\dots,n\}\). Setting `lower.tail = FALSE`
-instead yields upper-tail probabilities \(\Pr(X > x)\), while the option `log.p = TRUE`
-returns logarithmic probabilities, which may be advantageous in cases of very small tail
-probabilities.
+The function `pnegbinom()` evaluates the cumulative distribution
+function (CDF) of the finitized negative binomial distribution. By
+default, it returns lower-tail probabilities $\Pr(X \leq x)$ for values
+in $\{0,1,\dots,n\}$. Setting `lower.tail = FALSE` instead yields
+upper-tail probabilities $\Pr(X > x)$, while the option `log.p = TRUE`
+returns logarithmic probabilities, which may be advantageous in cases of
+very small tail probabilities.
 
 ```{r}
 # Full CDF table over 0:n
@@ -651,13 +796,14 @@ p_hi
 
 ## Quantiles - `qnegbinom()`
 
-The function `qnegbinom()` provides the quantile function (inverse CDF) of the finitized
-negative binomial distribution. Given a probability level \(p\), it returns the smallest
-integer \(x \in \{0,\dots,n\}\) such that \(\Pr(X \leq x) \geq p\). The arguments
-`lower.tail` and `log.p` control whether probabilities are interpreted in the lower- or
-upper-tail sense and whether they are supplied on the log scale, respectively. This
-function is particularly useful for simulation studies, where random draws may be generated
-via inversion.
+The function `qnegbinom()` provides the quantile function (inverse CDF)
+of the finitized negative binomial distribution. Given a probability
+level $p$, it returns the smallest integer $x \in \{0,\dots,n\}$ such
+that $\Pr(X \leq x) \geq p$. The arguments `lower.tail` and `log.p`
+control whether probabilities are interpreted in the lower- or
+upper-tail sense and whether they are supplied on the log scale,
+respectively. This function is particularly useful for simulation
+studies, where random draws may be generated via inversion.
 
 ```{r}
 # Median and 90th percentile
@@ -671,12 +817,13 @@ q_upper10
 
 ## Random variates generation - `rnegbinom()`
 
-The function `rnegbinom()` generates random variates from the finitized negative binomial
-distribution on the finite support \(\{0,1,\dots,n\}\). The argument `no` specifies the
-number of independent draws to produce. This functionality is essential for Monte Carlo
-experiments and simulation studies, where one may wish to examine the finite-sample
-properties of estimators or to benchmark statistical procedures under finitized models.
-
+The function `rnegbinom()` generates random variates from the finitized
+negative binomial distribution on the finite support $\{0,1,\dots,n\}$.
+The argument `no` specifies the number of independent draws to produce.
+This functionality is essential for Monte Carlo experiments and
+simulation studies, where one may wish to examine the finite-sample
+properties of estimators or to benchmark statistical procedures under
+finitized models.
 
 ```{r}
 set.seed(42)
@@ -698,12 +845,14 @@ legend("topright", bty = "n", legend = c("PMF", "Empirical"), pch = c(NA, 16), l
 
 ## Maximum Feasible Parameter Space - `getNegativeBinomialMFPS()`
 
-The function `getNegativeBinomialMFPS()` determines the boundaries of the maximum feasible
-parameter space (MFPS) for the finitized negative binomial distribution. The MFPS specifies
-the admissible range of parameter values (in particular for \(k\)) that guarantee the
-resulting probability mass function remains nonnegative and normalized to one. Ensuring that
-the chosen parameters lie within the MFPS is therefore essential for obtaining a valid
-probability distribution under finitization.
+The function `getNegativeBinomialMFPS()` determines the boundaries of
+the maximum feasible parameter space (MFPS) for the finitized negative
+binomial distribution. The MFPS specifies the admissible range of
+parameter values (in particular for $k$) that guarantee the resulting
+probability mass function remains nonnegative and normalized to one.
+Ensuring that the chosen parameters lie within the MFPS is therefore
+essential for obtaining a valid probability distribution under
+finitization.
 
 ```{r}
 mfps <- getNegativeBinomialMFPS(n, k)
@@ -712,11 +861,13 @@ length(mfps); head(mfps)
 
 ## Closed-form display - `printFinitizedNegativeBinomialDensity()`
 
-The function `printFinitizedNegativeBinomialDensity()` prints the finitized negative
-binomial density in a symbolic, human-readable form. Optionally, evaluation points may be
-supplied through the argument `val`, and setting `latex = TRUE` produces an expression
-suitable for inclusion in LaTeX documents. This functionality facilitates the communication
-of finitization results in teaching materials, presentations, and publications.
+The function `printFinitizedNegativeBinomialDensity()` prints the
+finitized negative binomial density in a symbolic, human-readable form.
+Optionally, evaluation points may be supplied through the argument
+`val`, and setting `latex = TRUE` produces an expression suitable for
+inclusion in LaTeX documents. This functionality facilitates the
+communication of finitization results in teaching materials,
+presentations, and publications.
 
 ```{r}
 printFinitizedNegativeBinomialDensity(n, k)
@@ -724,17 +875,19 @@ printFinitizedNegativeBinomialDensity(n, k, val = c(0, 1, 2))
 printFinitizedNegativeBinomialDensity(n, k, latex = TRUE)
 ```
 
----
+------------------------------------------------------------------------
 
 ## Validation and Diagnostics
 
-To ensure the correctness of the finitized negative binomial implementation, it is useful
-to carry out a series of diagnostic checks. These include verification of the normalization
-of the probability mass function (PMF), consistency between the cumulative distribution
-function (CDF) and the cumulative sum of the PMF, monotonicity of the CDF, the accuracy of
-the quantile function through inversion tests, and finally, agreement between theoretical
-moments derived from the PMF and empirical moments obtained from simulated random draws.
-The following code illustrates these diagnostic procedures in practice providing  
+To ensure the correctness of the finitized negative binomial
+implementation, it is useful to carry out a series of diagnostic checks.
+These include verification of the normalization of the probability mass
+function (PMF), consistency between the cumulative distribution function
+(CDF) and the cumulative sum of the PMF, monotonicity of the CDF, the
+accuracy of the quantile function through inversion tests, and finally,
+agreement between theoretical moments derived from the PMF and empirical
+moments obtained from simulated random draws. The following code
+illustrates these diagnostic procedures in practice providing\
 evidence that the finitized NB functions operate reliably and preserve
 theoretical properties.
 
@@ -781,27 +934,32 @@ cbind(theoretical = c(mean = mu_th, var = var_th),
       empirical    = c(mean = mu_emp, var = var_emp))
 
 ```
+
 ## Moment preservation for the finitized Negative Binomial
 
-In the following, we compare the first `n` moments of the finitized negative binomial
-distribution with those of its parent distribution. The classical negative binomial distribution
-is obtained using the `stats` package in R. Since the `finitization` package and the `stats`
-implementation adopt different parameterizations, a conversion is required to ensure comparability.
+In the following, we compare the first `n` moments of the finitized
+negative binomial distribution with those of its parent distribution.
+The classical negative binomial distribution is obtained using the
+`stats` package in R. Since the `finitization` package and the `stats`
+implementation adopt different parameterizations, a conversion is
+required to ensure comparability.
 
-In the finitization framework, the parameter `q` represents the probability of success per trial,
-and `k` denotes the number of failures until stopping. In contrast, in `stats::dnbinom`, the
-parameterization is defined in terms of the number of successes (`size = k`) and the success
-probability (`prob`). To reconcile the two conventions, the mapping
+In the finitization framework, the parameter `q` represents the
+probability of success per trial, and `k` denotes the number of failures
+until stopping. In contrast, in `stats::dnbinom`, the parameterization
+is defined in terms of the number of successes (`size = k`) and the
+success probability (`prob`). To reconcile the two conventions, the
+mapping
 
-\[
+$$
 \texttt{size} = k, \quad \texttt{prob} = 1 - q
-\]
+$$
 
 must be applied.
 
-This alignment of parameter definitions allows for a consistent evaluation of the
-moment-preserving property of finitization, as illustrated in the accompanying code.
-
+This alignment of parameter definitions allows for a consistent
+evaluation of the moment-preserving property of finitization, as
+illustrated in the accompanying code.
 
 ```{r}
 library(finitization)
@@ -818,6 +976,7 @@ prob_parent <- 1 - q
 ```
 
 Next, we compute the finitized `pmf` as a numeric vector of length `n+1`
+
 ```{r}
 pmf_raw <- dnegbinom(n, q, k) 
 pmf_vec <- pmf_raw$prob
@@ -825,8 +984,9 @@ stopifnot(length(pmf_vec) == length(x))
 stopifnot(abs(sum(pmf_vec) - 1) < 1e-10)
 ```
 
-Now we compute the parent Negative Binomial `pmf` on a sufficiently long grid (for accurate moments).
-For this we build a grid `{0, ... ,M}` so that the upper tail is negligible (here \(<10^{-14}\)).
+Now we compute the parent Negative Binomial `pmf` on a sufficiently long
+grid (for accurate moments). For this we build a grid `{0, ... ,M}` so
+that the upper tail is negligible (here $<10^{-14}$).
 
 ```{r}
 # Find M so that tail <= 1e-14
@@ -841,7 +1001,10 @@ grid <- 0:M
 p_parent <- stats::dnbinom(grid, size = size_parent, prob = prob_parent)
 stopifnot(abs(sum(p_parent) - 1) < 1e-10)
 ```
-Now we can compute and compare the first `n` raw moments for both distributions:
+
+Now we can compute and compare the first `n` raw moments for both
+distributions:
+
 ```{r}
 # Helper: raw moments from a discrete pmf
 raw_moment <- function(x, p, r) sum((x^r) * p)
@@ -861,21 +1024,24 @@ mom_cmp <- data.frame(
 mom_cmp
 ```
 
-We also present the mean and variance-the first two raw moments-explicitly. Closed-form
-expressions are available for the parent negative binomial distribution, and these provide a
-useful benchmark against which the finitized moments can be validated. In particular, for
-parameters \(k\) (number of failures until stopping) and \(q\) (success probability per trial),
-the parent distribution satisfies
+We also present the mean and variance-the first two raw
+moments-explicitly. Closed-form expressions are available for the parent
+negative binomial distribution, and these provide a useful benchmark
+against which the finitized moments can be validated. In particular, for
+parameters $k$ (number of failures until stopping) and $q$ (success
+probability per trial), the parent distribution satisfies
 
-\[
+$$
 \mathbb{E}[X] = \frac{kq}{1-q}, \qquad
 \mathrm{Var}(X) = \frac{kq}{(1-q)^2}.
-\]
+$$
 
-These closed-form expressions offer an efficient reference point for validation: they allow
-one to verify the accuracy of finitized moments without resorting to numerical summation
-over the entire distributional support. This comparison highlights the moment-preserving
-property of finitization while emphasizing its consistency with the theoretical parent model.
+These closed-form expressions offer an efficient reference point for
+validation: they allow one to verify the accuracy of finitized moments
+without resorting to numerical summation over the entire distributional
+support. This comparison highlights the moment-preserving property of
+finitization while emphasizing its consistency with the theoretical
+parent model.
 
 ```{r}
 # Mean and variance separately (these are moments 1 and 2)
@@ -900,25 +1066,27 @@ data.frame(
 )
 ```
 
-
-
 # Finitized Binomial Distribution
 
-The classical binomial distribution models the number of successes in \(N\) independent
-Bernoulli trials, each with success probability \(p\). Its support is finite,
-\(\{0,1,\dots,N\}\). Finitization provides an alternative construction: a finitized
-binomial distribution of order \(n\) that preserves the first \(n\) moments of the
-parent binomial distribution while adjusting the probability mass function through the
-moment-preserving finitization series (MFPS) [@levy2012moment]. This construction
-ensures that the finitized model remains consistent with the theoretical binomial
-moments up to order \(n\), even though its support is restricted to \(\{0,1,\dots,n\}\).
+The classical binomial distribution models the number of successes in
+$N$ independent Bernoulli trials, each with success probability $p$. Its
+support is finite, $\{0,1,\dots,N\}$. Finitization provides an
+alternative construction: a finitized binomial distribution of order $n$
+that preserves the first $n$ moments of the parent binomial distribution
+while adjusting the probability mass function through the
+moment-preserving finitization series (MFPS) [@levy2012moment]. This
+construction ensures that the finitized model remains consistent with
+the theoretical binomial moments up to order $n$, even though its
+support is restricted to $\{0,1,\dots,n\}$.
 
-The finitized binomial distribution in the `finitization` package is parameterized by:
-- **finitization order** \(n\), which sets the support \(\{0,\dots,n\}\);  
-- **success probability** \(p\);  
-- **number of trials** \(N\).  
+The finitized binomial distribution in the `finitization` package is
+parameterized by: - **finitization order** $n$, which sets the support
+$\{0,\dots,n\}$;\
+- **success probability** $p$;\
+- **number of trials** $N$.
 
-The subsections below present the available functions and illustrate their use.
+The subsections below present the available functions and illustrate
+their use.
 
 ```{r}
 library(finitization)
@@ -930,13 +1098,14 @@ p <- 0.14    # success probability
 x <- 0:n
 ```
 
-
 ## PMF - `dbinom()`
-The probability mass function (PMF) of the finitized binomial distribution is computed by
-dbinom(). When `val = NULL`, the function returns the entire PMF over
-({0,\dots,n}). Specific probabilities can be extracted by supplying values in `val`.
-For likelihood calculations and improved numerical stability, log-probabilities are
-returned with the argument `log = TRUE`.
+
+The probability mass function (PMF) of the finitized binomial
+distribution is computed by dbinom(). When `val = NULL`, the function
+returns the entire PMF over ({0,\dots,n}). Specific probabilities can be
+extracted by supplying values in `val`. For likelihood calculations and
+improved numerical stability, log-probabilities are returned with the
+argument `log = TRUE`.
 
 ```{r}
 # Full PMF over 0:n
@@ -954,10 +1123,10 @@ d_log
 
 ## CDF - `pbinom()`
 
-The cumulative distribution function (CDF) is available via `pbinom()`. By default, it
-returns lower-tail probabilities \( \Pr(X \le x) \). Setting `lower.tail = FALSE` gives
-upper-tail probabilities \( \Pr(X > x) \). The option `log.p = TRUE` returns values on the
-logarithmic scale.
+The cumulative distribution function (CDF) is available via `pbinom()`.
+By default, it returns lower-tail probabilities $\Pr(X \le x)$. Setting
+`lower.tail = FALSE` gives upper-tail probabilities $\Pr(X > x)$. The
+option `log.p = TRUE` returns values on the logarithmic scale.
 
 ```{r}
 # Full CDF table over 0:n
@@ -975,10 +1144,11 @@ p_hi
 
 ## Quantiles - `qbinom()`
 
-The function `qbinom()` computes quantiles of the finitized binomial distribution by
-inverting the CDF. Given probability levels (`u`), it returns the smallest integer
-\(x \in {0,\dots,n}\) such that \(\Pr(X \le x) \ge u\). The arguments `lower.tail`
-and `log.p` allow specification of upper-tail and log-scale probabilities.
+The function `qbinom()` computes quantiles of the finitized binomial
+distribution by inverting the CDF. Given probability levels (`u`), it
+returns the smallest integer $x \in {0,\dots,n}$ such that
+$\Pr(X \le x) \ge u$. The arguments `lower.tail` and `log.p` allow
+specification of upper-tail and log-scale probabilities.
 
 ```{r}
 # Median and 90th percentile
@@ -990,13 +1160,12 @@ q_upper10 <- finitization::qbinom(n, p, N, prob = 0.1, lower.tail = FALSE)
 q_upper10
 ```
 
-
 ## Random Variates Generation - `rbinom()`
 
-Random variates from the finitized binomial distribution are generated using `rbinom()`.
-The argument no specifies the number of independent draws. This functionality is
-useful for simulation studies, where empirical properties can be compared with theoretical
-moments.
+Random variates from the finitized binomial distribution are generated
+using `rbinom()`. The argument no specifies the number of independent
+draws. This functionality is useful for simulation studies, where
+empirical properties can be compared with theoretical moments.
 
 ```{r}
 set.seed(123)
@@ -1020,10 +1189,11 @@ legend("topright", bty = "n",
 
 ## Maximum Feasible Parameter Space - `getBinomialMFPS()`
 
-The function `getBinomialMFPS()` determines the maximum feasible parameter space (MFPS)
-for the finitized binomial distribution. The MFPS specifies the admissible range of
-parameters that guarantee the distribution is valid (nonnegative probabilities and total
-probability equal to one).
+The function `getBinomialMFPS()` determines the maximum feasible
+parameter space (MFPS) for the finitized binomial distribution. The MFPS
+specifies the admissible range of parameters that guarantee the
+distribution is valid (nonnegative probabilities and total probability
+equal to one).
 
 ```{r}
 mfps <- finitization::getBinomialMFPS(n, N)
@@ -1032,10 +1202,11 @@ mfps
 
 ## Closed-form display - `printFinitizedBinomialDensity()`
 
-The density of the finitized binomial distribution can be displayed symbolically with
-`printFinitizedBinomialDensity()`. This allows for inspection of the closed-form
-representation of the probability function. The option `latex = TRUE` produces output
-suitable for inclusion in LaTeX documents.
+The density of the finitized binomial distribution can be displayed
+symbolically with `printFinitizedBinomialDensity()`. This allows for
+inspection of the closed-form representation of the probability
+function. The option `latex = TRUE` produces output suitable for
+inclusion in LaTeX documents.
 
 ```{r}
 printFinitizedBinomialDensity(n, N)
@@ -1045,10 +1216,11 @@ printFinitizedBinomialDensity(n, N, latex = TRUE)
 
 ## Validation and Diagnostics
 
-Validation confirms that the finitized binomial functions operate correctly. Checks
-include:normalization of the PMF, consistency between CDF and PMF, monotonicity 
-of the CDF, quantile inversion accuracy, agreement between theoretical 
-and empirical moments.
+Validation confirms that the finitized binomial functions operate
+correctly. Checks include:normalization of the PMF, consistency between
+CDF and PMF, monotonicity of the CDF, quantile inversion accuracy,
+agreement between theoretical and empirical moments.
+
 ```{r}
 pmf <- finitization::dbinom(n, p, N)
 cdf <- finitization::pbinom(n, p, N)
@@ -1091,8 +1263,11 @@ list(norm_err = norm_err,
 
 # Finitized Poisson Distribution
 
-This section follows the structure introduced for the finitized **Negative Binomial** and **Binomial** distributions, but in a more concise form. The finitized Poisson of order \(n\) replaces the infinite-support Poisson by a distribution supported on \(\{0,1,...,n\}\) that preserves the first \(n\) moments of the parent model.
-
+This section follows the structure introduced for the finitized
+**Negative Binomial** and **Binomial** distributions, but in a more
+concise form. The finitized Poisson of order $n$ replaces the
+infinite-support Poisson by a distribution supported on $\{0,1,...,n\}$
+that preserves the first $n$ moments of the parent model.
 
 ```{r}
 library(finitization)
@@ -1102,8 +1277,13 @@ n     <- 5      # finitization order -> support {0, 1, ..., 5}
 theta <- 0.7    # Poisson mean (ensure theta lies within the MFPS for this n)
 x     <- 0:n
 ```
+
 ## PMF - `dpois()`
-Returns the finitized Poisson probability mass function (PMF). With `val = NULL`, the full PMF over ({0,...,n}) is provided; logarithms are available via `log = TRUE`.
+
+Returns the finitized Poisson probability mass function (PMF). With
+`val = NULL`, the full PMF over ({0,...,n}) is provided; logarithms are
+available via `log = TRUE`.
+
 ```{r}
 # Full PMF table over 0:n
 pmf_tbl <- finitization::dpois(n, theta)
@@ -1120,7 +1300,9 @@ d_log
 
 ## CDF - `ppois()`
 
-Evaluates the finitized Poisson CDF. Lower tail \(\Pr(X \le x)\) is returned by default; set `lower.tail = FALSE` for \(\Pr(X > x)\), and `log.p = TRUE` for log-CDF.
+Evaluates the finitized Poisson CDF. Lower tail $\Pr(X \le x)$ is
+returned by default; set `lower.tail = FALSE` for $\Pr(X > x)$, and
+`log.p = TRUE` for log-CDF.
 
 ```{r}
 # Full CDF table
@@ -1134,7 +1316,9 @@ p_lo; p_hi
 ```
 
 ## Quantiles - `qpois()`
-Inverts the finitized CDF. For a probability vector p, returns the smallest \(x \in {0,\dots,n}\) with \(\Pr(X \le x) \ge p\).
+
+Inverts the finitized CDF. For a probability vector p, returns the
+smallest $x \in {0,\dots,n}$ with $\Pr(X \le x) \ge p$.
 
 ```{r}
 # Median and 90th percentile
@@ -1147,6 +1331,7 @@ q_upper10
 ```
 
 ## Random Variates Generation - `rpois()`
+
 ```{r}
 set.seed(2025)
 no <- 5e4
@@ -1166,13 +1351,19 @@ legend("topright", bty = "n",
 ```
 
 ## Maximum Feasible Parameter Space - `getPoissonMFPS()`
-Returns the MFPS for \(\\theta\) given \(n\); choosing \(\\theta\) within these bounds ensures a valid (nonnegative, normalized) finitized PMF.
+
+Returns the MFPS for $\\theta$ given $n$; choosing $\\theta$ within
+these bounds ensures a valid (nonnegative, normalized) finitized PMF.
+
 ```{r}
 getPoissonMFPS(n)
 ```
 
 ## Closed-form - `printFinitizedPoissonDensity()`
-Prints a symbolic representation of the finitized Poisson PMF; `latex = TRUE` produces LaTeX-ready output.
+
+Prints a symbolic representation of the finitized Poisson PMF;
+`latex = TRUE` produces LaTeX-ready output.
+
 ```{r}
 printFinitizedPoissonDensity(n)
 printFinitizedPoissonDensity(n, val = c(0, 1, 2))
@@ -1181,9 +1372,12 @@ printFinitizedPoissonDensity(n, latex = TRUE)
 
 ## Validation and Disgnostics
 
-The following diagnostics assess the internal consistency of the finitized Poisson implementation:
-(i) normalization of the PMF; (ii) agreement between the CDF and cumulative PMF; (iii) CDF monotonicity;
-(iv) quantile inversion accuracy; (v) **moment preservation** (first `n` raw moments) relative to the classical Poisson; and (vi) simulation consistency.
+The following diagnostics assess the internal consistency of the
+finitized Poisson implementation: (i) normalization of the PMF; (ii)
+agreement between the CDF and cumulative PMF; (iii) CDF monotonicity;
+(iv) quantile inversion accuracy; (v) **moment preservation** (first `n`
+raw moments) relative to the classical Poisson; and (vi) simulation
+consistency.
 
 ```{r}
 # Assumes 'n', 'theta', and x <- 0:n are already defined (see the Poisson section header).
@@ -1278,10 +1472,12 @@ data.frame(
 
 # Finitized Logarithmic distribution
 
-This section follows the structure already introduced for the finitized **Negative Binomial**, **Binomial** and **Poisson** distributions, in a concise form. The finitized logarithmic (log‑series) 
-distribution of order \(n\) replaces the classical infinite‑support model with 
-a distribution supported on \(\{0,1,...,n\}\) while preserving the first \(n\) moments of its parent.
-
+This section follows the structure already introduced for the finitized
+**Negative Binomial**, **Binomial** and **Poisson** distributions, in a
+concise form. The finitized logarithmic (log‑series) distribution of
+order $n$ replaces the classical infinite‑support model with a
+distribution supported on $\{0,1,...,n\}$ while preserving the first $n$
+moments of its parent.
 
 ```{r}
 library(finitization)
@@ -1292,11 +1488,12 @@ theta  <- 0.16   # log-series parameter (0 < theta < 1); ensure within MFPS for 
 x      <- 0:n
 ```
 
----
+------------------------------------------------------------------------
 
 ## PMF - `dlog()`
 
-Returns the finitized logarithmic PMF. With `val = NULL`, the full PMF over \(\{0,...,n\}\) is returned; set `log = TRUE` for log‑probabilities.
+Returns the finitized logarithmic PMF. With `val = NULL`, the full PMF
+over $\{0,...,n\}$ is returned; set `log = TRUE` for log‑probabilities.
 
 ```{r}
 # Full PMF table over 0:n
@@ -1312,11 +1509,13 @@ d_log <- finitization::dlog(n, theta, val = 0:3, log = TRUE)
 d_log
 ```
 
----
+------------------------------------------------------------------------
 
 ## CDF - `plog()`
 
-Evaluates the finitized logarithmic CDF. Lower tail \(\Pr(X \le x)\) is returned by default; use `lower.tail = FALSE` for upper tails and `log.p = TRUE` for log‑CDF.
+Evaluates the finitized logarithmic CDF. Lower tail $\Pr(X \le x)$ is
+returned by default; use `lower.tail = FALSE` for upper tails and
+`log.p = TRUE` for log‑CDF.
 
 ```{r}
 # Full CDF table
@@ -1329,11 +1528,12 @@ p_hi <- finitization::plog(n, theta, val = c(1, 3), lower.tail = FALSE)
 p_lo; p_hi
 ```
 
----
+------------------------------------------------------------------------
 
 ## Quantiles - `qlog()`
 
-Inverts the finitized CDF. For a probability vector `p`, returns the smallest \(x \in \{0,...,n\}\) with \(\Pr(X \le x) \ge p\).
+Inverts the finitized CDF. For a probability vector `p`, returns the
+smallest $x \in \{0,...,n\}$ with $\Pr(X \le x) \ge p$.
 
 ```{r}
 # Median and 90th percentile
@@ -1345,11 +1545,12 @@ q_upper10 <- finitization::qlog(n, theta, p = 0.1, lower.tail = FALSE)
 q_upper10
 ```
 
----
+------------------------------------------------------------------------
 
 ## Random Variates Generation - `rlog()`
 
-Generates samples from the finitized logarithmic distribution on \(\{0,...,n\}\).
+Generates samples from the finitized logarithmic distribution on
+$\{0,...,n\}$.
 
 ```{r}
 set.seed(2025)
@@ -1372,43 +1573,41 @@ legend("topright", bty = "n",
        pch = c(NA, 16), lty = c(1, NA))
 ```
 
----
+------------------------------------------------------------------------
 
 ## Maximum Feasible Parameter Space - `getLogarithmicMFPS()`
 
-Returns the **MFPS** for `theta` given `n`; parameter choices within this interval ensure a valid finitized PMF (nonnegative and normalized).
+Returns the **MFPS** for `theta` given `n`; parameter choices within
+this interval ensure a valid finitized PMF (nonnegative and normalized).
 
 ```{r}
 getLogarithmicMFPS(n)
 ```
 
----
+------------------------------------------------------------------------
 
 ## Closed-form dispay - `printFinitizedLogarithmicDensity()`
 
-Prints a symbolic representation of the finitized logarithmic PMF; `latex = TRUE` yields LaTeX‑ready output.
+Prints a symbolic representation of the finitized logarithmic PMF;
+`latex = TRUE` yields LaTeX‑ready output.
 
 ```{r}
 printFinitizedLogarithmicDensity(n, val = c(0))
 ```
 
----
+------------------------------------------------------------------------
 
-## Moment Preservation (first \(n\) raw moments)
+## Moment Preservation (first $n$ raw moments)
 
-We compare the first \(n\) raw moments of the finitized logarithmic distribution with those of a
-**zero-including log-series parent** whose moment generating function (MGF) is
-\[
+We compare the first $n$ raw moments of the finitized logarithmic
+distribution with those of a **zero-including log-series parent** whose
+moment generating function (MGF) is $$
 m_X(t) \;=\; \frac{\ln(1-\theta e^{t})}{e^{t}\,\ln(1-\theta)}, \qquad 0<\theta<1.
-\]
-This corresponds to a log-series shifted to include 0 in its support, with pmf
-\[
+$$ This corresponds to a log-series shifted to include 0 in its support,
+with pmf $$
 \Pr(X=x) \;=\; -\frac{1}{\ln(1-\theta)}\,\frac{\theta^{x+1}}{x+1}, \quad x=0,1,2,\dots
-\]
-We verify that the finitized distribution (order \(n\), support \(\{0,\dots,n\}\)) preserves the
-first \(n\) raw moments of this parent.
-
-
+$$ We verify that the finitized distribution (order $n$, support
+$\{0,\dots,n\}$) preserves the first $n$ raw moments of this parent.
 
 ```{r}
 # --- Finitized raw moments on {0..n} ---
@@ -1422,7 +1621,10 @@ head(pmf_fin_tbl)
 
 
 ```
-We compute parent moments by summation on ({0,...,M}) with negligible tail (< (10^{-14})).
+
+We compute parent moments by summation on ({0,...,M}) with negligible
+tail (\< (10\^{-14})).
+
 ```{r}
 # Parent pmf implied by the given MGF (zero-including log-series)
 dlog_parent0 <- function(x, theta) {
@@ -1460,9 +1662,9 @@ mom_cmp
 
 ```
 
----
+------------------------------------------------------------------------
 
-## Validation and  Diagnostics
+## Validation and Diagnostics
 
 A compact set of checks, consistent with the other finitized families:
 
@@ -1493,19 +1695,21 @@ list(
   quantile_inversion  = qinversion_ok
 )
 ```
+
 # Applications of finitized distributions
 
 ## Random Number Generators: Alias Method implemented in `finitization` vs. Parent Distributions
 
-The `r*` functions in **finitization** implement an **aliasing**-based generator to produce
-random variates on the finite support \(\{0,\dots,n\}\) with very low constant-time cost per draw.
-To illustrate relative performance, we compare the finitized generators against their
-classical/parent generators from `stats` package and, for the logarithmic-series, from `extraDistr`
-package. 
+The `r*` functions in **finitization** implement an **aliasing**-based
+generator to produce random variates on the finite support
+$\{0,\dots,n\}$ with very low constant-time cost per draw. To illustrate
+relative performance, we compare the finitized generators against their
+classical/parent generators from `stats` package and, for the
+logarithmic-series, from `extraDistr` package.
 
-> **Note.**
->   Parameters are chosen to lie within the **MFPS** for the finitized models so that the
->    PMFs are valid (nonnegative and normalized).
+> **Note.** Parameters are chosen to lie within the **MFPS** for the
+> finitized models so that the PMFs are valid (nonnegative and
+> normalized).
 
 ```{r}
 # ---- Timings for random variates  ----
@@ -1590,4 +1794,5 @@ cat(
   sep = "\n"
 )
 ```
+
 # References
