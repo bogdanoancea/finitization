@@ -164,8 +164,10 @@ $$ with $a_x\ge 0$ and normalizing function
 $\eta(\theta)=\sum_{x=0}^{\infty} a_x\,\theta^x$. Equivalently, $$
 f(x\mid\theta)=a_x\,\theta^x\,\tau(\theta),\qquad \tau(\theta)=\eta(\theta)^{-1}.
 \tag{2}
-$$ Canonical examples include the Poisson, binomial, negative binomial,
-and logarithmic distributions [@golnabi2009finitizing].
+$$ We call $\eta(\theta)$ the PSD base function and say that $\eta(\theta)$ generates the PSD.
+Canonical examples include the Poisson, binomial, negative binomial,
+and logarithmic distributions [@golnabi2009finitizing]. For the Poisson distribution th PSD base function can be expressed as $\eta(\theta)=\exp(\theta)$.
+
 
 If the parent PSD has infinite support, finitization creates a new
 distribution supported only on\
@@ -173,14 +175,14 @@ $\{0,1,\dots,n\}$. The **partial sum finitization (PSF)** of order $n$
 is defined as
 
 $$
-f_n(x \mid \theta) \;=\; a_x \theta^x \, \tau_n(\theta, x), 
+f_n(x \mid \theta) \;=\; a_x \theta^x \, \tau_n(\theta,n,x), 
 \quad x = 0, 1, \dots, n,
 $$
 
 where
 
 $$
-\tau_n(\theta, x) = \sum_{j=0}^{n-x} b_j \theta^j
+\tau_n(\theta, n, x) = \sum_{j=0}^{n-x} b_j \theta^j
 $$
 
 is the **partial sum** of the power series expansion of $\tau(\theta)$
