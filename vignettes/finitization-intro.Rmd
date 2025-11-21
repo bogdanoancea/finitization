@@ -167,30 +167,6 @@ f(x\mid\theta)=a_x\,\theta^x\,\tau(\theta),\qquad \tau(\theta)=\eta(\theta)^{-1}
 $$ Canonical examples include the Poisson, binomial, negative binomial,
 and logarithmic distributions [@golnabi2009finitizing].
 
-The unit sum for $f_n$ is stated by the following theorem:
-
-*Theorem 1 (unit-sum)*
-
-Let $\theta$ be such that $f_n(x\mid \theta)>0$ for all $x=0,\ldots,n$.
-Then $\sum_{x=0}^n f_n(x\mid \theta)=1$.
-
-*Sketch.* Write $\tau(\theta)=\sum_{j=0}^{\infty} b_j \theta^j$. Since
-$\eta(\theta)\tau(\theta)\equiv 1$, equating coefficients yields $c_0=1$
-and $c_k=0$ for $k\ge 1$, where $c_k=\sum_{j=0}^{k} a_j b_{k-j}$. Hence
-$$
-\sum_{x=0}^{n} f_n(x\mid \theta)
-=\sum_{x=0}^{n} a_x \theta^x \sum_{j=0}^{n-x} b_j \theta^j
-=\sum_{k=0}^{n} c_k \theta^k
-= c_0 = 1.
-$$
-
-For details and the full proof see Golnabi, Levy, and Cochran (2009)
-[@golnabi2009finitizing].
-
-This means that with some restrictions on the parameter $\theta$ we can
-ensure that $f_n(x\mid \theta)>0$ for all $x=0,\ldots,n$ and it sums to
-1 which makes $f_n$ a pdf.
-
 If the parent PSD has infinite support, finitization creates a new
 distribution supported only on\
 $\{0,1,\dots,n\}$. The **partial sum finitization (PSF)** of order $n$
@@ -220,6 +196,32 @@ so $f_n(x \mid \theta)$ is a valid probability mass function under mild
 parameter restrictions (which ensure nonnegativity of the finitized
 probabilities).
 
+The unit sum for $f_n$ is stated by the following theorem:
+
+*Theorem 1 (unit-sum)*
+
+Let $\theta$ be such that $f_n(x\mid \theta)>0$ for all $x=0,\ldots,n$.
+Then $\sum_{x=0}^n f_n(x\mid \theta)=1$.
+
+*Sketch.* Write $\tau(\theta)=\sum_{x=0}^{\infty} b_x \theta^x$. Since
+$\eta(\theta)\tau(\theta) = \sum_{x=0}^{\infty} c_x\theta^x \equiv 1$, equating coefficients yields $c_0=1$
+and $c_k=0$ for $k\ge 1$, where $c_k=\sum_{j=0}^{k} a_j b_{k-j}$. Hence
+$$
+\sum_{x=0}^{n} f_n(x\mid \theta)
+=\sum_{x=0}^{n} a_x \theta^x \sum_{j=0}^{n-x} b_j \theta^j
+=\sum_{k=0}^{n} c_k \theta^k
+= c_0 = 1.
+$$
+
+For details and the full proof see Golnabi, Levy, and Cochran (2009)
+[@golnabi2009finitizing].
+
+This means that with some restrictions on the parameter $\theta$ we can
+ensure that $f_n(x\mid \theta)>0$ for all $x=0,\ldots,n$ and it sums to
+1 which makes $f_n$ a pdf.
+
+
+
 For a PSD random variable $X$ with pmf in (1)–(2), the **moment
 generating function** (mgf) is $$
 M_X(t)=\frac{\eta(\theta e^t)}{\eta(\theta)}=\eta(\theta e^t)\,\tau(\theta)=\frac{\tau(\theta)}{\tau(\theta e^t)},
@@ -237,7 +239,7 @@ the parent distribution up to the first $n$ moments - the finitization
 obtained by the PSD (partial sum) method generally does **not** preserve
 the first $n$ moments of other distributions. In contrast, the NTSF
 (Negative Taylor Series Finitization) method which we will introduce in
-the next sections, guarantees that the first $n$ moments of the
+the next section, guarantees that the first $n$ moments of the
 finitized distribution match those of the parent distribution for all
 members of the power series family.
 
