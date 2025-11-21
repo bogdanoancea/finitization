@@ -311,7 +311,7 @@ moment-preserving properties.
 #### From Taylor expansion to a discrete distribution
 
 Let $\delta(x)$ be a smooth function (continuous at 0 and infinitely
-differentiable on $(-c, c)$ for some $c > 0$). For constants $a$ and $b$
+differentiable on $(-c, c)$ for some $c > 0$). We call it the base function. For constants $a$ and $b$
 such that $a+b \in (-c,c)$, we have the Taylor expansion
 
 $$
@@ -320,8 +320,8 @@ $$
 + \cdots + \frac{\delta^{(k)}(a)}{k!}b^k + \cdots.
 $$
 
-Now set $a = -\lambda$ and $b = \lambda$, with $\lambda > 0$. If
-$\delta^{(k)}(-\lambda) \geq 0$ for all $k$, t
+Now set $a = -\lambda$ and $b = \lambda$, with $\lambda \ne 0$ a parameter for which 
+$\delta^{(k)}(-\lambda) \geq 0$ for all $k$. We call this condition the non-negativity condition. Then,
 
 $$
 \delta(0) = \delta(-\lambda) 
