@@ -123,9 +123,9 @@ protected:
     bool m_finish;                 ///< Used for internal state tracking
 
 private:
-    std::uniform_real_distribution<double> m_unif_double_distribution; ///< Uniform real generator
-    std::uniform_int_distribution<int> m_unif_int_distribution;        ///< Uniform integer generator
-    std::mt19937 m_generator;                                          ///< Mersenne Twister engine for randomness
+//    std::uniform_real_distribution<double> m_unif_double_distribution; ///< Uniform real generator
+//    std::uniform_int_distribution<int> m_unif_int_distribution;        ///< Uniform integer generator
+//    std::mt19937 m_generator;                                          ///< Mersenne Twister engine for randomness
 
     int* m_alias;               ///< Alias table for sampling
     double* m_prob;             ///< Probability table for sampling
@@ -135,8 +135,6 @@ private:
     ex m_ntsfSymb;              ///< Cached symbolic form of the normalized truncated series
     std::unordered_map<int, ex> m_cache; ///< Cache of symbolic evaluations at specific values
 
-    double*  m_pmf_small;          // optional: normalized PMF when K ≤ 8, else nullptr
-    bool     m_smallK;             // true when K ≤ 8 and m_pmf_small is set
 };
 
 #endif /* FINITIZATION_H_ */

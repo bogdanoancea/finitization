@@ -10,7 +10,7 @@ using namespace std;
 #endif
 
 
-Finitization::Finitization(int n): m_finitizationOrder(n), m_dprobs{nullptr}, m_finish{false}, m_unif_double_distribution{0.0, 1.0}, m_unif_int_distribution(0,n) {
+Finitization::Finitization(int n): m_finitizationOrder(n), m_dprobs{nullptr}, m_finish{false} {
     // Memory allocation for alias method
     const int K = m_finitizationOrder + 1;
     m_alias = new int[K];
@@ -19,11 +19,8 @@ Finitization::Finitization(int n): m_finitizationOrder(n), m_dprobs{nullptr}, m_
     m_ntsfFirstTime = true;
     for(int i = 0; i <= n; i++)
         m_values[i] = i;
-    //m_generator.seed(time(0)); // Seed RNG
 
     // optional small-K PMF cache (allocated lazily in setProbs)
-    m_pmf_small = nullptr;
-    m_smallK    = false;
 }
 
 Finitization::~Finitization() {
@@ -32,47 +29,6 @@ Finitization::~Finitization() {
     delete[] m_values;
     delete[] m_dprobs;
 }
-
-/*
-void Finitization::setProbs(double* p) {
-    int i, a, g;
-    int tmp = m_finitizationOrder + 1;
-    int *S = new int[tmp];
-    int *L = new int[tmp];
-    double *P = new double[tmp];
-
-    double sum=0.0;
-    for (i = 0; i < tmp; ++i ) {
-        sum += p[i];
-    }
-    for (i = 0; i < tmp; ++i )
-        P[i] = p[i] * (tmp) / sum;
-
-    int nS = 0, nL = 0;
-    for (i = m_finitizationOrder; i>=0; --i ) {
-        P[i] < 1 ? (S[nS++] = i) : (L[nL++] = i);
-    }
-    while ( nS && nL ) {
-        a = S[--nS];
-        g = L[--nL];
-        m_prob[a] = P[a];
-        m_alias[a] = g;
-        P[g] += P[a] - 1;
-        P[g] < 1 ? (S[nS++] = g) : (L[nL++] = g) ;
-    }
-
-    while ( nL )
-        m_prob[ L[--nL] ] = 1;
-
-    while ( nS )
-        m_prob[ S[--nS] ] = 1;
-
-    delete[] S;
-    delete[] L;
-    delete[] P;
-
-}
-*/
 
 void Finitization::setProbs(double* p) {
     const int K = m_finitizationOrder + 1;
@@ -86,17 +42,6 @@ void Finitization::setProbs(double* p) {
     }
     if (sum <= 0.0) stop("Sum of probabilities is zero in setProbs().");
     const double inv_sum = 1.0 / sum;
-
-    // Optional: cache normalized PMF for tiny-K fast path (K ≤ 8)
-    if (K <= 8) {
-        if (!m_pmf_small) m_pmf_small = new double[K];
-        for (int i = 0; i < K; ++i) m_pmf_small[i] = p[i] * inv_sum;
-        m_smallK = true;
-    } else {
-        // free if previously allocated for smaller K (optional hygiene)
-        if (m_pmf_small) { delete[] m_pmf_small; m_pmf_small = nullptr; }
-        m_smallK = false;
-    }
 
     // 2) Scale by K (Vose/Walker) and partition into small/large
     //    We’ll re-use a temporary array P (length K).
@@ -134,109 +79,11 @@ void Finitization::setProbs(double* p) {
     delete[] L;
 }
 
-/*
-IntegerVector Finitization::rvalues(int no) {
-    IntegerVector result(no);
-    int* r = result.begin();
-    double r2;
-    int ii;
-    for( int i = 0; i < no; ++i) {
-        ii = m_values[m_unif_int_distribution(m_generator)];
-        r2 = m_unif_double_distribution(m_generator);
-        r[i] = (r2 < m_prob[ii]) ? ii : m_alias[ii];
-    }
-    return result;
-}
-*/
-// Fast alias sampling: single RNG boundary, no allocations, tight loop.
-
-/*
-IntegerVector Finitization::rvalues(int no) {
-    if (no < 0) stop("'no' must be nonnegative.");
-
-    const int K = this->m_finitizationOrder+1;
-    const double* RESTRICT cutoff = this->m_prob;   // acceptance cutoff
-    const int*    RESTRICT alias  = this->m_alias;  // alias target
-    const double  Kd = static_cast<double>(K);
-
-    IntegerVector out(no);
-    int* RESTRICT outp = out.begin();
-
-    GetRNGstate();
-
-    // Unroll factor
-    constexpr int UNROLL = 8;
-    const int n8 = (no / UNROLL) * UNROLL;
-
-    int t = 0;
-    for (; t < n8; t += UNROLL) {
-        double ip;
-
-        // 1
-        double uK0 = unif_rand() * Kd;
-        double f0  = modf(uK0, &ip);
-        uint32_t j0 = (uint32_t)ip;
-        outp[t+0] = (f0 < cutoff[j0]) ? (int)j0 : alias[j0];
-
-        // 2
-        double uK1 = unif_rand() * Kd;
-        double f1  = modf(uK1, &ip);
-        uint32_t j1 = (uint32_t)ip;
-        outp[t+1] = (f1 < cutoff[j1]) ? (int)j1 : alias[j1];
-
-        // 3
-        double uK2 = unif_rand() * Kd;
-        double f2  = modf(uK2, &ip);
-        uint32_t j2 = (uint32_t)ip;
-        outp[t+2] = (f2 < cutoff[j2]) ? (int)j2 : alias[j2];
-
-        // 4
-        double uK3 = unif_rand() * Kd;
-        double f3  = modf(uK3, &ip);
-        uint32_t j3 = (uint32_t)ip;
-        outp[t+3] = (f3 < cutoff[j3]) ? (int)j3 : alias[j3];
-
-        // 5
-        double uK4 = unif_rand() * Kd;
-        double f4  = modf(uK4, &ip);
-        uint32_t j4 = (uint32_t)ip;
-        outp[t+4] = (f4 < cutoff[j4]) ? (int)j4 : alias[j4];
-
-        // 6
-        double uK5 = unif_rand() * Kd;
-        double f5  = modf(uK5, &ip);
-        uint32_t j5 = (uint32_t)ip;
-        outp[t+5] = (f5 < cutoff[j5]) ? (int)j5 : alias[j5];
-
-        // 7
-        double uK6 = unif_rand() * Kd;
-        double f6  = modf(uK6, &ip);
-        uint32_t j6 = (uint32_t)ip;
-        outp[t+6] = (f6 < cutoff[j6]) ? (int)j6 : alias[j6];
-
-        // 8
-        double uK7 = unif_rand() * Kd;
-        double f7  = modf(uK7, &ip);
-        uint32_t j7 = (uint32_t)ip;
-        outp[t+7] = (f7 < cutoff[j7]) ? (int)j7 : alias[j7];
-    }
-
-    // Remainder
-    for (; t < no; ++t) {
-        double ip;
-        double uK = unif_rand() * Kd;        // one RNG call per draw
-        double f  = modf(uK, &ip);           // split into index + fraction
-        uint32_t j = (uint32_t)ip;           // j in [0..K-1]
-        outp[t] = (f < cutoff[j]) ? (int)j : alias[j];
-    }
-
-    PutRNGstate();
-    return out;
-}
-*/
 
 IntegerVector Finitization::rvalues(int no) {
-    if (no < 0) stop("'no' must be nonnegative.");
+    if (no < 0) {
+        stop("'no' must be nonnegative.");
+    }
 
     const int K  = m_finitizationOrder + 1;
     const double* RESTRICT cutoff = m_prob;   // alias cutoff in [0,1]
@@ -247,71 +94,8 @@ IntegerVector Finitization::rvalues(int no) {
 
     GetRNGstate();
 
-    // ---- Tiny-K (K ≤ 8): unrolled CDF ladder (very fast for small n) ----
-    if (K <= 8 && m_smallK && m_pmf_small != nullptr) {
-        // build CDF once
-        double cdf8[8];
-        double acc = 0.0;
-        for (int i = 0; i < K; ++i) { acc += m_pmf_small[i]; cdf8[i] = acc; }
-        cdf8[K - 1] = 1.0; // exact 1
-
-        constexpr int UN = 16;
-        const int nU = (no / UN) * UN;
-        int t = 0;
-
-        // unrolled ladder for K up to 4 (most common finitization orders).
-        // For K>4 && ≤8, the while-ladder fallback is still fast; but we’ll keep
-        // a branch-minimal version here for K up to 4.
-        if (K == 4) {
-            for (; t < nU; t += UN, p += UN) {
-                const double u0 = unif_rand();  p[0]  = (u0 < cdf8[0]) ? 0 : (u0 < cdf8[1]) ? 1 : (u0 < cdf8[2]) ? 2 : 3;
-                const double u1 = unif_rand();  p[1]  = (u1 < cdf8[0]) ? 0 : (u1 < cdf8[1]) ? 1 : (u1 < cdf8[2]) ? 2 : 3;
-                const double u2 = unif_rand();  p[2]  = (u2 < cdf8[0]) ? 0 : (u2 < cdf8[1]) ? 1 : (u2 < cdf8[2]) ? 2 : 3;
-                const double u3 = unif_rand();  p[3]  = (u3 < cdf8[0]) ? 0 : (u3 < cdf8[1]) ? 1 : (u3 < cdf8[2]) ? 2 : 3;
-                const double u4 = unif_rand();  p[4]  = (u4 < cdf8[0]) ? 0 : (u4 < cdf8[1]) ? 1 : (u4 < cdf8[2]) ? 2 : 3;
-                const double u5 = unif_rand();  p[5]  = (u5 < cdf8[0]) ? 0 : (u5 < cdf8[1]) ? 1 : (u5 < cdf8[2]) ? 2 : 3;
-                const double u6 = unif_rand();  p[6]  = (u6 < cdf8[0]) ? 0 : (u6 < cdf8[1]) ? 1 : (u6 < cdf8[2]) ? 2 : 3;
-                const double u7 = unif_rand();  p[7]  = (u7 < cdf8[0]) ? 0 : (u7 < cdf8[1]) ? 1 : (u7 < cdf8[2]) ? 2 : 3;
-                const double u8 = unif_rand();  p[8]  = (u8 < cdf8[0]) ? 0 : (u8 < cdf8[1]) ? 1 : (u8 < cdf8[2]) ? 2 : 3;
-                const double u9 = unif_rand();  p[9]  = (u9 < cdf8[0]) ? 0 : (u9 < cdf8[1]) ? 1 : (u9 < cdf8[2]) ? 2 : 3;
-                const double uA = unif_rand();  p[10] = (uA < cdf8[0]) ? 0 : (uA < cdf8[1]) ? 1 : (uA < cdf8[2]) ? 2 : 3;
-                const double uB = unif_rand();  p[11] = (uB < cdf8[0]) ? 0 : (uB < cdf8[1]) ? 1 : (uB < cdf8[2]) ? 2 : 3;
-                const double uC = unif_rand();  p[12] = (uC < cdf8[0]) ? 0 : (uC < cdf8[1]) ? 1 : (uC < cdf8[2]) ? 2 : 3;
-                const double uD = unif_rand();  p[13] = (uD < cdf8[0]) ? 0 : (uD < cdf8[1]) ? 1 : (uD < cdf8[2]) ? 2 : 3;
-                const double uE = unif_rand();  p[14] = (uE < cdf8[0]) ? 0 : (uE < cdf8[1]) ? 1 : (uE < cdf8[2]) ? 2 : 3;
-                const double uF = unif_rand();  p[15] = (uF < cdf8[0]) ? 0 : (uF < cdf8[1]) ? 1 : (uF < cdf8[2]) ? 2 : 3;
-            }
-            for (; t < no; ++t, ++p) {
-                const double u = unif_rand();
-                *p = (u < cdf8[0]) ? 0 : (u < cdf8[1]) ? 1 : (u < cdf8[2]) ? 2 : 3;
-            }
-            PutRNGstate();
-            return out;
-        } else {
-            // Generic tiny-K ladder (K 2..8)
-            const int nU2 = (no / 8) * 8;
-            int s = 0;
-            for (; s < nU2; s += 8, p += 8) {
-                for (int r = 0; r < 8; ++r) {
-                    const double u = unif_rand();
-                    int x = 0;
-                    while (x < K - 1 && u > cdf8[x]) ++x;
-                    p[r] = x;
-                }
-            }
-            for (; s < no; ++s, ++p) {
-                const double u = unif_rand();
-                int x = 0;
-                while (x < K - 1 && u > cdf8[x]) ++x;
-                *p = x;
-            }
-            PutRNGstate();
-            return out;
-        }
-    }
-
-    // ---- General path: Vose alias, 1 uniform per draw, unrolled ×16 ----
-    const double Kd = (double)K;
+    // ---- Alias path for all K: 1 uniform per draw, unrolled ×16 ----
+    const double Kd = static_cast<double>(K);
     constexpr int UN = 16;
     const int nU = (no / UN) * UN;
 
@@ -369,7 +153,7 @@ IntegerVector Finitization::rvalues(int no) {
 
     // remainder
     for (int r = nU; r < no; ++r, ++p) {
-        const double uK = unif_rand() * (double)K;
+        const double uK = unif_rand() * Kd;
         const uint32_t j = (uint32_t)uK;
         const double   f = uK - (double)j;
         *p = (f < cutoff[j]) ? (int)j : alias[j];
@@ -378,6 +162,9 @@ IntegerVector Finitization::rvalues(int no) {
     PutRNGstate();
     return out;
 }
+
+
+
 
 ex Finitization::ntsf( ex pnb) {
 
