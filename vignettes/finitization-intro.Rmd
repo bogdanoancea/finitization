@@ -713,7 +713,7 @@ devtools::install_github("bogdanoancea/finitization")
 
 ------------------------------------------------------------------------
 
-In summary, CRAN installation should work out of the box on all
+In summary, the installation should work out of the box on all
 platforms. Manual configuration is required only when compiling from
 source on Linux or when building custom versions of CLN and GiNaC on
 Windows.
