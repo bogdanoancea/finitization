@@ -21,6 +21,8 @@ Finitization::Finitization(int n): m_finitizationOrder(n), m_dprobs{nullptr}, m_
         m_values[i] = i;
 
     // optional small-K PMF cache (allocated lazily in setProbs)
+    m_pmf_small = nullptr;
+    m_smallK    = false;
 }
 
 Finitization::~Finitization() {
@@ -28,6 +30,10 @@ Finitization::~Finitization() {
     delete[] m_prob;
     delete[] m_values;
     delete[] m_dprobs;
+    if (m_pmf_small) {
+        delete[] m_pmf_small;
+        m_pmf_small = nullptr;
+    }
 }
 
 void Finitization::setProbs(double* p) {
@@ -43,43 +49,64 @@ void Finitization::setProbs(double* p) {
     if (sum <= 0.0) stop("Sum of probabilities is zero in setProbs().");
     const double inv_sum = 1.0 / sum;
 
-    // 2) Scale by K (Vose/Walker) and partition into small/large
-    //    We’ll re-use a temporary array P (length K).
-    double* P = new double[K];
-    for (int i = 0; i < K; ++i) P[i] = (p[i] * inv_sum) * (double)K;
+    // --- small-K PMF cache for macOS CDF ladder (K <= 4) ---
+    if (K <= 4) {
+        if (!m_pmf_small) {
+            m_pmf_small = new double[K];
+        }
+        for (int i = 0; i < K; ++i) {
+            m_pmf_small[i] = p[i] * inv_sum;  // normalized pmf
+        }
+        m_smallK = true;
+    } else {
+        if (m_pmf_small) {
+            delete[] m_pmf_small;
+            m_pmf_small = nullptr;
+        }
+        m_smallK = false;
+    }
 
-    // Simple stack-based small/large lists
+    // 2) Scale by K (Vose/Walker) and partition into small/large
+    double* P = new double[K];
+    for (int i = 0; i < K; ++i)
+        P[i] = (p[i] * inv_sum) * static_cast<double>(K);
+
     int* S = new int[K];
     int* L = new int[K];
     int nS = 0, nL = 0;
 
-    // Fill S/L (reverse order or forward doesn’t matter)
     for (int i = K - 1; i >= 0; --i) {
         (P[i] < 1.0) ? (S[nS++] = i) : (L[nL++] = i);
     }
 
     // 3) Build alias table
     while (nS && nL) {
-        const int a = S[--nS];   // small
-        const int g = L[--nL];   // large
+        const int a = S[--nS];
+        const int g = L[--nL];
 
-        m_prob[a]  = P[a];       // cutoff in [0,1]
-        m_alias[a] = g;          // alias target
+        m_prob[a]  = P[a];
+        m_alias[a] = g;
 
         P[g] = (P[g] + P[a]) - 1.0;
         (P[g] < 1.0) ? (S[nS++] = g) : (L[nL++] = g);
     }
 
-    // 4) Leftovers have cutoff 1 and alias to themselves (robustness)
-    while (nL) { const int i = L[--nL]; m_prob[i] = 1.0; m_alias[i] = i; }
-    while (nS) { const int i = S[--nS]; m_prob[i] = 1.0; m_alias[i] = i; }
+    // 4) Leftovers
+    while (nL) {
+        const int i = L[--nL];
+        m_prob[i]  = 1.0;
+        m_alias[i] = i;
+    }
+    while (nS) {
+        const int i = S[--nS];
+        m_prob[i]  = 1.0;
+        m_alias[i] = i;
+    }
 
     delete[] P;
     delete[] S;
     delete[] L;
 }
-
-
 IntegerVector Finitization::rvalues(int no) {
     if (no < 0) {
         stop("'no' must be nonnegative.");
@@ -94,7 +121,41 @@ IntegerVector Finitization::rvalues(int no) {
 
     GetRNGstate();
 
-    // ---- Alias path for all K: 1 uniform per draw, unrolled ×16 ----
+    // ===== ARM64-specific tiny-K path: CDF ladder for K <= 4 =====
+#if defined(__aarch64__) || defined(_M_ARM64)
+    if (K <= 4 && m_smallK && m_pmf_small != nullptr) {
+        // build small CDF once
+        double cdf4[4];
+        double acc = 0.0;
+        for (int i = 0; i < K; ++i) {
+            acc += m_pmf_small[i];
+            cdf4[i] = acc;
+        }
+        cdf4[K - 1] = 1.0; // enforce exact 1.0 on last support point
+
+        for (int i = 0; i < no; ++i, ++p) {
+            const double u = unif_rand();
+            int x = 0;
+
+            if (u <= cdf4[0]) {
+                x = 0;
+            } else if (K > 1 && u <= cdf4[1]) {
+                x = 1;
+            } else if (K > 2 && u <= cdf4[2]) {
+                x = 2;
+            } else {
+                x = K - 1;  // 3 if K == 4, or last support point if K < 4
+            }
+
+            *p = x;
+        }
+
+        PutRNGstate();
+        return out;
+    }
+#endif
+
+    // ===== General alias path for all other cases / platforms =====
     const double Kd = static_cast<double>(K);
     constexpr int UN = 16;
     const int nU = (no / UN) * UN;
@@ -162,8 +223,6 @@ IntegerVector Finitization::rvalues(int no) {
     PutRNGstate();
     return out;
 }
-
-
 
 
 ex Finitization::ntsf( ex pnb) {

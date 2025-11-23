@@ -134,7 +134,8 @@ private:
     bool m_ntsfFirstTime;       ///< Used to delay computation of ntsf form
     ex m_ntsfSymb;              ///< Cached symbolic form of the normalized truncated series
     std::unordered_map<int, ex> m_cache; ///< Cache of symbolic evaluations at specific values
-
+    double* m_pmf_small;   // normalized PMF cache for tiny K (<=4)
+    bool    m_smallK;       // activates macOS tiny-K ladder
 };
 
 #endif /* FINITIZATION_H_ */
