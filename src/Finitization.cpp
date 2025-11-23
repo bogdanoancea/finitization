@@ -9,6 +9,32 @@ using namespace std;
 #endif
 #endif
 
+#ifndef K_LADDER_MAX
+#define K_LADDER_MAX 4
+#endif
+
+// Ordered small-K ladder:
+//  - KPARAM : runtime K (1..K_LADDER_MAX)
+//  - UVAR   : fresh uniform(0,1)
+//  - OUTVAR : int lvalue to store sampled *original* index
+//  - CDF    : CDF in order of decreasing probability
+//  - IDX    : IDX[i] = original support value for ladder level i
+#define SAMPLE_SMALL_K_ORDERED(KPARAM, UVAR, OUTVAR, CDF, IDX)      \
+do {                                                                \
+    const double u__ = (UVAR);                                      \
+    int ix__ = 0;                                                   \
+    if (u__ <= (CDF)[0]) {                                          \
+        ix__ = 0;                                                   \
+    } else if ((KPARAM) > 1 && u__ <= (CDF)[1]) {                   \
+        ix__ = 1;                                                   \
+    } else if ((KPARAM) > 2 && u__ <= (CDF)[2]) {                   \
+        ix__ = 2;                                                   \
+    } else {                                                        \
+        ix__ = (KPARAM) - 1;                                        \
+    }                                                               \
+    (OUTVAR) = (IDX)[ix__];                                         \
+} while (0)                                                         \
+
 
 Finitization::Finitization(int n): m_finitizationOrder(n), m_dprobs{nullptr}, m_finish{false} {
     // Memory allocation for alias method
@@ -50,7 +76,7 @@ void Finitization::setProbs(double* p) {
     const double inv_sum = 1.0 / sum;
 
     // --- small-K PMF cache for macOS CDF ladder (K <= 4) ---
-    if (K <= 4) {
+    if (K <= 6) {
         if (!m_pmf_small) {
             m_pmf_small = new double[K];
         }
@@ -107,47 +133,69 @@ void Finitization::setProbs(double* p) {
     delete[] S;
     delete[] L;
 }
+
 IntegerVector Finitization::rvalues(int no) {
     if (no < 0) {
         stop("'no' must be nonnegative.");
     }
 
     const int K  = m_finitizationOrder + 1;
-    const double* RESTRICT cutoff = m_prob;   // alias cutoff in [0,1]
-    const int*    RESTRICT alias  = m_alias;  // alias indices 0..K-1
+    const double* RESTRICT cutoff = m_prob;
+    const int*    RESTRICT alias  = m_alias;
 
     IntegerVector out(no);
     int* RESTRICT p = out.begin();
 
     GetRNGstate();
 
-    // ===== ARM64-specific tiny-K path: CDF ladder for K <= 4 =====
 #if defined(__aarch64__) || defined(_M_ARM64)
-    if (K <= 4 && m_smallK && m_pmf_small != nullptr) {
-        // build small CDF once
-        double cdf4[4];
+    // ===== ARM64: small-K path with probability-ordered ladder =====
+    if (K <= K_LADDER_MAX && m_pmf_small != nullptr) {
+        // Copy pmf and indices into small local arrays
+        double prob[K_LADDER_MAX];
+        int    idx[K_LADDER_MAX];
+
+        for (int i = 0; i < K; ++i) {
+            prob[i] = m_pmf_small[i];  // normalized pmf for state i
+            idx[i]  = i;               // original support value
+        }
+
+        // Sort by decreasing probability (tiny insertion sort, K<=4)
+        for (int i = 1; i < K; ++i) {
+            double key_p = prob[i];
+            int    key_i = idx[i];
+            int j = i - 1;
+            while (j >= 0 && prob[j] < key_p) {
+                prob[j + 1] = prob[j];
+                idx[j + 1]  = idx[j];
+                --j;
+            }
+            prob[j + 1] = key_p;
+            idx[j + 1]  = key_i;
+        }
+
+        // Build CDF in sorted order
+        double cdf_ladder[K_LADDER_MAX];
         double acc = 0.0;
         for (int i = 0; i < K; ++i) {
-            acc += m_pmf_small[i];
-            cdf4[i] = acc;
+            acc += prob[i];
+            cdf_ladder[i] = acc;
         }
-        cdf4[K - 1] = 1.0; // enforce exact 1.0 on last support point
+        cdf_ladder[K - 1] = 1.0; // enforce exact 1
 
-        for (int i = 0; i < no; ++i, ++p) {
-            const double u = unif_rand();
-            int x = 0;
+        // 4x unrolled ladder
+        const int UN = 4;
+        const int nU = (no / UN) * UN;
 
-            if (u <= cdf4[0]) {
-                x = 0;
-            } else if (K > 1 && u <= cdf4[1]) {
-                x = 1;
-            } else if (K > 2 && u <= cdf4[2]) {
-                x = 2;
-            } else {
-                x = K - 1;  // 3 if K == 4, or last support point if K < 4
-            }
-
-            *p = x;
+        int i = 0;
+        for (; i < nU; i += UN, p += UN) {
+            SAMPLE_SMALL_K_ORDERED(K, unif_rand(), p[0], cdf_ladder, idx);
+            SAMPLE_SMALL_K_ORDERED(K, unif_rand(), p[1], cdf_ladder, idx);
+            SAMPLE_SMALL_K_ORDERED(K, unif_rand(), p[2], cdf_ladder, idx);
+            SAMPLE_SMALL_K_ORDERED(K, unif_rand(), p[3], cdf_ladder, idx);
+        }
+        for (; i < no; ++i, ++p) {
+            SAMPLE_SMALL_K_ORDERED(K, unif_rand(), *p, cdf_ladder, idx);
         }
 
         PutRNGstate();
@@ -162,57 +210,55 @@ IntegerVector Finitization::rvalues(int no) {
 
     int t = 0;
     for (; t < nU; t += UN, p += UN) {
-        // 1
         double uK0 = unif_rand() * Kd; const uint32_t j0 = (uint32_t)uK0; const double f0 = uK0 - (double)j0;
         p[0] = (f0 < cutoff[j0]) ? (int)j0 : alias[j0];
-        // 2
+
         double uK1 = unif_rand() * Kd; const uint32_t j1 = (uint32_t)uK1; const double f1 = uK1 - (double)j1;
         p[1] = (f1 < cutoff[j1]) ? (int)j1 : alias[j1];
-        // 3
+
         double uK2 = unif_rand() * Kd; const uint32_t j2 = (uint32_t)uK2; const double f2 = uK2 - (double)j2;
         p[2] = (f2 < cutoff[j2]) ? (int)j2 : alias[j2];
-        // 4
+
         double uK3 = unif_rand() * Kd; const uint32_t j3 = (uint32_t)uK3; const double f3 = uK3 - (double)j3;
         p[3] = (f3 < cutoff[j3]) ? (int)j3 : alias[j3];
-        // 5
+
         double uK4 = unif_rand() * Kd; const uint32_t j4 = (uint32_t)uK4; const double f4 = uK4 - (double)j4;
         p[4] = (f4 < cutoff[j4]) ? (int)j4 : alias[j4];
-        // 6
+
         double uK5 = unif_rand() * Kd; const uint32_t j5 = (uint32_t)uK5; const double f5 = uK5 - (double)j5;
         p[5] = (f5 < cutoff[j5]) ? (int)j5 : alias[j5];
-        // 7
+
         double uK6 = unif_rand() * Kd; const uint32_t j6 = (uint32_t)uK6; const double f6 = uK6 - (double)j6;
         p[6] = (f6 < cutoff[j6]) ? (int)j6 : alias[j6];
-        // 8
+
         double uK7 = unif_rand() * Kd; const uint32_t j7 = (uint32_t)uK7; const double f7 = uK7 - (double)j7;
         p[7] = (f7 < cutoff[j7]) ? (int)j7 : alias[j7];
-        // 9
+
         double uK8 = unif_rand() * Kd; const uint32_t j8 = (uint32_t)uK8; const double f8 = uK8 - (double)j8;
         p[8] = (f8 < cutoff[j8]) ? (int)j8 : alias[j8];
-        // 10
+
         double uK9 = unif_rand() * Kd; const uint32_t j9 = (uint32_t)uK9; const double f9 = uK9 - (double)j9;
         p[9] = (f9 < cutoff[j9]) ? (int)j9 : alias[j9];
-        // 11
+
         double uK10 = unif_rand() * Kd; const uint32_t j10 = (uint32_t)uK10; const double f10 = uK10 - (double)j10;
         p[10] = (f10 < cutoff[j10]) ? (int)j10 : alias[j10];
-        // 12
+
         double uK11 = unif_rand() * Kd; const uint32_t j11 = (uint32_t)uK11; const double f11 = uK11 - (double)j11;
         p[11] = (f11 < cutoff[j11]) ? (int)j11 : alias[j11];
-        // 13
+
         double uK12 = unif_rand() * Kd; const uint32_t j12 = (uint32_t)uK12; const double f12 = uK12 - (double)j12;
         p[12] = (f12 < cutoff[j12]) ? (int)j12 : alias[j12];
-        // 14
+
         double uK13 = unif_rand() * Kd; const uint32_t j13 = (uint32_t)uK13; const double f13 = uK13 - (double)j13;
         p[13] = (f13 < cutoff[j13]) ? (int)j13 : alias[j13];
-        // 15
+
         double uK14 = unif_rand() * Kd; const uint32_t j14 = (uint32_t)uK14; const double f14 = uK14 - (double)j14;
         p[14] = (f14 < cutoff[j14]) ? (int)j14 : alias[j14];
-        // 16
+
         double uK15 = unif_rand() * Kd; const uint32_t j15 = (uint32_t)uK15; const double f15 = uK15 - (double)j15;
         p[15] = (f15 < cutoff[j15]) ? (int)j15 : alias[j15];
     }
 
-    // remainder
     for (int r = nU; r < no; ++r, ++p) {
         const double uK = unif_rand() * Kd;
         const uint32_t j = (uint32_t)uK;
@@ -223,8 +269,6 @@ IntegerVector Finitization::rvalues(int no) {
     PutRNGstate();
     return out;
 }
-
-
 ex Finitization::ntsf( ex pnb) {
 
     if(m_ntsfFirstTime) {
