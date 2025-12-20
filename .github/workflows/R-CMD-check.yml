@@ -25,12 +25,17 @@ jobs:
 
       - name: Set up dependencies
         uses: r-lib/actions/setup-r-dependencies@v2
-        with:
-          extra-packages: |
-            devtools
-            testthat
-            roxygen2
-            covr
+  with:
+    needs: check
+    extra-packages: |
+      any::devtools
+      any::testthat
+      any::roxygen2
+      any::ggplot2
+      any::truncdist
+      any::rmarkdown
+      any::knitr
+      any::covr
 
       - name: Run R CMD check
         uses: r-lib/actions/check-r-package@v2
@@ -40,7 +45,3 @@ jobs:
         shell: Rscript {0}
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
-
-
-

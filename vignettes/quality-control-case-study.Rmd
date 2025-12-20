@@ -47,6 +47,7 @@ library(finitization)
 if (!requireNamespace("truncdist", quietly = TRUE)) {
   stop("Package 'truncdist' is required for this vignette.")
 }
+has_ggplot2 <- requireNamespace("ggplot2", quietly = TRUE)
 ```
 ```{r parameters}
 # System parameters
@@ -222,8 +223,9 @@ pmf_data <- data.frame(
 )
 
 # Plot
-library(ggplot2)
-
+if (!has_ggplot2) {
+  message("Skipping pmf_comparison plot because ggplot2 is not installed.")
+} else {
 ggplot(pmf_data, aes(x = k, y = Probability, fill = Method)) +
   geom_col(position = position_dodge(width = 0.8), alpha = 0.7) +
   geom_vline(xintercept = d + 0.5, linetype = "dashed", color = "red") +
@@ -242,6 +244,8 @@ ggplot(pmf_data, aes(x = k, y = Probability, fill = Method)) +
            label = "Rejection\nthreshold", hjust = -0.1, color = "red", size = 3) +
   theme_minimal() +
   theme(legend.position = "top")
+}
+
 ```
 
 ### Moment Errors by Method
@@ -260,7 +264,10 @@ error_data <- data.frame(
   )
 )
 
-ggplot(error_data, aes(x = Method, y = Error, fill = Method)) +
+if (!has_ggplot2) {
+  message("Skipping pmf_comparison plot because ggplot2 is not installed.")
+} else {
+ ggplot(error_data, aes(x = Method, y = Error, fill = Method)) +
   geom_col(alpha = 0.7) +
   geom_hline(yintercept = 0, linetype = "solid") +
   geom_text(aes(label = sprintf("%.2f%%", Error)), 
@@ -282,6 +289,8 @@ ggplot(error_data, aes(x = Method, y = Error, fill = Method)) +
     strip.background = element_rect(fill = "gray90", color = NA),
     strip.text = element_text(face = "bold")
   )
+}
+
 ```
 
 ## Financial Impact

@@ -23,7 +23,8 @@ Suggests:
     knitr,
     rmarkdown,
     extraDistr,
-    truncdist
+    truncdist,
+    ggplot2
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 LinkingTo: Rcpp
