@@ -25,17 +25,17 @@ jobs:
 
       - name: Set up dependencies
         uses: r-lib/actions/setup-r-dependencies@v2
-  with:
-    needs: check
-    extra-packages: |
-      any::devtools
-      any::testthat
-      any::roxygen2
-      any::ggplot2
-      any::truncdist
-      any::rmarkdown
-      any::knitr
-      any::covr
+        with:
+            needs: check
+            extra-packages: |
+              any::devtools
+              any::testthat
+              any::roxygen2
+              any::ggplot2
+              any::truncdist
+              any::rmarkdown
+              any::knitr
+              any::covr
 
       - name: Run R CMD check
         uses: r-lib/actions/check-r-package@v2
