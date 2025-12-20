@@ -44,10 +44,14 @@ Batches are rejected if more than d = 1 defective unit is found in the sample.
 3. **Capping**: Simple truncation at the boundary
 ```{r libraries}
 library(finitization)
+
 if (!requireNamespace("truncdist", quietly = TRUE)) {
   stop("Package 'truncdist' is required for this vignette.")
 }
-has_ggplot2 <- requireNamespace("ggplot2", quietly = TRUE)
+
+if (!requireNamespace("ggplot2", quietly = TRUE)) {
+  stop("Package 'ggplot2' is required for this vignette.")
+}
 ```
 ```{r parameters}
 # System parameters
@@ -223,28 +227,24 @@ pmf_data <- data.frame(
 )
 
 # Plot
-if (!has_ggplot2) {
-  message("Skipping pmf_comparison plot because ggplot2 is not installed.")
-} else {
-ggplot(pmf_data, aes(x = k, y = Probability, fill = Method)) +
-  geom_col(position = position_dodge(width = 0.8), alpha = 0.7) +
-  geom_vline(xintercept = d + 0.5, linetype = "dashed", color = "red") +
-  scale_fill_manual(values = c("Theoretical" = "#E63946",
-                               "Finitized" = "#2E86AB", 
-                               "Truncated" = "#A23B72",
-                               "Capped" = "#F18F01")) +
-  labs(
-    title = "Probability Mass Function Comparison",
-    subtitle = sprintf("Binomial(N=%d, p=%.2f) bounded at n=%d", N, p, n),
-    x = "Number of Defects",
-    y = "Probability",
-    fill = "Method"
-  ) +
-  annotate("text", x = d + 0.5, y = max(pmf_data$Probability) * 0.9,
-           label = "Rejection\nthreshold", hjust = -0.1, color = "red", size = 3) +
-  theme_minimal() +
-  theme(legend.position = "top")
-}
+ggplot2::ggplot(pmf_data, ggplot2::aes(x = k, y = Probability, fill = Method)) +
+ggplot2::geom_col(position = ggplot2::position_dodge(width = 0.8), alpha = 0.7) +
+ggplot2::geom_vline(xintercept = d + 0.5, linetype = "dashed", color = "red") +
+ggplot2::scale_fill_manual(values = c("Theoretical" = "#E63946",
+                           "Finitized" = "#2E86AB", 
+                           "Truncated" = "#A23B72",
+                           "Capped" = "#F18F01")) +
+ggplot2::labs(
+title = "Probability Mass Function Comparison",
+subtitle = sprintf("Binomial(N=%d, p=%.2f) bounded at n=%d", N, p, n),
+x = "Number of Defects",
+y = "Probability",
+fill = "Method"
+) +
+ggplot2::annotate("text", x = d + 0.5, y = max(pmf_data$Probability) * 0.9,
+       label = "Rejection\nthreshold", hjust = -0.1, color = "red", size = 3) +
+ggplot2::theme_minimal() +
+ggplot2::theme(legend.position = "top")
 
 ```
 
@@ -264,32 +264,30 @@ error_data <- data.frame(
   )
 )
 
-if (!has_ggplot2) {
-  message("Skipping pmf_comparison plot because ggplot2 is not installed.")
-} else {
- ggplot(error_data, aes(x = Method, y = Error, fill = Method)) +
-  geom_col(alpha = 0.7) +
-  geom_hline(yintercept = 0, linetype = "solid") +
-  geom_text(aes(label = sprintf("%.2f%%", Error)), 
-            vjust = ifelse(error_data$Error >= 0, -0.5, 1.5),
-            size = 3.5) +
-  facet_wrap(~ Moment, scales = "free_y") +
-  scale_fill_manual(values = c("Finitized" = "#2E86AB", 
-                               "Truncated" = "#A23B72",
-                               "Capped" = "#F18F01")) +
-  labs(
-    title = "Moment Estimation Errors",
-    subtitle = "Percentage deviation from theoretical Binomial(20, 0.05) moments",
-    x = "Method",
-    y = "Percentage Error"
-  ) +
-  theme_minimal() +
-  theme(
-    legend.position = "none",
-    strip.background = element_rect(fill = "gray90", color = NA),
-    strip.text = element_text(face = "bold")
-  )
-}
+
+ggplot2::ggplot(error_data, ggplot2::aes(x = Method, y = Error, fill = Method)) +
+ggplot2::geom_col(alpha = 0.7) +
+ggplot2::geom_hline(yintercept = 0, linetype = "solid") +
+ggplot2::geom_text(ggplot2::aes(label = sprintf("%.2f%%", Error)), 
+        vjust = ifelse(error_data$Error >= 0, -0.5, 1.5),
+        size = 3.5) +
+ggplot2::facet_wrap(~ Moment, scales = "free_y") +
+ggplot2::scale_fill_manual(values = c("Finitized" = "#2E86AB", 
+                           "Truncated" = "#A23B72",
+                           "Capped" = "#F18F01")) +
+ggplot2::labs(
+title = "Moment Estimation Errors",
+subtitle = "Percentage deviation from theoretical Binomial(20, 0.05) moments",
+x = "Method",
+y = "Percentage Error"
+) +
+ggplot2::theme_minimal() +
+ggplot2::theme(
+legend.position = "none",
+strip.background = ggplot2::element_rect(fill = "gray90", color = NA),
+strip.text = ggplot2::element_text(face = "bold")
+)
+
 
 ```
 
