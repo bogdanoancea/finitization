@@ -74,7 +74,7 @@ set.seed(789)
 
 # Generate defect counts using different methods
 defects_fin <- finitization::rbinom(n = n, p = p, N = N, no = n_batches)
-defects_trunc <- rtrunc(n = n_batches, spec = "binom", 
+defects_trunc <- truncdist::rtrunc(n = n_batches, spec = "binom", 
                         a = -1, b = n, size = N, prob = p)
 defects_capped <- pmin(stats::rbinom(n_batches, size = N, prob = p), n)
 ```
@@ -160,7 +160,7 @@ n_large <- 1e6
 set.seed(123)
 
 sample_fin <- finitization::rbinom(n = n, p = p, N = N, no = n_large)
-sample_trunc <- rtrunc(n = n_large, spec = "binom", 
+sample_trunc <- truncdist::rtrunc(n = n_large, spec = "binom", 
                        a = -1, b = n, size = N, prob = p)
 sample_capped <- pmin(stats::rbinom(n_large, size = N, prob = p), n)
 
