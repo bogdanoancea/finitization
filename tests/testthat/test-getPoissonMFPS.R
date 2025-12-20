@@ -49,3 +49,21 @@ test_that("getPoissonMFPS returns NULL when n is missing", {
     expect_null(suppressMessages(getPoissonMFPS()))
 })
 
+test_that("parameters within MFPS produce valid Poisson samples", {
+    n <- 5
+    lambda <- 0.8   # inside MFPS for Poisson
+    no <- 1000
+
+    mfps <- getPoissonMFPS(n)
+
+    # Verify lambda is within MFPS
+    expect_true(lambda >= mfps[1] && lambda <= mfps[2])
+
+    # Should successfully generate samples
+    result <- rpois(n, lambda, no)
+
+    expect_equal(length(result), no)
+    expect_true(all(result >= 0))
+    expect_true(all(result <= n))
+})
+

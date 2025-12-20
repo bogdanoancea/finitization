@@ -1798,7 +1798,7 @@ cat(
   sep = "\n"
 )
 ```
-## ARM64–Specific Optimizations for Small Finitization Orders
+## macOS–Specific Optimizations for Small Finitization Orders
 The package places strong emphasis on achieving
 architecture-aware performance for random variate generation.
 The default generator uses an optimized Vose–Walker alias table with a
@@ -1806,7 +1806,7 @@ The default generator uses an optimized Vose–Walker alias table with a
 This method performs extremely well on x86\_64 (Linux/Windows), where indirect
 branches are handled efficiently.
 
-On ARM64 processors, however—particularly Apple’s M1/M2/M3/M4 designs—the
+On macOS, on both ARM64 and x86_64 architectures,the
 microarchitectural balance is different.  
 Indirect and hard-to-predict branches carry a noticeably higher penalty
 than on x86\_64, and this affects the alias method because each draw requires
@@ -1837,7 +1837,7 @@ U < F(1) \Rightarrow 1,\quad
 Sampling uses one uniform draw per variate and a fixed, short chain of
 predictable branches, with no indirect jumps.
 
-This architecture-aware dispatch yields substantial improvements on ARM64
+This architecture-aware dispatch yields substantial improvements for macOS on ARM64 
 for finitization orders with \(K \le 4\). In our benchmarks:
 
 - Poisson: speedup \(\approx 1.87\times\)
@@ -1850,10 +1850,6 @@ finitization orders and is therefore used everywhere. On ARM64, the
 small–\(K\) CDF ladder is selected automatically for tiny supports, while the
 alias method is retained for larger supports.
 
-### Dispatch Logic
-
-The selection between the alias generator and the CDF ladder is internal
-and transparent to the user; it can be summarized as in Figure \ref{fig:arm-dispatch}.
 
 ### Dispatch Logic
 

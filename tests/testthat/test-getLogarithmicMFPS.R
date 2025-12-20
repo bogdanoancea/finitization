@@ -59,3 +59,22 @@ test_that("getLogarithmicMFPS returns NULL when non-integer values are provided"
     }
     # Passing a non-integer for n should trigger input validation.
 })
+
+
+test_that("parameters within MFPS produce valid logarithmic samples", {
+    n  <- 5
+    no <- 1000
+
+    mfps  <- getLogarithmicMFPS(n)
+    theta <- 0.19
+
+    # User responsibility: verify theta is within MFPS before sampling
+    expect_true(theta >= mfps[1] && theta <= mfps[2])
+
+    # Should successfully generate samples
+    result <- rlog(n, theta, no)
+
+    expect_equal(length(result), no)
+    expect_true(all(result >= 0))
+    expect_true(all(result <= n))
+})

@@ -61,3 +61,44 @@ test_that("rnegbinom sample variance approximates expected variance", {
     )
 })
 
+
+test_that("rnegbinom is consistent with dnegbinom (chi-square test)", {
+
+    set.seed(123)
+
+    n  <- 3         # finitization order
+    N  <- 10        # size/shape parameter used by your finitized negbinom
+    q  <- 0.05      # choose a value inside MFPS for this (n, N)
+    no <- 200000
+
+    ## --- Theoretical PMF ---
+    pmf_df <- dnegbinom(n, q, N)     # data.frame(val, prob)
+    probs  <- pmf_df$prob
+
+    ## probability axioms
+    expect_true(all(is.finite(probs)))
+    expect_true(all(probs >= 0))
+    expect_equal(sum(probs), 1, tolerance = 1e-12)
+
+    ## --- Generate samples ---
+    sample <- rnegbinom(n, q, N, no)
+
+    ## observed counts on full support 0:n
+    observed <- table(factor(sample, levels = 0:n))
+
+    ## expected counts
+    expected <- probs * no
+
+    ## keep only categories with positive expectation
+    keep <- expected > 0
+    observed_k <- as.numeric(observed[keep])
+    expected_k <- as.numeric(expected[keep])
+
+    ## chi-square statistic
+    chisq <- sum((observed_k - expected_k)^2 / expected_k)
+    df <- length(expected_k) - 1
+
+    pval <- pchisq(chisq, df = df, lower.tail = FALSE)
+
+    expect_gt(pval, 1e-6)
+})

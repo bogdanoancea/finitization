@@ -30,3 +30,22 @@ test_that("getNegativeBinomialMFPS returns NULL when arguments are missing", {
     expect_null(suppressMessages(getNegativeBinomialMFPS(k = 4)), info = "Expected NULL when 'n' is missing")
     expect_null(suppressMessages(getNegativeBinomialMFPS(n = 2)), info = "Expected NULL when 'k' is missing")
 })
+
+test_that("parameters within MFPS produce valid negative binomial samples", {
+    n <- 5
+    k <- 2
+    q <- 0.1
+    no <- 1000
+
+    mfps <- getNegativeBinomialMFPS(n, k)
+
+    # Verify q is within MFPS
+    expect_true(q >= mfps[1] && q <= mfps[2])
+
+    # Should successfully generate samples
+    result <- rnegbinom(n, q, k, no)
+
+    expect_equal(length(result), no)
+    expect_true(all(result >= 0))
+    expect_true(all(result <= n))
+})

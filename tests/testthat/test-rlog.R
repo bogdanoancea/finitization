@@ -66,3 +66,49 @@ test_that("rlog sample variance approximates the expected value", {
     )
 })
 
+test_that("rlog is consistent with dlog (chi-square test)", {
+
+    set.seed(123)
+
+    n     <- 6        # finitization order
+    theta <- 0.15     # choose a value inside MFPS for this n
+    no    <- 200000   # large sample for stability
+
+    ## --- Theoretical PMF ---
+    pmf_df <- dlog(n, theta)       # data.frame(val, prob)
+    probs  <- pmf_df$prob
+
+    ## sanity checks (probability axioms)
+    expect_true(all(is.finite(probs)))
+    expect_true(all(probs >= 0))
+    expect_equal(sum(probs), 1, tolerance = 1e-12)
+
+    ## --- Generate samples ---
+    sample <- rlog(n, theta, no)
+
+    ## observed counts (force full support 0:n)
+    observed <- table(factor(sample, levels = 0:n))
+
+    ## expected counts
+    expected <- probs * no
+
+    ## avoid numerical issues if a tail prob is extremely tiny
+    ## (chi-square assumes expected > 0)
+    keep <- expected > 0
+    observed_k <- as.numeric(observed[keep])
+    expected_k <- as.numeric(expected[keep])
+
+    ## chi-square statistic
+    chisq <- sum((observed_k - expected_k)^2 / expected_k)
+
+    ## degrees of freedom:
+    ## K - 1  (no parameters estimated from data)
+    df <- length(expected_k) - 1
+
+    pval <- pchisq(chisq, df = df, lower.tail = FALSE)
+
+    ## robust acceptance criterion (detects only real inconsistencies)
+    expect_gt(pval, 1e-6)
+})
+
+

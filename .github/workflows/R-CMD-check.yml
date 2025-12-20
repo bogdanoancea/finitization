@@ -30,6 +30,17 @@ jobs:
             devtools
             testthat
             roxygen2
+            covr
 
       - name: Run R CMD check
         uses: r-lib/actions/check-r-package@v2
+
+      - name: Test coverage
+        run: covr::codecov()
+        shell: Rscript {0}
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+
+
+

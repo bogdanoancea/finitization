@@ -65,3 +65,40 @@ test_that("rbinom sample variance approximates the theoretical variance", {
         tolerance = 1e-3
     )
 })
+
+test_that("binomial GOF: observed frequencies match dbinom() probabilities", {
+
+    n  <- 5
+    N  <- 10
+    p  <- 0.10
+    no <- 200000
+
+    # draw samples (your finitization API)
+    sample <- rbinom(n = n, p = p, N = N, no = no)
+
+    # observed counts on full support 0..n (keep zeros)
+    observed <- as.integer(table(factor(sample, levels = 0:n)))
+
+    # expected probabilities from package dbinom(): returns a data.frame(val, prob)
+    df <- dbinom(n = n, p = p, N = N, val = 0:n)
+    expected_probs <- as.numeric(df$prob)  # numeric vector length n+1
+
+    # expected counts
+    expected <- expected_probs * no
+
+    # sanity checks
+    expect_equal(length(expected_probs), n + 1)
+    expect_true(all(is.finite(expected_probs)))
+    expect_true(all(expected_probs >= 0))
+    expect_lt(abs(sum(expected_probs) - 1), 1e-12)
+
+    # Pearson chi-square GOF (only where expected is non-negligible)
+    keep <- expected > 5
+    chisq <- sum((observed[keep] - expected[keep])^2 / expected[keep])
+
+    dfree <- sum(keep) - 1  # no parameters estimated here
+    pval <- stats::pchisq(chisq, df = dfree, lower.tail = FALSE)
+
+    # with large no, this should be comfortably non-significant if RNG matches pmf
+    expect_gt(pval, 1e-6)
+})

@@ -32,3 +32,15 @@ test_that("getBinomialMFPS returns NULL when a required argument is missing", {
     expect_null(suppressMessages(getBinomialMFPS(2)), info = "Expected NULL when 'N' is missing")
 })
 
+test_that("parameters within MFPS produce valid samples", {
+    n <- 5; N <- 10; p <- 0.1
+
+    mfps <- getBinomialMFPS(n, N)
+
+    # Verify p is within MFPS
+    expect_true(p >= mfps[1] && p <= mfps[2])
+
+    # Should successfully generate samples
+    result <- rbinom(n, p, N, 1000)
+    expect_equal(length(result), 1000)
+})

@@ -46,7 +46,7 @@ test_that("rpois sample variance approximates the theoretical variance", {
     sample_size <- 1e6
 
     # Generate sample
-    x <- rpois(n = 4, theta = 0.5, no = sample_size)
+    x <- rpois(n = 6, theta = 0.5, no = sample_size)
 
     # Sample variance
     sample_var <- var(x)
@@ -66,5 +66,43 @@ test_that("rpois sample variance approximates the theoretical variance", {
         level = 0.99,
         tolerance = 1e-3
     )
+})
+
+test_that("rpois is consistent with dpois (chi-square test)", {
+
+    set.seed(123)
+
+    n      <- 6          # finitization order
+    lambda <- 0.8        # inside MFPS for Poisson
+    no     <- 200000     # large sample for stability
+
+    ## --- Theoretical PMF ---
+    pmf_df <- dpois(n, lambda)     # returns data.frame(val, prob)
+    probs  <- pmf_df$prob
+
+    ## sanity checks
+    expect_equal(sum(probs), 1, tolerance = 1e-12)
+    expect_true(all(probs >= 0))
+
+    ## --- Generate samples ---
+    sample <- rpois(n, lambda, no)
+
+    ## observed counts (force full support 0:n)
+    observed <- table(factor(sample, levels = 0:n))
+
+    ## expected counts
+    expected <- probs * no
+
+    ## chi-square statistic
+    chisq <- sum((observed - expected)^2 / expected)
+
+    ## degrees of freedom:
+    ## K - 1  (no parameters estimated from data)
+    df <- (n + 1) - 1
+
+    pval <- pchisq(chisq, df = df, lower.tail = FALSE)
+
+    ## very weak but robust acceptance criterion
+    expect_gt(pval, 1e-6)
 })
 
