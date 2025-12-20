@@ -44,7 +44,9 @@ Batches are rejected if more than d = 1 defective unit is found in the sample.
 3. **Capping**: Simple truncation at the boundary
 ```{r libraries}
 library(finitization)
-library(truncdist)
+if (!requireNamespace("truncdist", quietly = TRUE)) {
+  stop("Package 'truncdist' is required for this vignette.")
+}
 ```
 ```{r parameters}
 # System parameters
