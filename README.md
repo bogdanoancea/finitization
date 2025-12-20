@@ -33,13 +33,13 @@ brew install gmp cln ginac pkg-config
 
 > Ensure that Homebrew’s `bin` and `lib` paths are visible to the compiler (especially when using RStudio).
 
-### 🔹 Windows  (RTools44 + MSYS2)
-1. **Install RTools44**  
+### 🔹 Windows  (RTools45 + MSYS2)
+1. **Install RTools45**  
    Download and run the installer from  
    https://cran.r-project.org/bin/windows/Rtools/
 
 2. **Open the “MSYS2 UCRT 64‑bit” shell** 
-   Supposing that RTools44 is installed in "C:\rtools44" then double click on "C:\rtools44\ucrt64.exe". 
+   Supposing that RTools45 is installed in "C:\rtools45" then double click on "C:\rtools45\ucrt64.exe". 
    If other version of the RTools is used, update the paths accordingly.
    
 3. **Fully update MSYS2, update the package database and install the toolchain + pkgconf**  
