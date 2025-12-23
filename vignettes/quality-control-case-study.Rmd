@@ -1,6 +1,6 @@
 ---
 title: "Quality Control with Bounded Sampling"
-author: "Bogdan Oancea, James J. Cochran, Mihaela Păun"
+author: "Bogdan Oancea"
 date: "`r Sys.Date()`"
 output: 
   rmarkdown::html_vignette:
@@ -39,9 +39,10 @@ Batches are rejected if more than d = 1 defective unit is found in the sample.
 
 ### Three Approaches
 
-1. **Finitization**: Preserves the first n moments of the parent distribution
-2. **Truncation**: Conditions on X ≤ n and renormalizes
+1. **Finitization**: Preserves the first $n$ moments of the parent distribution
+2. **Truncation**: Conditions on $X \le n$ and renormalizes
 3. **Capping**: Simple truncation at the boundary
+
 ```{r libraries}
 library(finitization)
 
@@ -112,8 +113,7 @@ rejection_results$vs_Finitized <- with(rejection_results,
 
 knitr::kable(rejection_results, 
              digits = 4,
-             col.names = c("Method", "Rejection Rate", "Rejections (millions)", 
-                          "vs. Finitized"),
+             col.names = c("Method", "Rejection Rate", "Rejections (millions)", "vs. Finitized"),
              caption = "Batch rejection rates for different modeling approaches")
 ```
 
@@ -311,8 +311,7 @@ financial_data$Excess_Cost <- financial_data$Cost - financial_data$Cost[1]
 
 knitr::kable(financial_data,
              digits = 0,
-             col.names = c("Method", "Rejections", "Cost ($)", 
-                          "Excess Rejections", "Excess Cost ($)"),
+             col.names = c("Method", "Rejections", "Cost (USD)", "Excess Rejections", "Excess Cost (USD)"),
              caption = "Financial impact per 1,000,000 batches",
              format.args = list(big.mark = ","))
 ```
@@ -343,8 +342,7 @@ spc_results <- data.frame(
 
 knitr::kable(spc_results,
              digits = 3,
-             col.names = c("Method", "σ estimate", "Limit Width Ratio", 
-                          "False Alarm Increase"),
+             col.names = c("Method", "σ estimate", "Limit Width Ratio", "False Alarm Increase"),
              caption = "Impact on statistical process control")
 ```
 
@@ -365,8 +363,7 @@ ci_results <- data.frame(
 
 knitr::kable(ci_results,
              digits = 3,
-             col.names = c("Method", "Variance Estimate", "Width Ratio", 
-                          "Actual Coverage"),
+             col.names = c("Method", "Variance Estimate", "Width Ratio", "Actual Coverage"),
              caption = "Impact on confidence interval construction")
 ```
 
@@ -411,14 +408,13 @@ summary_data <- data.frame(
 )
 
 knitr::kable(summary_data,
-             col.names = c("Method", "Mean Error", "Variance Error", 
-                          "vs. Finitized"),
+             col.names = c("Method", "Mean Error", "Variance Error",  "vs. Finitized"),
              caption = "Summary of moment preservation accuracy")
 ```
 
 ### Key Takeaways
 
-1. **Finitization provides 60-200 fold improvement** in moment accuracy
+1. **Finitization provides 60-400 fold improvement** in moment accuracy
 2. **Statistical applications requiring accurate variance are critically affected**:
    - SPC: 130% increase in false alarms ($910K annual cost)
    - Confidence intervals: 92-93% coverage instead of 95%

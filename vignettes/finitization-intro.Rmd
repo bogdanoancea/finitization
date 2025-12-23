@@ -40,8 +40,8 @@ The **finitization** package provides tools for computing finitized
 versions of several well-known members of the *power series family*
 (PSDs), including the Poisson, binomial, negative binomial, and
 logarithmic distributions. Finitization is a probabilistic method that
-transforms a discrete distribution - often one with infinite
-support-into a new distribution with finite support of specified order
+transforms a discrete distribution - one with infinite
+support - into a new distribution with finite support of specified order
 *n*. Unlike truncation, which conditions the original distribution,
 finitization constructs a new distribution that (under parameter
 restrictions) preserves the first *n* moments of the parent distribution
@@ -53,8 +53,8 @@ underlying families of distributions, the main methods of finitization
 (PSF and NTSF), and key results such as the maximum feasible parameter
 space (MFPS). Second, we present a **tutorial** on using the package,
 including installation, functions for computing finitized probability
-mass functions and random variates, and practical guidance for choosing
-the finitization order *n*. This structure allows the reader to both
+mass functions, quantiles and generate random variates. 
+This structure allows the reader to both
 understand the mathematical background and apply the package effectively
 in practice.
 
@@ -70,7 +70,7 @@ examples are encouraged to consult the core references in the literature
 @cochran2013matching; @kirtland2018application].
 
 Finitization is a probabilistic method that transforms a discrete
-distribution - most often a member of the power series family such as
+distribution - a member of the power series family such as
 Poisson, negative binomial, binomial, or logarithmic - into a new
 distribution with finite support of a specified size. Unlike simple
 truncation, which conditions the original distribution on a restricted
@@ -99,22 +99,22 @@ include[@levy2012moment]:
     support to $\{0,1,\dots,n\}$.
 
 -   **Book publisher:**\
-    Consider a publisher producing textbooks with roughly $n$ words per
+    Consider a publisher producing textbooks with roughly *n* words per
     page. Traditionally, the number of misprints per page is modeled as
     Poisson with a small mean. However, the number of errors cannot
     exceed the number of words per page. A finitized Poisson of order
-    $n$ better reflects this bounded nature.
+    *n* better reflects this bounded nature.
 
 In each case, the standard Poisson or other infinite-support
 distributions would assign positive probability to impossible outcomes,
 while a *finitized* counterpart avoids this problem without distorting
 key moment properties.
 
-Another area where finitization can be used is in **random variate
-generation**. Simulation methods such as *aliasing* (efficient for
+Another area where finitization can be used is in **random variate generation**. 
+Simulation methods such as *aliasing* (efficient for
 discrete distributions with finite support) become applicable once the
 distribution is finitized. This can substantially accelerate random
-variate generation whil preserving a close fit to the parent
+variate generation while preserving a close fit to the parent
 distribution.
 
 The critical distinction from truncation is that truncation conditions
@@ -134,19 +134,17 @@ library(knitr)
 
 comparison <- data.frame(
   Feature = c("Definition", "Support", "Moment preservation",
-              "Statistical behavior", "Simulation efficiency", "Interpretation"),
+              "Statistical behavior", "Simulation efficiency"),
   Truncation = c("Condition on X  <=  n",
                  "{0,1,…,n}",
                  "No – all moments are altered",
                  "Distorted relative to parent distribution",
-                 "No special advantage",
-                 "Reweighted version of parent distribution"),
+                 "No special advantage"),
   Finitization = c("Construct new distribution on {0,…,n}",
                    "{0,1,…,n}",
                    "Yes – first n moments preserved",
                    "Consistent with parent distribution",
-                   "Enables fast aliasing method",
-                   "Faithful bounded analog of parent distribution")
+                   "Enables fast aliasing method")
 )
 
 kable(comparison, format = "markdown", align = "l")
@@ -166,13 +164,13 @@ f(x\mid\theta)=a_x\,\theta^x\,\tau(\theta),\qquad \tau(\theta)=\eta(\theta)^{-1}
 \tag{2}
 $$ We call $\eta(\theta)$ the PSD base function and say that $\eta(\theta)$ generates the PSD.
 Canonical examples include the Poisson, binomial, negative binomial,
-and logarithmic distributions [@golnabi2009finitizing]. For the Poisson distribution th PSD base function can be expressed as $\eta(\theta)=\exp(\theta)$.
+and logarithmic distributions [@golnabi2009finitizing]. For the Poisson distribution,
+the PSD base function can be expressed as $\eta(\theta)=\exp(\theta)$.
 
 
 If the parent PSD has infinite support, finitization creates a new
-distribution supported only on\
-$\{0,1,\dots,n\}$. The **partial sum finitization (PSF)** of order $n$
-is defined as
+distribution supported only on  $\{0,1,\dots,n\}$. 
+The **partial sum finitization (PSF)** of order $n$ is defined as
 
 $$
 f_n(x \mid \theta) \;=\; a_x \theta^x \, \tau_n(\theta,n,x), 
@@ -223,11 +221,8 @@ ensure that $f_n(x\mid \theta)>0$ for all $x=0,\ldots,n$ and it sums to
 1 which makes $f_n$ a pdf.
 
 
-
-For a PSD random variable $X$ with pmf in (1)–(2), the **moment
-generating function** (mgf) is $$
-M_X(t)=\frac{\eta(\theta e^t)}{\eta(\theta)}=\eta(\theta e^t)\,\tau(\theta)=\frac{\tau(\theta)}{\tau(\theta e^t)},
-$$ [@golnabi2009finitizing].
+For a PSD random variable $X$ with pmf in (1)–(2), the **moment generating function** (mgf) is 
+$$M_X(t)=\frac{\eta(\theta e^t)}{\eta(\theta)}=\eta(\theta e^t)\,\tau(\theta)=\frac{\tau(\theta)}{\tau(\theta e^t)}$$,  [@golnabi2009finitizing].
 
 Expanding $\eta(\theta e^t)\tau(\theta)$ gives $$
 m_X(t)=\sum_{k=0}^{\infty} \theta^k \sum_{x=0}^{k} a_x\, b_{k-x}\, e^{t x}.
@@ -311,8 +306,8 @@ moment-preserving properties.
 #### From Taylor expansion to a discrete distribution
 
 Let $\delta(x)$ be a smooth function (continuous at 0 and infinitely
-differentiable on $(-c, c)$ for some $c > 0$). We call it the base function. For constants $a$ and $b$
-such that $a+b \in (-c,c)$, we have the Taylor expansion
+differentiable on $(-c, c)$ for some $c > 0$). We call it the **base function**. 
+For constants $a$ and $b$ such that $a+b \in (-c,c)$, we have the Taylor expansion
 
 $$
 \delta(a+b) = \delta(a) + \frac{\delta'(a)}{1!}b
@@ -330,13 +325,12 @@ $$
 + \cdots
 $$
 
-which gives a distribution with support over the nonnegative integers
-and a pdf / pmf
+Without a loss of generality we can assume $\delta_0=1$ or we can rescale the base function by dividing it by $\delta_0$. This gives a distribution with support over the nonnegative integers
+and a pmf
 
 $$
 g(k) = \frac{\delta^{(k)}(-\lambda)}{k!}\,\lambda^k, \quad k = 0,1,2,\dots
 $$
-
 which satisfies $\sum_{k=0}^\infty g(k) = \delta(0) = 1$.\
 The random variable $X$ with pmf $g(k)$ is called a **Negative Taylor
 Series Distribution (NTSD)**.
@@ -352,7 +346,7 @@ $$
 
 #### Finitizing the NTSD
 
-To finitize, truncate the Maclaurin expansion of the NTSD base function:
+To finitize, we truncate the Maclaurin expansion of the NTSD base function:
 
 $$
 \delta(x) = \sum_{k=0}^\infty d_k x^k, \quad d_k = \frac{\delta^{(k)}(0)}{k!}, \; d_k \geq 0.
@@ -507,7 +501,7 @@ finitized probabilities are nonnegative and sum to one
     the admissible upper bound.
 
 -   The **lower bound** $\theta_{\min}$ is determined by examining when
-    finitized probabilities near the lower edge of the support first
+    finitized probabilities comming from the upper bound toward the lower edge of the support first
     reach zero. In many PSDs (Poisson, Binomial, Negative Binomial) this
     bound is simply 0, since probabilities remain valid for arbitrarily
     small positive parameters. For the logarithmic distribution,
@@ -518,7 +512,7 @@ finitized probabilities are nonnegative and sum to one
 ### Properties of MFPS
 
 -   **Feasibility guarantee:** MFPS ensures that the finitized
-    distribution is a proper pdf (all probabilities are nonnegative,
+    distribution is a proper pmf (all probabilities are nonnegative,
     summing to 1).
 -   **Order dependence:** For distributions such as the negative
     binomial or logarithmic, the MFPS upper bound decreases as the
@@ -556,7 +550,7 @@ the PSD family, the reader is referred to [@golnabi2009finitizing],
 
 The `finitization` package is available through the
 `R-universe repository`, which provides precompiled binaries for all
-major operating systems — Windows, Linux, and macOS (both x86_64 and
+major operating systems - Windows, Linux, and macOS (both x86_64 and
 arm64 architectures).
 
 To install the package, simply run:
@@ -593,7 +587,7 @@ algebraic manipulations required by finitization would not be feasible.
 
 ------------------------------------------------------------------------
 
-## Platform Notes
+## Installing from source. Platform Notes
 
 ### Linux (Debian/Ubuntu)
 
@@ -614,13 +608,13 @@ brew install gmp cln ginac pkg-config
 
 When building from source with **RTools** and **MSYS2**, CLN and GiNaC
 must be compiled manually from their official websites. 1. **Install
-RTools44**\
+RTools45**\
 Download and run the installer from\
 <https://cran.r-project.org/bin/windows/Rtools/>
 
 2.  **Open the “MSYS2 UCRT 64‑bit” shell** Supposing that RTools44 is
-    installed in "C:/rtools44" then double click on
-    "C:/rtools44/ucrt64.exe".
+    installed in "C:/rtools45" then double click on
+    "C:/rtools45/ucrt64.exe".
 
 3.  **Fully update MSYS2, update the package database and install the
     toolchain + pkgconf**\
@@ -680,8 +674,8 @@ Download and run the installer from\
 ------------------------------------------------------------------------
 
 ## Building from Source
-
-To build from the GitHub development version:
+Once the external libraries a reinstalled, the package
+can be built from the GitHub development version:
 
 ```{bash, eval=FALSE}
 git clone https://github.com/bogdanoancea/finitization.git
@@ -714,9 +708,8 @@ devtools::install_github("bogdanoancea/finitization")
 ------------------------------------------------------------------------
 
 In summary, the installation should work out of the box on all
-platforms. Manual configuration is required only when compiling from
-source on Linux or when building custom versions of CLN and GiNaC on
-Windows.
+platforms using `R-universe repository`. Manual configuration is required only when compiling from
+source.
 
 # Finitized Negative Binomial distribution
 
@@ -806,8 +799,7 @@ level $p$, it returns the smallest integer $x \in \{0,\dots,n\}$ such
 that $\Pr(X \leq x) \geq p$. The arguments `lower.tail` and `log.p`
 control whether probabilities are interpreted in the lower- or
 upper-tail sense and whether they are supplied on the log scale,
-respectively. This function is particularly useful for simulation
-studies, where random draws may be generated via inversion.
+respectively. 
 
 ```{r}
 # Median and 90th percentile
@@ -891,7 +883,7 @@ function (PMF), consistency between the cumulative distribution function
 accuracy of the quantile function through inversion tests, and finally,
 agreement between theoretical moments derived from the PMF and empirical
 moments obtained from simulated random draws. The following code
-illustrates these diagnostic procedures in practice providing\
+illustrates these diagnostic procedures in practice providing
 evidence that the finitized NB functions operate reliably and preserve
 theoretical properties.
 
@@ -988,8 +980,8 @@ stopifnot(length(pmf_vec) == length(x))
 stopifnot(abs(sum(pmf_vec) - 1) < 1e-10)
 ```
 
-Now we compute the parent Negative Binomial `pmf` on a sufficiently long
-grid (for accurate moments). For this we build a grid `{0, ... ,M}` so
+Now, we compute the parent Negative Binomial `pmf` on a sufficiently long
+grid (for accurate moments). For this we build a grid `{0, ... , M}` so
 that the upper tail is negligible (here $<10^{-14}$).
 
 ```{r}
@@ -1077,19 +1069,18 @@ $N$ independent Bernoulli trials, each with success probability $p$. Its
 support is finite, $\{0,1,\dots,N\}$. Finitization provides an
 alternative construction: a finitized binomial distribution of order $n$
 that preserves the first $n$ moments of the parent binomial distribution
-while adjusting the probability mass function through the
-moment-preserving finitization series (MFPS) [@levy2012moment]. This
+while adjusting the probability mass function. [@levy2012moment]. This
 construction ensures that the finitized model remains consistent with
 the theoretical binomial moments up to order $n$, even though its
 support is restricted to $\{0,1,\dots,n\}$.
 
 The finitized binomial distribution in the `finitization` package is
-parameterized by: - **finitization order** $n$, which sets the support
-$\{0,\dots,n\}$;\
+parameterized by: 
+- **finitization order** $n$, which sets the support $\{0,\dots,n\}$;\
 - **success probability** $p$;\
 - **number of trials** $N$.
 
-The subsections below present the available functions and illustrate
+The next subsections present the available functions and illustrate
 their use.
 
 ```{r}
@@ -1104,7 +1095,7 @@ x <- 0:n
 
 ## PMF - `dbinom()`
 
-The probability mass function (PMF) of the finitized binomial
+The probability mass function of the finitized binomial
 distribution is computed by dbinom(). When `val = NULL`, the function
 returns the entire PMF over ({0,\dots,n}). Specific probabilities can be
 extracted by supplying values in `val`. For likelihood calculations and
@@ -1127,7 +1118,7 @@ d_log
 
 ## CDF - `pbinom()`
 
-The cumulative distribution function (CDF) is available via `pbinom()`.
+The cumulative distribution function is available via `pbinom()`.
 By default, it returns lower-tail probabilities $\Pr(X \le x)$. Setting
 `lower.tail = FALSE` gives upper-tail probabilities $\Pr(X > x)$. The
 option `log.p = TRUE` returns values on the logarithmic scale.
@@ -1149,7 +1140,7 @@ p_hi
 ## Quantiles - `qbinom()`
 
 The function `qbinom()` computes quantiles of the finitized binomial
-distribution by inverting the CDF. Given probability levels (`u`), it
+distribution. Given probability levels (`u`), it
 returns the smallest integer $x \in {0,\dots,n}$ such that
 $\Pr(X \le x) \ge u$. The arguments `lower.tail` and `log.p` allow
 specification of upper-tail and log-scale probabilities.
@@ -1194,7 +1185,7 @@ legend("topright", bty = "n",
 ## Maximum Feasible Parameter Space - `getBinomialMFPS()`
 
 The function `getBinomialMFPS()` determines the maximum feasible
-parameter space (MFPS) for the finitized binomial distribution. The MFPS
+parameter space for the finitized binomial distribution. The MFPS
 specifies the admissible range of parameters that guarantee the
 distribution is valid (nonnegative probabilities and total probability
 equal to one).
@@ -1221,7 +1212,7 @@ printFinitizedBinomialDensity(n, N, latex = TRUE)
 ## Validation and Diagnostics
 
 Validation confirms that the finitized binomial functions operate
-correctly. Checks include:normalization of the PMF, consistency between
+correctly. Checks include: normalization of the PMF, consistency between
 CDF and PMF, monotonicity of the CDF, quantile inversion accuracy,
 agreement between theoretical and empirical moments.
 
@@ -1284,7 +1275,7 @@ x     <- 0:n
 
 ## PMF - `dpois()`
 
-Returns the finitized Poisson probability mass function (PMF). With
+Returns the finitized Poisson probability mass function. With
 `val = NULL`, the full PMF over ({0,...,n}) is provided; logarithms are
 available via `log = TRUE`.
 
@@ -1321,7 +1312,7 @@ p_lo; p_hi
 
 ## Quantiles - `qpois()`
 
-Inverts the finitized CDF. For a probability vector p, returns the
+Inverts the finitized CDF. For a probability vector $p$, returns the
 smallest $x \in {0,\dots,n}$ with $\Pr(X \le x) \ge p$.
 
 ```{r}
@@ -1605,9 +1596,7 @@ printFinitizedLogarithmicDensity(n, val = c(0))
 
 We compare the first $n$ raw moments of the finitized logarithmic
 distribution with those of a **zero-including log-series parent** whose
-moment generating function (MGF) is $$
-m_X(t) \;=\; \frac{\ln(1-\theta e^{t})}{e^{t}\,\ln(1-\theta)}, \qquad 0<\theta<1.
-$$ This corresponds to a log-series shifted to include 0 in its support,
+moment generating function is $$m_X(t) \;=\; \frac{\ln(1-\theta e^{t})}{e^{t}\,\ln(1-\theta)}, \qquad 0<\theta<1$$. This corresponds to a log-series shifted to include 0 in its support,
 with pmf $$
 \Pr(X=x) \;=\; -\frac{1}{\ln(1-\theta)}\,\frac{\theta^{x+1}}{x+1}, \quad x=0,1,2,\dots
 $$ We verify that the finitized distribution (order $n$, support
@@ -1800,32 +1789,19 @@ cat(
 ```
 ## macOS–Specific Optimizations for Small Finitization Orders
 The package places strong emphasis on achieving
-architecture-aware performance for random variate generation.
+platform-aware performance for random variate generation.
 The default generator uses an optimized Vose–Walker alias table with a
 16-way unrolled inner loop.  
-This method performs extremely well on x86\_64 (Linux/Windows), where indirect
-branches are handled efficiently.
-
-On macOS, on both ARM64 and x86_64 architectures,the
-microarchitectural balance is different.  
-Indirect and hard-to-predict branches carry a noticeably higher penalty
-than on x86\_64, and this affects the alias method because each draw requires
-an unpredictable conditional:
-\[
-  X = (f < \mathrm{cutoff}[j])\;\; ?\;\; j : \mathrm{alias}[j],
-  \qquad j = \lfloor U K \rfloor .
-\]
-When the support size is very small, this branch becomes the dominant source
-of latency.
-
-To address this, \texttt{finitization} performs an automatic switch to a
+This method performs extremely well on Linux/Windows but
+on macOS, on both ARM64 and x86_64 architectures,the
+situation is different.  
+To address this drop in perfomance on macOS, 
+\texttt{finitization} performs an automatic switch to a
 small-support CDF ladder whenever the support size
 \[
-K = n + 1 \le 4
-\]
-and the code is running on an ARM64 architecture (e.g. Apple Silicon).
-
-During \texttt{setProbs()}, the normalized PMF is cached; for tiny \(K\),
+K = n + 1 \le K_{max}
+\], wher $K_{max}$ is a constant. In the current implementation we used $K_{max} = 8$.
+During \texttt{setProbs()}, the normalized PMF is cached for small \(K\);
 \texttt{rvalues()} then builds a short CDF ladder and samples via a fully
 unrolled sequence of comparisons:
 \[
@@ -1833,23 +1809,17 @@ U < F(0) \Rightarrow 0,\quad
 U < F(1) \Rightarrow 1,\quad
 \ldots,\quad
 \text{otherwise} \Rightarrow K-1.
-\]
+\].
 Sampling uses one uniform draw per variate and a fixed, short chain of
 predictable branches, with no indirect jumps.
 
-This architecture-aware dispatch yields substantial improvements for macOS on ARM64 
-for finitization orders with \(K \le 4\). In our benchmarks:
+This solution yields substantial improvements for macOS
+for finitization orders with \(K \le K_{max}\). In our benchmarks:
 
 - Poisson: speedup \(\approx 1.87\times\)
 - Negative binomial: speedup \(\approx 13.1\times\)
 - Binomial: speedup \(\approx 3.84\times\)
 - Logarithmic: speedup \(\approx 2.36\times\)
-
-On x86\_64, the alias generator remains optimal for practically all
-finitization orders and is therefore used everywhere. On ARM64, the
-small–\(K\) CDF ladder is selected automatically for tiny supports, while the
-alias method is retained for larger supports.
-
 
 ### Dispatch Logic
 
@@ -1858,8 +1828,8 @@ internal to the C++ backend and transparent to the user. Conceptually, the
 logic is very simple:
 
 - Let \(K = n + 1\) be the size of the finitized support \(\{0,\dots,n\}\).
-- Detect whether the code is running on an ARM64 architecture.
-- If \(\texttt{ARM64} \,\land\, K \le 4\), use a tiny-support CDF ladder
+- Detect whether the code is running on an macOS architecture.
+- If \(\texttt{macOS} \,\land\, K \le K_{max}\), use a tiny-support CDF ladder
   (fully unrolled).
 - Otherwise, use the Vose–Walker alias method with a 16-way unrolled loop.
 
@@ -1869,7 +1839,7 @@ This behavior can be summarized by the following pseudocode.
 function rvalues(no, n, theta):
     K <- n + 1
 
-    if is_arm64() and K <= 4 then
+    if is_macOS() and K <= Kmax then
         # --- Small–K CDF ladder path ---
         # 1) Precompute CDF once from the finitized PMF:
         #    cdf[k] = sum_{j=0}^k p(j),  k = 0,...,K-1
@@ -1903,4 +1873,12 @@ function rvalues(no, n, theta):
             output x
 ```
 
+# Session info
+
+```{r session_info}
+sessionInfo()
+```
+
 # References
+
+
