@@ -152,8 +152,24 @@ knitr::kable(agg_stats,
              caption = "Aggregate defect statistics from simulation")
 ```
 
-Even within the simulation context, truncation and capping show clear biases in both 
-mean (2-5% error) and variance (11-16% error).
+```{r aggregate_bias_summary}
+# Extract truncation and capping rows
+bias_subset <- agg_stats[agg_stats$Method %in% c("Truncated", "Capped"), ]
+
+# Numeric bias values
+mean_bias_vals <- 100 * (bias_subset$Mean - theoretical_mean) / theoretical_mean
+var_bias_vals  <- 100 * (bias_subset$Variance - theoretical_var) / theoretical_var
+
+# Ranges (absolute values for interpretability)
+mean_bias_range <- range(abs(mean_bias_vals))
+var_bias_range  <- range(abs(var_bias_vals))
+
+```
+```markdown
+Even within the simulation context, truncation and capping show clear biases in both
+the mean (absolute error between `r sprintf("%.1f%%", mean_bias_range[1])` and `r sprintf("%.1f%%", mean_bias_range[2])`) and the variance (absolute error between `r sprintf("%.1f%%", var_bias_range[1])` and
+`r sprintf("%.1f%%", var_bias_range[2])`).
+```
 
 ## Moment Preservation Analysis
 
@@ -182,30 +198,80 @@ moment_results <- data.frame(
                var(sample_capped))
 )
 
-moment_results$Mean_Bias <- with(moment_results,
+# Numeric biases (keep numbers!)
+moment_results$Mean_Bias_num <- with(moment_results,
   ifelse(Method == "Theoretical", NA,
-         sprintf("%.2f%%", 100 * (Mean - theoretical_mean) / theoretical_mean))
+         100 * (Mean - theoretical_mean) / theoretical_mean)
 )
 
-moment_results$Var_Error <- with(moment_results,
+moment_results$Var_Error_num <- with(moment_results,
   ifelse(Method == "Theoretical", NA,
-         sprintf("%.2f%%", 100 * (Variance - theoretical_var) / theoretical_var))
+         100 * (Variance - theoretical_var) / theoretical_var)
 )
 
-knitr::kable(moment_results,
-             digits = 4,
-             col.names = c("Method", "Mean", "Variance", "Mean Bias (%)", 
-                          "Variance Error (%)"),
-             caption = "Moment preservation from 1,000,000 independent samples")
+# Character versions for the table
+moment_results$Mean_Bias <- ifelse(
+  is.na(moment_results$Mean_Bias_num),
+  NA,
+  sprintf("%.2f%%", moment_results$Mean_Bias_num)
+)
+
+moment_results$Var_Error <- ifelse(
+  is.na(moment_results$Var_Error_num),
+  NA,
+  sprintf("%.2f%%", moment_results$Var_Error_num)
+)
+
+
+knitr::kable(
+  moment_results[, c("Method", "Mean", "Variance", "Mean_Bias", "Var_Error")],
+  digits = 4,
+  col.names = c("Method", "Mean", "Variance", "Mean Bias (%)", "Variance Error (%)"),
+  caption = "Moment preservation from 1,000,000 independent samples"
+)
 ```
 
-**Critical finding**: 
+```{r moment_bias_summary}
+# Extract numeric biases
+bias_fin_mean  <- abs(moment_results$Mean_Bias_num[moment_results$Method == "Finitized"])
+bias_tr_mean   <- abs(moment_results$Mean_Bias_num[moment_results$Method == "Truncated"])
+bias_cap_mean  <- abs(moment_results$Mean_Bias_num[moment_results$Method == "Capped"])
 
-- **Finitization**: Near-perfect moment preservation (< 0.1% error)
-- **Truncation**: Severe distortion (5.09% mean bias, 16.37% variance error)
-- **Capping**: Moderate distortion (2.00% mean bias, 10.79% variance error)
+bias_fin_var   <- abs(moment_results$Var_Error_num[moment_results$Method == "Finitized"])
+bias_tr_var    <- abs(moment_results$Var_Error_num[moment_results$Method == "Truncated"])
+bias_cap_var   <- abs(moment_results$Var_Error_num[moment_results$Method == "Capped"])
 
-This represents a **60-200 fold improvement** in moment accuracy for finitization.
+# Ranges
+mean_bias_range_trcap <- range(c(bias_tr_mean, bias_cap_mean))
+var_bias_range_trcap  <- range(c(bias_tr_var,  bias_cap_var))
+
+# Improvement factors (worst case vs finitized)
+mean_improvement_range <- range(
+  c(bias_tr_mean, bias_cap_mean) / bias_fin_mean
+)
+var_improvement_range <- range(
+  c(bias_tr_var, bias_cap_var) / bias_fin_var
+)
+
+mean_bias_range_trcap
+var_bias_range_trcap
+mean_improvement_range
+var_improvement_range
+```
+
+```markdown
+**Main findings**:
+
+- **Finitization**: Near-perfect moment preservation (absolute mean error `r sprintf("%.2f%%", bias_fin_mean)` 
+and absolute variance error `r sprintf("%.2f%%", bias_fin_var)`).
+
+- **Truncation and capping**: Substantial distortion remains even with bounded support.
+  Mean bias ranges from `r sprintf("%.2f%%", mean_bias_range_trcap[1])` to `r sprintf("%.2f%%", mean_bias_range_trcap[2])`, while variance error ranges from `r sprintf("%.2f%%", var_bias_range_trcap[1])` to `r sprintf("%.2f%%", var_bias_range_trcap[2])`.
+
+Overall, finitization improves mean accuracy by a factor between `r sprintf("%.0f×", mean_improvement_range[1])` and
+`r sprintf("%.0f×", mean_improvement_range[2])`, and variance accuracy by a factor between `r sprintf("%.0f×", var_improvement_range[1])` and `r sprintf("%.0f×", var_improvement_range[2])` relative to truncation and capping.
+```
+This represents a $\approx$ **25-400 fold improvement** in moment accuracy for finitization.
 
 ## Visualizing the Differences
 
@@ -316,8 +382,7 @@ knitr::kable(financial_data,
              format.args = list(big.mark = ","))
 ```
 
-**Key finding**: Using truncation or capping instead of finitization costs an additional 
-**$6.2-7.4 million annually** due to unnecessary rejections.
+**Key finding**: Using truncation or capping instead of finitization costs an important additional cost due to unnecessary rejections.
 
 ## Implications for Statistical Applications
 
@@ -328,70 +393,126 @@ The moment distortions have serious consequences for statistical inference proce
 Control chart limits depend on accurate variance estimates:
 ```{r spc_impact}
 # Calculate SPC implications
-sigma_correct <- sqrt(theoretical_var)
-sigma_truncated <- sqrt(var(sample_trunc))
-sigma_capped <- sqrt(var(sample_capped))
+sigma_true   <- sqrt(theoretical_var)      # "correct" sigma (true process sigma)
+sigma_trunc  <- sqrt(var(sample_trunc))    # estimated sigma under truncation
+sigma_capped <- sqrt(var(sample_capped))   # estimated sigma under capping
+
+# Width ratios (estimated / true)
+width_ratio_trunc  <- sigma_trunc  / sigma_true
+width_ratio_capped <- sigma_capped / sigma_true
+
+# False alarm rate under true sigma, using limits based on sigma_est:
+# P(|Z| > 3 * (sigma_est / sigma_true)) = 2 * (1 - Phi(3 * width_ratio))
+fa_correct <- 2 * (1 - pnorm(3 * 1.0))
+fa_trunc   <- 2 * (1 - pnorm(3 * width_ratio_trunc))
+fa_capped  <- 2 * (1 - pnorm(3 * width_ratio_capped))
+
+fa_increase_trunc  <- 100 * (fa_trunc  / fa_correct - 1)
+fa_increase_capped <- 100 * (fa_capped / fa_correct - 1)
 
 spc_results <- data.frame(
   Method = c("Correct (Finitized)", "Truncated", "Capped"),
-  Sigma = c(sigma_correct, sigma_truncated, sigma_capped),
-  Width_Ratio = c(1.0, sigma_truncated / sigma_correct, 
-                  sigma_capped / sigma_correct),
-  False_Alarm_Increase = c("Baseline", "130%", "60%")
+  Sigma = c(sigma_true, sigma_trunc, sigma_capped),
+  Width_Ratio = c(1.0, width_ratio_trunc, width_ratio_capped),
+  False_Alarm_Increase_pct = c(0, fa_increase_trunc, fa_increase_capped)
 )
 
-knitr::kable(spc_results,
-             digits = 3,
-             col.names = c("Method", "σ estimate", "Limit Width Ratio", "False Alarm Increase"),
-             caption = "Impact on statistical process control")
+knitr::kable(
+  spc_results,
+  digits = 3,
+  col.names = c("Method", "σ estimate", "Limit width ratio", "False-alarm increase (%)"),
+  caption = "Impact on statistical process control under distorted variance (Normal approximation)"
+)
 ```
 
-Control limits 8-9% too narrow lead to **130% increase** in false alarms for truncation, 
-costing approximately **$910,000 annually** in unnecessary investigations.
+```markdown
+Control limits based on the truncated model are `r sprintf("%.1f%%", 100 * (1 - width_ratio_trunc))` narrower than the correct limits, which increases the false-alarm rate by approximately  **`r sprintf("%.0f%%", fa_increase_trunc)`**. 
+Under the capped model, limits are  `r sprintf("%.1f%%", 100 * (1 - width_ratio_capped))` narrower, corresponding to a false-alarm increase of about  **`r sprintf("%.0f%%", fa_increase_capped)`**.
+```
 
 ### Confidence Intervals
 ```{r confidence_intervals}
-# CI width comparison
+# Nominal level
+alpha <- 0.05
+z <- qnorm(1 - alpha / 2)
+
+# Variance estimates
+var_fin   <- var(sample_fin)
+var_trunc <- var(sample_trunc)
+var_cap   <- var(sample_capped)
+
+# CI width ratios relative to correct (finitized)
+width_ratio_trunc <- sqrt(var_trunc / var_fin)
+width_ratio_cap   <- sqrt(var_cap   / var_fin)
+
+# Actual coverage assuming Normal approximation:
+# Coverage = 2 * Phi(z / width_ratio) - 1
+cov_fin   <- 2 * pnorm(z) - 1
+cov_trunc <- 2 * pnorm(z * width_ratio_trunc) - 1
+cov_cap   <- 2 * pnorm(z * width_ratio_cap)   - 1
+
 ci_results <- data.frame(
   Method = c("Correct (Finitized)", "Truncated", "Capped"),
-  Variance = c(var(sample_fin), var(sample_trunc), var(sample_capped)),
-  Width_Ratio = c(1.0,
-                  sqrt(var(sample_trunc) / var(sample_fin)),
-                  sqrt(var(sample_capped) / var(sample_fin))),
-  Actual_Coverage = c("95.0%", "92.5-93.0%", "93.5-94.0%")
+  Variance = c(var_fin, var_trunc, var_cap),
+  Width_Ratio = c(1.0, width_ratio_trunc, width_ratio_cap),
+  Actual_Coverage = c(cov_fin, cov_trunc, cov_cap)
 )
 
-knitr::kable(ci_results,
-             digits = 3,
-             col.names = c("Method", "Variance Estimate", "Width Ratio", "Actual Coverage"),
-             caption = "Impact on confidence interval construction")
+knitr::kable(
+  ci_results,
+  digits = 3,
+  col.names = c("Method", "Variance estimate", "CI width ratio", "Actual coverage"),
+  caption = "Impact of variance distortion on confidence interval coverage"
+)
 ```
 
-Truncation produces intervals **8.6% too narrow**, achieving only **92-93% coverage** 
-instead of the nominal 95%—a serious regulatory compliance violation.
+```markdown
+Under truncation, confidence intervals are  **`r sprintf("%.1f%%", 100 * (1 - width_ratio_trunc))`** narrower than nominal,  resulting in an actual coverage of approximately  **`r sprintf("%.1f%%", 100 * cov_trunc)`** instead of the nominal 95%.  
+Under capping, intervals are **`r sprintf("%.1f%%", 100 * (1 - width_ratio_cap))`** narrower, with coverage reduced to about  **`r sprintf("%.1f%%", 100 * cov_cap)`**.
+```
 
 ### Process Capability
 ```{r capability}
-# Cp overestimation
+# Recompute sigmas from samples (robust to chunk order)
+sigma_fin   <- sqrt(var(sample_fin))
+sigma_trunc <- sqrt(var(sample_trunc))
+sigma_cap   <- sqrt(var(sample_capped))
+
+# Cp ratios relative to correct (finitized)
+cp_ratio_trunc <- sigma_fin / sigma_trunc
+cp_ratio_cap   <- sigma_fin / sigma_cap
+
 cp_results <- data.frame(
   Method = c("Correct (Finitized)", "Truncated", "Capped"),
-  Sigma_Estimate = c(sigma_correct, sigma_truncated, sigma_capped),
-  Cp_Ratio = c(1.0,
-               sigma_correct / sigma_truncated,
-               sigma_correct / sigma_capped),
-  Effect = c("True capability",
-             "Overestimates by 9.3%",
-             "Overestimates by 5.9%")
+  Sigma_Estimate = c(sigma_fin, sigma_trunc, sigma_cap),
+  Cp_Ratio = c(1.0, cp_ratio_trunc, cp_ratio_cap),
+  Overestimation_pct = c(
+    NA,
+    100 * (cp_ratio_trunc - 1),
+    100 * (cp_ratio_cap   - 1)
+  )
 )
 
-knitr::kable(cp_results,
-             digits = 3,
-             col.names = c("Method", "σ Estimate", "Cp Ratio", "Effect"),
-             caption = "Impact on process capability indices")
+# Character column for display only
+cp_results$Effect <- ifelse(
+  is.na(cp_results$Overestimation_pct),
+  "True capability",
+  sprintf("Overestimates by %.1f%%", cp_results$Overestimation_pct)
+)
+
+knitr::kable(
+  cp_results[, c("Method", "Sigma_Estimate", "Cp_Ratio", "Effect")],
+  digits = 3,
+  col.names = c("Method", "σ Estimate", "Cp Ratio", "Effect"),
+  caption = "Impact of variance distortion on process capability indices (Cp)"
+)
 ```
 
-A process with true Cp = 1.00 (minimally capable) would appear to have Cp ≈ 1.09, 
-potentially masking quality issues requiring corrective action.
+
+```markdown
+A process with true Cp = 1.00 (minimally capable) would appear to have Cp ≈ **`r sprintf("%.2f", cp_ratio_trunc)`** under truncation   and Cp ≈ **`r sprintf("%.2f", cp_ratio_cap)`** under capping.  
+This corresponds to an overestimation of capability by **`r sprintf("%.1f%%", 100 * (cp_ratio_trunc - 1))`** and   **`r sprintf("%.1f%%", 100 * (cp_ratio_cap - 1))`**, respectively, potentially masking quality issues that would otherwise require corrective action.
+```
 
 ## Summary and Recommendations
 
@@ -400,37 +521,46 @@ This case study demonstrates that for bounded count data with tail probabilities
 
 ### Moment Preservation (The Unambiguous Criterion)
 ```{r summary_table}
-summary_data <- data.frame(
-  Method = c("Finitized", "Truncated", "Capped"),
-  Mean_Error = c("< 0.1%", "5.1%", "2.0%"),
-  Variance_Error = c("< 0.1%", "16.4%", "10.8%"),
-  Improvement = c("Baseline", "60-200× worse", "20-100× worse")
+# Extract numeric errors (absolute values, excluding theoretical row)
+err <- subset(
+  moment_results,
+  Method %in% c("Finitized", "Truncated", "Capped"),
+  select = c(Method, Mean_Bias_num, Var_Error_num)
 )
 
-knitr::kable(summary_data,
-             col.names = c("Method", "Mean Error", "Variance Error",  "vs. Finitized"),
-             caption = "Summary of moment preservation accuracy")
+err$Mean_Error_abs <- abs(err$Mean_Bias_num)
+err$Var_Error_abs  <- abs(err$Var_Error_num)
+
+# Baseline (finitized)
+mean_base <- err$Mean_Error_abs[err$Method == "Finitized"]
+var_base  <- err$Var_Error_abs[err$Method == "Finitized"]
+
+# Improvement factors vs finitized
+err$Mean_Improvement <- err$Mean_Error_abs / mean_base
+err$Var_Improvement  <- err$Var_Error_abs  / var_base
+
+# Build presentation table
+summary_data <- data.frame(
+  Method = err$Method,
+  Mean_Error = sprintf("%.2f%%", err$Mean_Error_abs),
+  Variance_Error = sprintf("%.2f%%", err$Var_Error_abs),
+  `vs Finitized` = ifelse(
+    err$Method == "Finitized",
+    "Baseline",
+    sprintf(
+      "%.0fx (mean), %.0fx (variance) worse",
+      err$Mean_Improvement,
+      err$Var_Improvement
+    )
+  )
+)
+
+knitr::kable(
+  summary_data,
+  align = "lccc",
+  caption = "Summary of moment preservation accuracy (computed from simulation)"
+)
 ```
-
-### Key Takeaways
-
-1. **Finitization provides 60-400 fold improvement** in moment accuracy
-2. **Statistical applications requiring accurate variance are critically affected**:
-   - SPC: 130% increase in false alarms ($910K annual cost)
-   - Confidence intervals: 92-93% coverage instead of 95%
-   - Process capability: 6-9% overestimation masks inadequate processes
-3. **Financial impact**: $6-7 million annual excess costs from incorrect modeling
-4. **Moment preservation is objective and measurable**, unlike operational interpretations
-
-### When to Use Finitization
-
-**Required for**:
-- Statistical process control (variance-based limits)
-- Confidence interval construction
-- Process capability analysis
-- Parameter estimation
-- Bayesian inference
-- Possibly, any application where P(X > n) > 1%
 
 ### Checking MFPS
 
