@@ -163,8 +163,8 @@ IntegerVector Finitization::rvalues(int no) {
 
     GetRNGstate();
 
-#if defined(__aarch64__) || defined(_M_ARM64)
-    // ===== ARM64: small-K path with probability-ordered ladder =====
+#if defined(__APPLE__)
+    // ===== APPLE: small-K path with probability-ordered ladder =====
     if (K <= K_LADDER_MAX && m_pmf_small != nullptr) {
         // Copy pmf and indices into small local arrays
         alignas(64) double prob[8];
