@@ -191,7 +191,6 @@ IntegerVector Finitization::rvalues(int no) {
         }
 
         // Build CDF in sorted order
-//        double cdf_ladder[K_LADDER_MAX];
         double acc = 0.0;
         for (int i = 0; i < K; ++i) {
             acc += prob[i];
@@ -199,12 +198,9 @@ IntegerVector Finitization::rvalues(int no) {
         }
         cdf_ladder[K - 1] = 1.0; // enforce exact 1
 
-        // 4x unrolled ladder
-        //const int UN = 2;
-        //const int nU = (no / UN) * UN;
-
-        //int i = 0;
-        // cdf_ladder[0..K-1], idx[0..K-1] already built; cdf_ladder[K-1]=1.0
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC unroll 16
+#endif
         for (int i = 0; i < no; ++i) {
             p[i] = sample_cdf_ladder_runtime(K, unif_rand(), cdf_ladder, idx);
         }
@@ -221,53 +217,39 @@ IntegerVector Finitization::rvalues(int no) {
 
     int t = 0;
     for (; t < nU; t += UN, p += UN) {
-        double uK0 = unif_rand() * Kd; const uint32_t j0 = (uint32_t)uK0; const double f0 = uK0 - (double)j0;
-        p[0] = (f0 < cutoff[j0]) ? (int)j0 : alias[j0];
 
-        double uK1 = unif_rand() * Kd; const uint32_t j1 = (uint32_t)uK1; const double f1 = uK1 - (double)j1;
-        p[1] = (f1 < cutoff[j1]) ? (int)j1 : alias[j1];
+        double   uK[UN];
+        uint32_t j[UN];
+        float    f[UN];
 
-        double uK2 = unif_rand() * Kd; const uint32_t j2 = (uint32_t)uK2; const double f2 = uK2 - (double)j2;
-        p[2] = (f2 < cutoff[j2]) ? (int)j2 : alias[j2];
+        // 1) Generate uniforms scaled by K
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC unroll 16
+#endif
+        for (int i = 0; i < UN; ++i) {
+            uK[i] = unif_rand() * Kd;
+        }
 
-        double uK3 = unif_rand() * Kd; const uint32_t j3 = (uint32_t)uK3; const double f3 = uK3 - (double)j3;
-        p[3] = (f3 < cutoff[j3]) ? (int)j3 : alias[j3];
+        // 2) Split into integer bucket j and fractional part f
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC unroll 16
+#endif
+        for (int i = 0; i < UN; ++i) {
+            const double uki = uK[i];
+            const uint32_t ji = (uint32_t)uki;         // floor for uki>=0
+            j[i] = ji;
+            f[i] = (float)(uki - (double)ji);
+        }
 
-        double uK4 = unif_rand() * Kd; const uint32_t j4 = (uint32_t)uK4; const double f4 = uK4 - (double)j4;
-        p[4] = (f4 < cutoff[j4]) ? (int)j4 : alias[j4];
-
-        double uK5 = unif_rand() * Kd; const uint32_t j5 = (uint32_t)uK5; const double f5 = uK5 - (double)j5;
-        p[5] = (f5 < cutoff[j5]) ? (int)j5 : alias[j5];
-
-        double uK6 = unif_rand() * Kd; const uint32_t j6 = (uint32_t)uK6; const double f6 = uK6 - (double)j6;
-        p[6] = (f6 < cutoff[j6]) ? (int)j6 : alias[j6];
-
-        double uK7 = unif_rand() * Kd; const uint32_t j7 = (uint32_t)uK7; const double f7 = uK7 - (double)j7;
-        p[7] = (f7 < cutoff[j7]) ? (int)j7 : alias[j7];
-
-        double uK8 = unif_rand() * Kd; const uint32_t j8 = (uint32_t)uK8; const double f8 = uK8 - (double)j8;
-        p[8] = (f8 < cutoff[j8]) ? (int)j8 : alias[j8];
-
-        double uK9 = unif_rand() * Kd; const uint32_t j9 = (uint32_t)uK9; const double f9 = uK9 - (double)j9;
-        p[9] = (f9 < cutoff[j9]) ? (int)j9 : alias[j9];
-
-        double uK10 = unif_rand() * Kd; const uint32_t j10 = (uint32_t)uK10; const double f10 = uK10 - (double)j10;
-        p[10] = (f10 < cutoff[j10]) ? (int)j10 : alias[j10];
-
-        double uK11 = unif_rand() * Kd; const uint32_t j11 = (uint32_t)uK11; const double f11 = uK11 - (double)j11;
-        p[11] = (f11 < cutoff[j11]) ? (int)j11 : alias[j11];
-
-        double uK12 = unif_rand() * Kd; const uint32_t j12 = (uint32_t)uK12; const double f12 = uK12 - (double)j12;
-        p[12] = (f12 < cutoff[j12]) ? (int)j12 : alias[j12];
-
-        double uK13 = unif_rand() * Kd; const uint32_t j13 = (uint32_t)uK13; const double f13 = uK13 - (double)j13;
-        p[13] = (f13 < cutoff[j13]) ? (int)j13 : alias[j13];
-
-        double uK14 = unif_rand() * Kd; const uint32_t j14 = (uint32_t)uK14; const double f14 = uK14 - (double)j14;
-        p[14] = (f14 < cutoff[j14]) ? (int)j14 : alias[j14];
-
-        double uK15 = unif_rand() * Kd; const uint32_t j15 = (uint32_t)uK15; const double f15 = uK15 - (double)j15;
-        p[15] = (f15 < cutoff[j15]) ? (int)j15 : alias[j15];
+        // 3) Alias decision + write output
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC unroll 16
+#endif
+        for (int i = 0; i < UN; ++i) {
+            const uint32_t jj = j[i];
+            // cutoff is double in your class; compare in float is fine, but keep cutoff as double
+            p[i] = ((double)f[i] < cutoff[jj]) ? (int)jj : alias[jj];
+        }
     }
 
     for (int r = nU; r < no; ++r, ++p) {
