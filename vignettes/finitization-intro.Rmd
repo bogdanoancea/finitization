@@ -37,7 +37,7 @@ try(knitr::knit_cache$clear(), silent = TRUE)
 # Introduction
 
 The **finitization** package provides tools for computing finitized
-versions of several well-known members of the *power series family*
+versions of several well-known members of the *power series family* distributions
 (PSDs), including the Poisson, binomial, negative binomial, and
 logarithmic distributions. Finitization is a probabilistic method that
 transforms a discrete distribution - one with infinite
@@ -521,7 +521,7 @@ finitized probabilities are nonnegative and sum to one
     The exception is the Poisson distribution, whose MFPS remains
     constant across all orders.
 -   **Stability for Poisson:** The Poisson case is simple and stable,
-    since the MFPS remains fixed at $[0,1]$.
+    since the MFPS remains fixed at $(0,1]$.
 -   **Impact on modeling:** When selecting finitization order $n$, one
     must ensure that the parameter values of interest lie within the
     MFPS.
@@ -612,7 +612,7 @@ RTools45**\
 Download and run the installer from\
 <https://cran.r-project.org/bin/windows/Rtools/>
 
-2.  **Open the “MSYS2 UCRT 64‑bit” shell** Supposing that RTools44 is
+2.  **Open the “MSYS2 UCRT 64‑bit” shell** Supposing that RTools45 is
     installed in "C:/rtools45" then double click on
     "C:/rtools45/ucrt64.exe".
 
@@ -1693,8 +1693,9 @@ list(
 
 ## Random Number Generators: Alias Method implemented in `finitization` vs. Parent Distributions
 
-The `r*` functions in **finitization** implement an **aliasing**-based
-generator to produce random variates on the finite support
+The `r*` functions in **finitization** implement a hybrid approach: a simple CDF 
+ladder approach for small finitization orders (currently $n \le7$) on macOs platform
+and an **aliasing**-based generator for the rest of the cases, to produce random variates on the finite support
 $\{0,\dots,n\}$ with very low constant-time cost per draw. To illustrate
 relative performance, we compare the finitized generators against their
 classical/parent generators from `stats` package and, for the
@@ -1810,6 +1811,7 @@ U < F(1) \Rightarrow 1,\quad
 \ldots,\quad
 \text{otherwise} \Rightarrow K-1.
 \].
+
 Sampling uses one uniform draw per variate and a fixed, short chain of
 predictable branches, with no indirect jumps.
 
@@ -1829,49 +1831,9 @@ logic is very simple:
 
 - Let \(K = n + 1\) be the size of the finitized support \(\{0,\dots,n\}\).
 - Detect whether the code is running on an macOS architecture.
-- If \(\texttt{macOS} \,\land\, K \le K_{max}\), use a tiny-support CDF ladder
+- If \(\texttt{macOS} \,\land\, K \le K_{max}\), use a small-support CDF ladder
   (fully unrolled).
 - Otherwise, use the Vose–Walker alias method with a 16-way unrolled loop.
-
-This behavior can be summarized by the following pseudocode.
-
-```text
-function rvalues(no, n, theta):
-    K <- n + 1
-
-    if is_macOS() and K <= Kmax then
-        # --- Small–K CDF ladder path ---
-        # 1) Precompute CDF once from the finitized PMF:
-        #    cdf[k] = sum_{j=0}^k p(j),  k = 0,...,K-1
-
-        for i in 1..no:
-            u <- Uniform(0, 1)
-
-            if      u < cdf[0]           then x <- 0
-            else if K > 1 and u < cdf[1] then x <- 1
-            else if K > 2 and u < cdf[2] then x <- 2
-            else                         x <- K - 1
-
-            output x
-
-    else
-        # --- Alias method path (all x86_64 and ARM64 with K > 4) ---
-        # alias tables prob[0..K-1], alias[0..K-1] are built in setProbs():
-        # each draw uses one uniform and one unpredictable branch,
-        # unrolled ×16 for throughput.
-
-        for i in 1..no:
-            uK <- Uniform(0, K)          # one uniform in [0, K)
-            j  <- floor(uK)              # base column index
-            f  <- uK - j                 # fractional part
-
-            if f < prob[j] then
-                x <- j                   # accept primary column
-            else
-                x <- alias[j]            # jump to alias column
-
-            output x
-```
 
 # Session info
 
