@@ -2,10 +2,16 @@
 title: "Quality Control with Bounded Sampling"
 author: "Bogdan Oancea"
 date: "`r Sys.Date()`"
-output: 
-  rmarkdown::html_vignette:
+output:
+  html_document:
     toc: true
     toc_depth: 3
+    toc_float: true
+    theme: cosmo   
+  pdf_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
 vignette: >
   %\VignetteIndexEntry{Quality Control with Bounded Sampling}
   %\VignetteEngine{knitr::rmarkdown}

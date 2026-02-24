@@ -7,13 +7,13 @@ output:
     toc: true
     toc_depth: 3
     toc_float: true
-    theme: cosmo   # <-- only here, nowhere else
+    theme: cosmo   
   pdf_document:
     toc: true
     toc_depth: 3
     number_sections: true
-bibliography: finitization.bib     # <-- point to your .bib
-link-citations: true               # <-- optional (auto-links cites)
+bibliography: finitization.bib     
+link-citations: true              
 vignette: >
   %\VignetteIndexEntry{Introduction to finitization}
   %\VignetteEncoding{UTF-8}
@@ -635,7 +635,7 @@ Download and run the installer from\
     CLN and GiNaC are not available via pacman; follow the instructions
     on their websites:
 
-    -   **CLN (Class Library for Numbers):** <https://www.ginac.de/cln>\
+    -   **CLN (Class Library for Numbers):** <https://www.ginac.de/CLN/>\
     -   **GiNaC (GiNaC is Not a CAS):** <https://www.ginac.de>
 
     Example (adjust versions as needed):

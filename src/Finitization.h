@@ -1,6 +1,15 @@
+/*
+ * Finitization.h
+ *
+ *  Created on: Jul 28, 2022
+ *      Author: Bogdan Oancea
+ */
 #include <random>
 #include "Rcpp.h"
 #include <ginac/ginac.h>
+#include <cfloat>   // DBL_EPSILON
+#include <cmath>    // std::fabs
+
 
 using namespace std;
 using namespace Rcpp;

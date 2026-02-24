@@ -1,5 +1,5 @@
-#' #' Choose the minimum finitization order n for a target KS accuracy
-#' #'
+#' #' TODO:Choose the minimum finitization order n for a target KS accuracy.
+#' #' This feature will be implemented in the next version
 #' #' @description
 #' #' Picks the smallest finitization order \code{n} such that the Kolmogorov–Smirnov
 #' #' distance between the parent PSD and its finitized version is at most

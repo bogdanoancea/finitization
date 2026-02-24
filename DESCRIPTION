@@ -5,12 +5,13 @@ Description: Implements the finitization of discrete probability distributions, 
 Version: 0.1.0
 Authors@R: 
     person("Bogdan", "Oancea", email = "bogdan.oancea@gmail.com", role = c("aut", "cre"),
-           comment = c(ORCID = "https://orcid.org/0000-0001-6987-5137"))
+           comment = c(ORCID = "0000-0001-6987-5137"))
 Maintainer: Bogdan Oancea <bogdan.oancea@gmail.com>
 License: GPL (>= 2)
 Encoding: UTF-8
+Depends: R (>= 4.0.0)
 NeedsCompilation: yes
-SystemRequirements: GMP (e.g. libgmp-dev), CLN (e.g. libcln-dev), GiNaC (e.g. libginac-dev), pkg-config, make, C++14
+SystemRequirements: GMP, CLN, GiNaC, pkg-config, make, C++14
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 URL: https://github.com/bogdanoancea/finitization

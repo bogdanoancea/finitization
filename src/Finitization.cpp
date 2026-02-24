@@ -1,3 +1,10 @@
+/*
+ * Finitization.cpp
+ *
+ *  Created on: Jul 28, 2022
+ *      Author: Bogdan Oancea
+ */
+
 #include "Finitization.h"
 using namespace std;
 
@@ -294,9 +301,6 @@ ex Finitization::fin_pdfSymb(int x_val) {
 }
 
 
-#include <cfloat>   // DBL_EPSILON
-#include <cmath>    // std::fabs
-#include <ginac/ginac.h>
 // Map the expression tree, turning numerics into doubles,
 // and zeroing those strictly below machine epsilon.
 GiNaC::ex map_double_and_zero_eps(const GiNaC::ex& e) {
