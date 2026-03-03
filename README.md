@@ -10,152 +10,107 @@
 
 <!-- badges: end -->
 
-The goal of this package is to implement the concept of probability distribution finitization.
+The goal of this package is to implement the concept of probability distribution 
+finitization.
 
----
+## Title
 
-## 🛠 Installation Instructions
+Moment-Preserving Finitization for Power-Series Distributions
 
-### 🔹 Linux (Debian/Ubuntu)
-Install dependencies via `apt`:
+## Description
 
-```bash
-sudo apt-get update
-sudo apt-get install -y libgmp-dev libcln-dev libginac-dev pkg-config
-```
+The **finitization** package implements  the finitization of discrete 
+probability distributions, a technique that approximates a distribution by 
+preserving a finite number of moments. These finitized distributions enable 
+faster random variate generation than inverse transform sampling and are 
+useful in simulation and statistical modeling.
+Symbolic computation is performed using the GiNaC library together with
+CLN and GMP for multiprecision arithmetic.
+The package requires compilation and links against external symbolic and
+multiprecision libraries.
 
-### 🔹 macOS (with Homebrew)
-Install dependencies via Homebrew:
+## Installation
 
-```bash
-brew install gmp cln ginac pkg-config
-```
+### CRAN (Linux / macOS)
 
-> Ensure that Homebrew’s `bin` and `lib` paths are visible to the compiler (especially when using RStudio).
+Required system libraries must be installed prior to installation.
 
-### 🔹 Windows  (RTools45 + MSYS2)
-1. **Install RTools45**  
-   Download and run the installer from  
-   https://cran.r-project.org/bin/windows/Rtools/
+Debian / Ubuntu:
 
-2. **Open the “MSYS2 UCRT 64‑bit” shell** 
-   Supposing that RTools45 is installed in "C:\rtools45" then double click on "C:\rtools45\ucrt64.exe". 
-   If other version of the RTools is used, update the paths accordingly.
-   
-3. **Fully update MSYS2, update the package database and install the toolchain + pkgconf**  
-   ```bash
-    pacman -Syu        # if it asks to close/reopen, do it, then run again:
-    pacman -Syu
-    pacman -S --needed mingw-w64-ucrt-x86_64-toolchain mingw-w64-ucrt-x86_64-pkgconf
-   ```
+    sudo apt-get update
+    sudo apt-get install -y libgmp-dev libcln-dev libginac-dev pkg-config
 
-4. **Install GMP**  
-   ```bash
-   pacman -S --needed mingw-w64-ucrt-x86_64-gmp
-   ```
+macOS (Homebrew):
 
-5. **Download, compile and install CLN and GiNaC**  
-   CLN and GiNaC are not available via pacman; follow the instructions on their websites:  
-   - **CLN (Class Library for Numbers):** https://www.ginac.de/cln  
-   - **GiNaC (GiNaC is Not a CAS):** https://www.ginac.de  
+    brew install gmp cln ginac pkg-config
 
-   Example (adjust versions as needed):  
-   ```bash
-   # CLN
-   pacman -S --needed wget
-   wget https://www.ginac.de/CLN/cln-1.3.7.tar.bz2
-   tar xf cln-1.3.7.tar.bz2
-   cd cln-1.3.7
-   ./configure --prefix=/ucrt64
-   make
-   make install
-   cd ..
+Then install from CRAN:
 
-   # GiNaC
-   wget https://www.ginac.de/ginac-1.8.9.tar.bz2
-   tar xf ginac-1.8.9.tar.bz2
-   cd ginac-1.8.9
-   ./configure --prefix=/ucrt64
-   make
-   make install
-   ```
+    install.packages("finitization")
 
-6. **Make sure R sees the compilers**  
-   In your R session (or add to your `~/.Renviron`):
-   ```r
-   Sys.setenv(PATH = paste(
-     "C:/rtools44/ucrt64/bin",
-     Sys.getenv("PATH"),
-     sep = ";"
-   ))
-   ```
+## System Requirements
 
-7. **Build & install the package**  
-   From your package root (in a cmd prompt or MSYS2 UCRT64 shell):
-   ```bash
-   R CMD build .
-   R CMD INSTALL finitization_*.tar.gz
-   ```
+-   GMP
+-   CLN
+-   GiNaC
+-   pkg-config
+-   make
+-   C++17-compatible compiler
 
-> Once the toolchain, `pkgconf`, GMP headers & libraries, and CLN/GiNaC are installed, you can install **finitization** exactly as on Linux or macOS.  
-> If you encounter missing header or symbol errors, confirm that `/ucrt64/include` and `/ucrt64/lib` are on your compiler’s search path.  
-> You may also use `devtools::install()` from within R for convenience.
 
----
-
-## 📦 Building the Package
+##  Building the Package from source
 
 Once dependencies are installed, you can build and install the package from source:
 
-```bash
-git clone https://github.com/bogdanoancea/finitization.git
-cd finitization
-R CMD build .
-R CMD INSTALL finitization_0.1.0.tar.gz
-```
+    git clone https://github.com/bogdanoancea/finitization.git
+    cd finitization
+    R CMD build .
+    R CMD INSTALL finitization_0.1.0.tar.gz
 
 Or use `devtools`:
 
-```r
-# install.packages("devtools")
-devtools::install_github("bogdanoancea/finitization")
-```
+    install.packages("devtools")
+    devtools::install_github("bogdanoancea/finitization")
 
----
-
-## 🔍 Example
-
-This is a basic example which shows you how to solve a common problem:
-
-```r
-library(finitization)
-## basic example code
-dpois(4, 0.5, c(0,1,3))
-dpois(4, 0.5, c(0,1,3), log = TRUE)
-```
-
----
-
-## 🧪 Testing
+##  Testing
 
 To run tests:
 
-```r
-library(testthat)
-testthat::test_package("finitization")
-```
+    library(testthat)
+    testthat::test_package("finitization")
 
----
+## Example
+
+    library(finitization)
+
+    dpois(4, 0.5, c(0,1,3))
+    dpois(4, 0.5, c(0,1,3), log = TRUE)
+
+## Note to CRAN Reviewers
+
+This package depends on the external libraries GMP, CLN, and GiNaC for
+symbolic differentiation and formal Taylor series expansion. These
+libraries are required at compile time and are available on standard
+Linux and macOS systems via system package managers.
+
+CRAN Windows builders do not provide CLN or GiNaC by default. For this
+reason, the package declares `OS_type: unix` in DESCRIPTION and is
+intended for CRAN builds on Linux and macOS platforms only.
+
+The Windows installation instructions provided in INSTALL.md are for
+manual source builds outside CRAN infrastructure.
+
+## License
+
+GPL (\>= 3)
 
 ## 🔗 Useful Links
 - GMP: https://gmplib.org/
 - CLN: https://www.ginac.de/CLN/
 - GiNaC: https://www.ginac.de/Download.html
-- Rtools (Windows): https://cran.r-project.org/bin/windows/Rtools/
 
----
+## Bug Reports
 
-For any issues or feature requests, please use the [GitHub issue tracker](https://github.com/bogdanoancea/finitization/issues).
+https://github.com/bogdanoancea/finitization/issues
 
 Maintainer: Bogdan Oancea <bogdan.oancea@gmail.com>
-
