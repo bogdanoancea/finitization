@@ -21,7 +21,9 @@ fi
 
 # Detect CRAN build
 ON_CRAN=0
-if [ "${_R_CHECK_CRAN_INCOMING_:-}" = "TRUE" ] || [ "${CRAN_BUILD:-}" = "true" ]; then
+if [ -n "${_R_CHECK_PACKAGE_NAME_:-}" ] || \
+   [ "${_R_CHECK_CRAN_INCOMING_:-}" = "TRUE" ] || \
+   [ "${CRAN_BUILD:-}" = "true" ]; then
   ON_CRAN=1
 fi
 
@@ -40,6 +42,7 @@ echo "configure: OS=$OS ARCH=$UNAME_M CRAN=$ON_CRAN"
 if ! command -v "$PKG_CONFIG" >/dev/null 2>&1; then
   cat >&2 <<'EOM'
 ERROR: 'pkg-config' was not found.
+This package requires system development libraries for GMP, CLN, and GiNaC.
 Please install pkg-config and the development packages for GMP, CLN, and GiNaC.
   - Debian/Ubuntu: sudo apt-get install -y pkg-config libgmp-dev libcln-dev libginac-dev
   - Fedora:        sudo dnf install pkgconf-pkg-config gmp-devel cln-devel ginac-devel
@@ -61,6 +64,7 @@ else
     if [ "$ON_CRAN" -eq 1 ]; then
         cat >&2 <<'EOM'
 ERROR: pkg-config could not locate GMP/CLN/GiNaC on CRAN.
+This package requires system development libraries for GMP, CLN, and GiNaC.
 Please ensure these dev packages are installed and visible to pkg-config:
  - Debian/Ubuntu: sudo apt-get install -y pkg-config libgmp-dev libcln-dev libginac-dev
  - Fedora:        sudo dnf install      pkgconf-pkg-config gmp-devel cln-devel ginac-devel
@@ -137,7 +141,7 @@ fi
 if [ "$OS" = "macos" ] && [ "$UNAME_M" = "x86_64" ]; then
   CXXSTD="CXX11"
 else
-  CXXSTD="CXX14"
+  CXXSTD="CXX17"
 fi
 
 
