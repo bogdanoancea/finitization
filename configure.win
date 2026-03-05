@@ -1,6 +1,26 @@
 #!/bin/sh
 set -euxo pipefail
 
+
+# ---- CRAN / check environments: fail fast (Unix-only package on CRAN) ----
+case "$(pwd)" in
+  *".Rcheck"*)
+    echo "ERROR: Package 'finitization' is Unix-only on CRAN (DESCRIPTION: OS_type: unix)." >&2
+    echo "Windows is not supported on CRAN for this package." >&2
+    echo "For manual Windows builds from source, see the package INSTALL instructions." >&2
+    exit 1
+    ;;
+esac
+
+if [ -n "${_R_CHECK_PACKAGE_NAME_:-}" ] || [ "${_R_CHECK_CRAN_INCOMING_:-}" = "TRUE" ]; then
+  echo "ERROR: Package 'finitization' is Unix-only on CRAN (DESCRIPTION: OS_type: unix)." >&2
+  echo "Windows is not supported on CRAN for this package." >&2
+  echo "For manual Windows builds from source, see the package INSTALL instructions." >&2
+  exit 1
+fi
+
+
+
 # Lock MSYS mode to UCRT toolchain and keep our PATH
 export MSYSTEM=UCRT64
 export MSYS2_PATH_TYPE=inherit

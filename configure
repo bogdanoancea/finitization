@@ -5,157 +5,184 @@ set -e
 PKG_ROOT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 UNAME_S=$(uname -s)
 UNAME_M=$(uname -m)
+
 case "$UNAME_S" in
   Darwin) OS=macos ;;
   Linux)  OS=linux ;;
   *)      OS=other ;;
 esac
 
-
-# Block webR / WASM
+# Block webR / WASM (Emscripten)
 if ${CC:-cc} --version 2>/dev/null | grep -qi emscripten; then
-  echo "ERROR: webR/WASM not supported." >&2
+  echo "ERROR: webR/WASM is not supported by 'finitization'." >&2
   exit 1
 fi
 
+# --- Detect CRAN / check-like environments --------------------------------
+# Goal: NEVER download during checks, and fail cleanly if system deps are missing.
+CHECK_ENV=0
 
-# Detect CRAN build
-ON_CRAN=0
-if [ -n "${_R_CHECK_PACKAGE_NAME_:-}" ] || \
-   [ "${_R_CHECK_CRAN_INCOMING_:-}" = "TRUE" ] || \
-   [ "${CRAN_BUILD:-}" = "true" ]; then
-  ON_CRAN=1
+# R CMD check commonly sets this
+if [ -n "${_R_CHECK_PACKAGE_NAME_:-}" ]; then
+  CHECK_ENV=1
 fi
+
+# CRAN incoming sometimes sets this
+if [ "${_R_CHECK_CRAN_INCOMING_:-}" = "TRUE" ]; then
+  CHECK_ENV=1
+fi
+
+# Many check installs happen under a *.Rcheck directory (reliable heuristic)
+case "$(pwd)" in
+  *".Rcheck"*) CHECK_ENV=1 ;;
+esac
+
+# Allow manual override (useful for local debugging)
+if [ "${CRAN_BUILD:-}" = "true" ]; then
+  CHECK_ENV=1
+fi
+
+# Download of prebuilt static bundles is NEVER automatic.
+# User must explicitly opt in (non-CRAN convenience only).
+ALLOW_DOWNLOAD="${FINITIZATION_ALLOW_DOWNLOAD:-0}"
+
+echo "configure: OS=$OS ARCH=$UNAME_M CHECK_ENV=$CHECK_ENV"
 
 PKG_CONFIG="${PKG_CONFIG:-pkg-config}"
 
-# Flags to enable dead-code elimination
+# Base flags (no -O here; let R handle optimization)
 PKG_CFLAGS="-DNDEBUG"
 PKG_CXXFLAGS="-DNDEBUG"
 PKG_CPPFLAGS="-DNDEBUG"
 PKG_LIBS=""
 
-
-echo "configure: OS=$OS ARCH=$UNAME_M CRAN=$ON_CRAN"
-
-# Try pkg-config
+# --- Require pkg-config ----------------------------------------------------
 if ! command -v "$PKG_CONFIG" >/dev/null 2>&1; then
   cat >&2 <<'EOM'
 ERROR: 'pkg-config' was not found.
-This package requires system development libraries for GMP, CLN, and GiNaC.
-Please install pkg-config and the development packages for GMP, CLN, and GiNaC.
+This package requires system development libraries for GMP, CLN, and GiNaC,
+discoverable via pkg-config.
+
+Install:
   - Debian/Ubuntu: sudo apt-get install -y pkg-config libgmp-dev libcln-dev libginac-dev
-  - Fedora:        sudo dnf install pkgconf-pkg-config gmp-devel cln-devel ginac-devel
-  - openSUSE:      sudo zypper install pkgconf-pkg-config gmp-devel cln-devel ginac-devel
-  - macOS (Homebrew): brew install pkg-config gmp cln ginac
+  - Fedora:        sudo dnf install      pkgconf-pkg-config gmp-devel cln-devel ginac-devel
+  - openSUSE:      sudo zypper install   pkgconf-pkg-config gmp-devel cln-devel ginac-devel
+  - macOS:         brew install pkg-config gmp cln ginac
 EOM
   exit 1
 fi
 
-# --- Preferred: system libs via pkg-config -------------------------------
+# --- Preferred: system libs via pkg-config --------------------------------
 if "$PKG_CONFIG" --exists gmp cln ginac; then
-    echo "configure: Found GMP/CLN/GiNaC via pkg-config."
-    PKG_CPPFLAGS=$("$PKG_CONFIG" --cflags ginac cln gmp)
-    PKG_LIBS=$("$PKG_CONFIG" --libs ginac cln gmp)
-    echo "  PKG_CPPFLAGS: $PKG_CPPFLAGS"
-    echo "  PKG_LIBS: $PKG_LIBS"
-# --- Fallback policy ------------------------------------------------------
+  echo "configure: Found GMP/CLN/GiNaC via pkg-config."
+  PKG_CPPFLAGS=$("$PKG_CONFIG" --cflags ginac cln gmp)
+  PKG_LIBS=$("$PKG_CONFIG" --libs ginac cln gmp)
 else
-    if [ "$ON_CRAN" -eq 1 ]; then
-        cat >&2 <<'EOM'
-ERROR: pkg-config could not locate GMP/CLN/GiNaC on CRAN.
-This package requires system development libraries for GMP, CLN, and GiNaC.
-Please ensure these dev packages are installed and visible to pkg-config:
- - Debian/Ubuntu: sudo apt-get install -y pkg-config libgmp-dev libcln-dev libginac-dev
- - Fedora:        sudo dnf install      pkgconf-pkg-config gmp-devel cln-devel ginac-devel
- - openSUSE:      sudo zypper install   pkgconf-pkg-config gmp-devel cln-devel ginac-devel
- - macOS:         brew install pkg-config gmp cln ginac
+  # --- Policy when system libs not found ----------------------------------
+  # In CHECK_ENV (CRAN/check), we must NOT download; fail with an informative message.
+  if [ "$CHECK_ENV" -eq 1 ]; then
+    cat >&2 <<'EOM'
+ERROR: System libraries for GiNaC/CLN/GMP were not found via pkg-config.
+This package requires system installations of GiNaC, CLN and GMP.
+
+Please install the development packages and ensure pkg-config can find them:
+
+  - Debian/Ubuntu:
+      sudo apt-get install -y pkg-config libgmp-dev libcln-dev libginac-dev
+  - Fedora:
+      sudo dnf install pkgconf-pkg-config gmp-devel cln-devel ginac-devel
+  - openSUSE:
+      sudo zypper install pkgconf-pkg-config gmp-devel cln-devel ginac-devel
+  - macOS (Homebrew):
+      brew install pkg-config gmp cln ginac
+
 EOM
-        exit 1
-    fi
+    exit 1
+  fi
 
-    # Off CRAN: unconditionally fetch bundled **shared** libs for this OS/arch
-    case "$OS:$UNAME_M" in
-        linux:x86_64)
-            BURL="https://github.com/bogdanoancea/finitization-linuxlibs/releases/download/v1.0.0/finitization-x86_64-gmp+cln+ginac-static.zip"
-            BDIR="$PKG_ROOT/extlibs/linux/x86_64"
-            ;;
-        linux:aarch64|linux:arm64)
-            BURL="https://github.com/bogdanoancea/finitization-linuxlibs/releases/download/v1.0.0/finitization-aarch64-gmp+cln+ginac-static.zip"
-            BDIR="$PKG_ROOT/extlibs/linux/aarch64"
-            ;;
-        macos:x86_64)
-            BURL="https://github.com/bogdanoancea/finitization-macoslibs/releases/download/v1.0.0/finitization-x86_64-gmp+cln+ginac-static.zip"
-            BDIR="$PKG_ROOT/extlibs/macos/x86_64"
-            PKG_CXXFLAGS="${PKG_CXXFLAGS} -mmacosx-version-min=12.0"
-            PKG_LIBS="${PKG_LIBS} -mmacosx-version-min=12.0"
-            #CPPFLAGS="${CPPFLAGS} -mmacosx-version-min=12.0"
-            PKG_CFLAGS="${PKG_CFLAGS}  -mmacosx-version-min=12.0"
-            ;;
-        macos:arm64)
-            BURL="https://github.com/bogdanoancea/finitization-macoslibs/releases/download/v1.0.0/finitization-arm64-gmp+cln+ginac-static.zip"
-            BDIR="$PKG_ROOT/extlibs/macos/arm64"
-            ;;
-        *)
-            echo "ERROR: No bundle available for $OS/$UNAME_M." >&2
-            exit 1
-            ;;
-    esac
+  # Outside checks: do not download unless user explicitly opts in
+  if [ "$ALLOW_DOWNLOAD" != "1" ]; then
+    cat >&2 <<'EOM'
+ERROR: System libraries for GiNaC/CLN/GMP were not found via pkg-config.
 
-    mkdir -p "$PKG_ROOT/extlibs" "$BDIR" "$PKG_ROOT/inst/include"
-    ZIP="$PKG_ROOT/extlibs/$(basename "$BURL")"
-    echo "configure: Falling back to static bundles: $BURL"
+Automatic downloading of bundled static libraries is disabled by default.
+To enable the (non-CRAN) convenience download, re-run with:
 
+  FINITIZATION_ALLOW_DOWNLOAD=1 R CMD INSTALL ...
 
+Alternatively, install system libraries and retry:
+  - Debian/Ubuntu: sudo apt-get install -y libginac-dev libcln-dev libgmp-dev pkg-config
+  - macOS:         brew install ginac cln gmp pkg-config
+EOM
+    exit 1
+  fi
 
-    if command -v curl >/dev/null 2>&1; then
-        curl -L -o "$ZIP" "$BURL"
-    elif command -v wget >/dev/null 2>&1; then
-        wget -q -O "$ZIP" "$BURL"
-    else
-        echo "ERROR: need curl or wget to download bundles." >&2
-        exit 1
-    fi
+  # --- Optional non-CRAN fallback: download prebuilt static bundles --------
+  case "$OS:$UNAME_M" in
+    linux:x86_64)
+      BURL="https://github.com/bogdanoancea/finitization-linuxlibs/releases/download/v1.0.0/finitization-x86_64-gmp+cln+ginac-static.zip"
+      BDIR="$PKG_ROOT/extlibs/linux/x86_64"
+      ;;
+    linux:aarch64|linux:arm64)
+      BURL="https://github.com/bogdanoancea/finitization-linuxlibs/releases/download/v1.0.0/finitization-aarch64-gmp+cln+ginac-static.zip"
+      BDIR="$PKG_ROOT/extlibs/linux/aarch64"
+      ;;
+    macos:x86_64)
+      BURL="https://github.com/bogdanoancea/finitization-macoslibs/releases/download/v1.0.0/finitization-x86_64-gmp+cln+ginac-static.zip"
+      BDIR="$PKG_ROOT/extlibs/macos/x86_64"
+      PKG_CXXFLAGS="${PKG_CXXFLAGS} -mmacosx-version-min=12.0"
+      PKG_CFLAGS="${PKG_CFLAGS} -mmacosx-version-min=12.0"
+      PKG_LIBS="${PKG_LIBS} -mmacosx-version-min=12.0"
+      ;;
+    macos:arm64)
+      BURL="https://github.com/bogdanoancea/finitization-macoslibs/releases/download/v1.0.0/finitization-arm64-gmp+cln+ginac-static.zip"
+      BDIR="$PKG_ROOT/extlibs/macos/arm64"
+      ;;
+    *)
+      echo "ERROR: No prebuilt bundle available for $OS/$UNAME_M." >&2
+      exit 1
+      ;;
+  esac
 
-    unzip -oq "$ZIP" -d "$PKG_ROOT/extlibs"
+  mkdir -p "$PKG_ROOT/extlibs" "$BDIR"
+  ZIP="$PKG_ROOT/extlibs/$(basename "$BURL")"
+  echo "configure: Falling back to static bundles (FINITIZATION_ALLOW_DOWNLOAD=1): $BURL"
 
-    # Link statically by naming the archives explicitly
-    PKG_CPPFLAGS="${PKG_CPPFLAGS} -I$BDIR/include -DNDEBUG"
+  if command -v curl >/dev/null 2>&1; then
+    curl -L -o "$ZIP" "$BURL"
+  elif command -v wget >/dev/null 2>&1; then
+    wget -q -O "$ZIP" "$BURL"
+  else
+    echo "ERROR: need curl or wget to download bundles." >&2
+    exit 1
+  fi
 
-    GINAC_A="$BDIR/lib/libginac.a"
-    CLN_A="$BDIR/lib/libcln.a"
-    GMP_A="$BDIR/lib/libgmp.a"
+  unzip -oq "$ZIP" -d "$PKG_ROOT/extlibs"
 
-    for f in "$GINAC_A" "$CLN_A" "$GMP_A"; do
+  PKG_CPPFLAGS="${PKG_CPPFLAGS} -I$BDIR/include -DNDEBUG"
+
+  GINAC_A="$BDIR/lib/libginac.a"
+  CLN_A="$BDIR/lib/libcln.a"
+  GMP_A="$BDIR/lib/libgmp.a"
+
+  for f in "$GINAC_A" "$CLN_A" "$GMP_A"; do
     [ -f "$f" ] || { echo "ERROR: Missing static archive: $f" >&2; exit 1; }
-    done
+  done
 
-    PKG_LIBS="${PKG_LIBS} ${GINAC_A} ${CLN_A} ${GMP_A}"
-    # Dead code stripping (platform-specific)
-
+  PKG_LIBS="${PKG_LIBS} ${GINAC_A} ${CLN_A} ${GMP_A}"
 fi
 
+# --- C++ standard ----------------------------------------------------------
+CXXSTD="CXX17"
 
-
-# --- C++ standard (no -O flags in PKG_*FLAGS for CRAN) -------------------
-if [ "$OS" = "macos" ] && [ "$UNAME_M" = "x86_64" ]; then
-  CXXSTD="CXX11"
-else
-  CXXSTD="CXX17"
-fi
-
-
-# Dedupe linker flags
-LDFLAGS=$(printf "%s\n" $LDFLAGS | awk '!seen[$0]++' | tr '\n' ' ')
-
-# DCE at final link step (platform specific)
+# Dead code stripping at final link step (platform specific)
 case "$UNAME_S" in
   Linux)  PKG_LIBS="$PKG_LIBS -Wl,--gc-sections" ;;
   Darwin) PKG_LIBS="$PKG_LIBS -Wl,-dead_strip" ;;
   MINGW*|MSYS*) PKG_LIBS="$PKG_LIBS -Wl,--gc-sections" ;;
 esac
 
-# Write src/Makevars (avoid LDFLAGS here; CRAN prefers PKG_* vars only)
+# Write src/Makevars (CRAN prefers PKG_* vars)
 mkdir -p src
 cat > src/Makevars <<EOF
 CXX_STD      = $CXXSTD
@@ -165,6 +192,7 @@ PKG_CXXFLAGS = $PKG_CXXFLAGS
 PKG_LIBS     = $PKG_LIBS
 EOF
 
+# Keep Makevars.win for manual Windows builds from source (CRAN will ignore if OS_type: unix)
 cat > src/Makevars.win <<EOF
 CXX_STD      = $CXXSTD
 PKG_CPPFLAGS = $PKG_CPPFLAGS
